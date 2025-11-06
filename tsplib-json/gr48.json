@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "gr48",
+    "type": "TSP",
+    "dimension": 48,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 5046,
+    "source": "gr48.tsp",
+    "convertedAt": "2025-11-05T23:50:09.921Z"
+  },
+  "cities": []
+}

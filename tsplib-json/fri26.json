@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "fri26",
+    "type": "TSP",
+    "dimension": 26,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 937,
+    "source": "fri26.tsp",
+    "convertedAt": "2025-11-05T23:50:09.913Z"
+  },
+  "cities": []
+}

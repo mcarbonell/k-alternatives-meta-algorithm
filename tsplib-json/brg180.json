@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "brg180",
+    "type": "TSP",
+    "dimension": 180,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 1950,
+    "source": "brg180.tsp",
+    "convertedAt": "2025-11-05T23:50:09.859Z"
+  },
+  "cities": []
+}

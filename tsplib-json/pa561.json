@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "pa561.tsp",
+    "type": "TSP",
+    "dimension": 561,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": null,
+    "source": "pa561.tsp",
+    "convertedAt": "2025-11-05T23:50:09.940Z"
+  },
+  "cities": []
+}

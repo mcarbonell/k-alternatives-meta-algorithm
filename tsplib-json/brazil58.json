@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "brazil58",
+    "type": "TSP",
+    "dimension": 58,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 25395,
+    "source": "brazil58.tsp",
+    "convertedAt": "2025-11-05T23:50:09.848Z"
+  },
+  "cities": []
+}

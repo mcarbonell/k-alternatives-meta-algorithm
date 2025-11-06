@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "gr21",
+    "type": "TSP",
+    "dimension": 21,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 2707,
+    "source": "gr21.tsp",
+    "convertedAt": "2025-11-05T23:50:09.918Z"
+  },
+  "cities": []
+}

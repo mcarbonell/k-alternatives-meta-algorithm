@@ -1,0 +1,762 @@
+{
+  "metadata": {
+    "totalProblems": 108,
+    "withOptimal": 108,
+    "withoutOptimal": 0,
+    "generatedAt": "2025-11-05T23:50:10.114Z"
+  },
+  "problems": [
+    {
+      "name": "a280",
+      "cities": 280,
+      "optimal": 2579,
+      "edgeWeightType": "EUC_2D",
+      "file": "a280.json"
+    },
+    {
+      "name": "ali535",
+      "cities": 535,
+      "optimal": 202339,
+      "edgeWeightType": "GEO",
+      "file": "ali535.json"
+    },
+    {
+      "name": "att48",
+      "cities": 48,
+      "optimal": 10628,
+      "edgeWeightType": "ATT",
+      "file": "att48.json"
+    },
+    {
+      "name": "att532",
+      "cities": 532,
+      "optimal": 27686,
+      "edgeWeightType": "ATT",
+      "file": "att532.json"
+    },
+    {
+      "name": "bayg29",
+      "cities": 0,
+      "optimal": 1610,
+      "edgeWeightType": "EXPLICIT",
+      "file": "bayg29.json"
+    },
+    {
+      "name": "bays29",
+      "cities": 0,
+      "optimal": 2020,
+      "edgeWeightType": "EXPLICIT",
+      "file": "bays29.json"
+    },
+    {
+      "name": "berlin52",
+      "cities": 52,
+      "optimal": 7542,
+      "edgeWeightType": "EUC_2D",
+      "file": "berlin52.json"
+    },
+    {
+      "name": "bier127",
+      "cities": 127,
+      "optimal": 118282,
+      "edgeWeightType": "EUC_2D",
+      "file": "bier127.json"
+    },
+    {
+      "name": "brazil58",
+      "cities": 0,
+      "optimal": 25395,
+      "edgeWeightType": "EXPLICIT",
+      "file": "brazil58.json"
+    },
+    {
+      "name": "brd14051",
+      "cities": 14051,
+      "optimal": 469385,
+      "edgeWeightType": "EUC_2D",
+      "file": "brd14051.json"
+    },
+    {
+      "name": "brg180",
+      "cities": 0,
+      "optimal": 1950,
+      "edgeWeightType": "EXPLICIT",
+      "file": "brg180.json"
+    },
+    {
+      "name": "burma14",
+      "cities": 14,
+      "optimal": 3323,
+      "edgeWeightType": "GEO",
+      "file": "burma14.json"
+    },
+    {
+      "name": "ch130",
+      "cities": 130,
+      "optimal": 6110,
+      "edgeWeightType": "EUC_2D",
+      "file": "ch130.json"
+    },
+    {
+      "name": "ch150",
+      "cities": 150,
+      "optimal": 6528,
+      "edgeWeightType": "EUC_2D",
+      "file": "ch150.json"
+    },
+    {
+      "name": "d1291",
+      "cities": 1291,
+      "optimal": 50801,
+      "edgeWeightType": "EUC_2D",
+      "file": "d1291.json"
+    },
+    {
+      "name": "d15112",
+      "cities": 15112,
+      "optimal": 1573084,
+      "edgeWeightType": "EUC_2D",
+      "file": "d15112.json"
+    },
+    {
+      "name": "d1655",
+      "cities": 1655,
+      "optimal": 62128,
+      "edgeWeightType": "EUC_2D",
+      "file": "d1655.json"
+    },
+    {
+      "name": "d18512",
+      "cities": 18512,
+      "optimal": 645238,
+      "edgeWeightType": "EUC_2D",
+      "file": "d18512.json"
+    },
+    {
+      "name": "d198",
+      "cities": 198,
+      "optimal": 15780,
+      "edgeWeightType": "EUC_2D",
+      "file": "d198.json"
+    },
+    {
+      "name": "d2103",
+      "cities": 2103,
+      "optimal": 80450,
+      "edgeWeightType": "EUC_2D",
+      "file": "d2103.json"
+    },
+    {
+      "name": "d493",
+      "cities": 493,
+      "optimal": 35002,
+      "edgeWeightType": "EUC_2D",
+      "file": "d493.json"
+    },
+    {
+      "name": "d657",
+      "cities": 657,
+      "optimal": 48912,
+      "edgeWeightType": "EUC_2D",
+      "file": "d657.json"
+    },
+    {
+      "name": "dantzig42",
+      "cities": 0,
+      "optimal": 699,
+      "edgeWeightType": "EXPLICIT",
+      "file": "dantzig42.json"
+    },
+    {
+      "name": "dsj1000",
+      "cities": 1000,
+      "edgeWeightType": "CEIL_2D",
+      "file": "dsj1000.json"
+    },
+    {
+      "name": "eil101",
+      "cities": 101,
+      "optimal": 629,
+      "edgeWeightType": "EUC_2D",
+      "file": "eil101.json"
+    },
+    {
+      "name": "eil51",
+      "cities": 51,
+      "optimal": 426,
+      "edgeWeightType": "EUC_2D",
+      "file": "eil51.json"
+    },
+    {
+      "name": "eil76",
+      "cities": 76,
+      "optimal": 538,
+      "edgeWeightType": "EUC_2D",
+      "file": "eil76.json"
+    },
+    {
+      "name": "fl1400",
+      "cities": 1400,
+      "optimal": 20127,
+      "edgeWeightType": "EUC_2D",
+      "file": "fl1400.json"
+    },
+    {
+      "name": "fl1577",
+      "cities": 1577,
+      "optimal": 22249,
+      "edgeWeightType": "EUC_2D",
+      "file": "fl1577.json"
+    },
+    {
+      "name": "fl3795",
+      "cities": 3795,
+      "optimal": 28772,
+      "edgeWeightType": "EUC_2D",
+      "file": "fl3795.json"
+    },
+    {
+      "name": "fl417",
+      "cities": 417,
+      "optimal": 11861,
+      "edgeWeightType": "EUC_2D",
+      "file": "fl417.json"
+    },
+    {
+      "name": "fnl4461",
+      "cities": 4461,
+      "optimal": 182566,
+      "edgeWeightType": "EUC_2D",
+      "file": "fnl4461.json"
+    },
+    {
+      "name": "fri26",
+      "cities": 0,
+      "optimal": 937,
+      "edgeWeightType": "EXPLICIT",
+      "file": "fri26.json"
+    },
+    {
+      "name": "gil262",
+      "cities": 262,
+      "optimal": 2378,
+      "edgeWeightType": "EUC_2D",
+      "file": "gil262.json"
+    },
+    {
+      "name": "gr120",
+      "cities": 0,
+      "optimal": 6942,
+      "edgeWeightType": "EXPLICIT",
+      "file": "gr120.json"
+    },
+    {
+      "name": "gr137",
+      "cities": 137,
+      "optimal": 69853,
+      "edgeWeightType": "GEO",
+      "file": "gr137.json"
+    },
+    {
+      "name": "gr17",
+      "cities": 0,
+      "optimal": 2085,
+      "edgeWeightType": "EXPLICIT",
+      "file": "gr17.json"
+    },
+    {
+      "name": "gr202",
+      "cities": 202,
+      "optimal": 40160,
+      "edgeWeightType": "GEO",
+      "file": "gr202.json"
+    },
+    {
+      "name": "gr21",
+      "cities": 0,
+      "optimal": 2707,
+      "edgeWeightType": "EXPLICIT",
+      "file": "gr21.json"
+    },
+    {
+      "name": "gr229",
+      "cities": 229,
+      "optimal": 134602,
+      "edgeWeightType": "GEO",
+      "file": "gr229.json"
+    },
+    {
+      "name": "gr24",
+      "cities": 0,
+      "optimal": 1272,
+      "edgeWeightType": "EXPLICIT",
+      "file": "gr24.json"
+    },
+    {
+      "name": "gr431",
+      "cities": 431,
+      "optimal": 171414,
+      "edgeWeightType": "GEO",
+      "file": "gr431.json"
+    },
+    {
+      "name": "gr48",
+      "cities": 0,
+      "optimal": 5046,
+      "edgeWeightType": "EXPLICIT",
+      "file": "gr48.json"
+    },
+    {
+      "name": "gr666",
+      "cities": 666,
+      "optimal": 294358,
+      "edgeWeightType": "GEO",
+      "file": "gr666.json"
+    },
+    {
+      "name": "gr96",
+      "cities": 96,
+      "optimal": 55209,
+      "edgeWeightType": "GEO",
+      "file": "gr96.json"
+    },
+    {
+      "name": "hk48",
+      "cities": 0,
+      "optimal": 11461,
+      "edgeWeightType": "EXPLICIT",
+      "file": "hk48.json"
+    },
+    {
+      "name": "kroA100",
+      "cities": 100,
+      "optimal": 21282,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroA100.json"
+    },
+    {
+      "name": "kroA150",
+      "cities": 150,
+      "optimal": 26524,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroA150.json"
+    },
+    {
+      "name": "kroA200",
+      "cities": 200,
+      "optimal": 29368,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroA200.json"
+    },
+    {
+      "name": "kroB100",
+      "cities": 100,
+      "optimal": 22141,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroB100.json"
+    },
+    {
+      "name": "kroB150",
+      "cities": 150,
+      "optimal": 26130,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroB150.json"
+    },
+    {
+      "name": "kroB200",
+      "cities": 200,
+      "optimal": 29437,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroB200.json"
+    },
+    {
+      "name": "kroC100",
+      "cities": 100,
+      "optimal": 20749,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroC100.json"
+    },
+    {
+      "name": "kroD100",
+      "cities": 100,
+      "optimal": 21294,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroD100.json"
+    },
+    {
+      "name": "kroE100",
+      "cities": 100,
+      "optimal": 22068,
+      "edgeWeightType": "EUC_2D",
+      "file": "kroE100.json"
+    },
+    {
+      "name": "lin105",
+      "cities": 105,
+      "optimal": 14379,
+      "edgeWeightType": "EUC_2D",
+      "file": "lin105.json"
+    },
+    {
+      "name": "lin318",
+      "cities": 318,
+      "optimal": 42029,
+      "edgeWeightType": "EUC_2D",
+      "file": "lin318.json"
+    },
+    {
+      "name": "lin318",
+      "cities": 318,
+      "optimal": 42029,
+      "edgeWeightType": "EUC_2D",
+      "file": "lin318.json"
+    },
+    {
+      "name": "nrw1379",
+      "cities": 1379,
+      "optimal": 56638,
+      "edgeWeightType": "EUC_2D",
+      "file": "nrw1379.json"
+    },
+    {
+      "name": "p654",
+      "cities": 654,
+      "optimal": 34643,
+      "edgeWeightType": "EUC_2D",
+      "file": "p654.json"
+    },
+    {
+      "name": "pa561.tsp",
+      "cities": 0,
+      "edgeWeightType": "EXPLICIT",
+      "file": "pa561.tsp.json"
+    },
+    {
+      "name": "pcb1173",
+      "cities": 1173,
+      "optimal": 56892,
+      "edgeWeightType": "EUC_2D",
+      "file": "pcb1173.json"
+    },
+    {
+      "name": "pcb3038",
+      "cities": 3038,
+      "optimal": 137694,
+      "edgeWeightType": "EUC_2D",
+      "file": "pcb3038.json"
+    },
+    {
+      "name": "pcb442",
+      "cities": 442,
+      "optimal": 50778,
+      "edgeWeightType": "EUC_2D",
+      "file": "pcb442.json"
+    },
+    {
+      "name": "pla33810",
+      "cities": 33810,
+      "optimal": 66048945,
+      "edgeWeightType": "CEIL_2D",
+      "file": "pla33810.json"
+    },
+    {
+      "name": "pla7397",
+      "cities": 7397,
+      "optimal": 23260728,
+      "edgeWeightType": "CEIL_2D",
+      "file": "pla7397.json"
+    },
+    {
+      "name": "pla85900",
+      "cities": 85900,
+      "optimal": 142382641,
+      "edgeWeightType": "CEIL_2D",
+      "file": "pla85900.json"
+    },
+    {
+      "name": "pr1002",
+      "cities": 1002,
+      "optimal": 259045,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr1002.json"
+    },
+    {
+      "name": "pr107",
+      "cities": 107,
+      "optimal": 44303,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr107.json"
+    },
+    {
+      "name": "pr124",
+      "cities": 124,
+      "optimal": 59030,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr124.json"
+    },
+    {
+      "name": "pr136",
+      "cities": 136,
+      "optimal": 96772,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr136.json"
+    },
+    {
+      "name": "pr144",
+      "cities": 144,
+      "optimal": 58537,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr144.json"
+    },
+    {
+      "name": "pr152",
+      "cities": 152,
+      "optimal": 73682,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr152.json"
+    },
+    {
+      "name": "pr226",
+      "cities": 226,
+      "optimal": 80369,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr226.json"
+    },
+    {
+      "name": "pr2392",
+      "cities": 2392,
+      "optimal": 378032,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr2392.json"
+    },
+    {
+      "name": "pr264",
+      "cities": 264,
+      "optimal": 49135,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr264.json"
+    },
+    {
+      "name": "pr299",
+      "cities": 299,
+      "optimal": 48191,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr299.json"
+    },
+    {
+      "name": "pr439",
+      "cities": 439,
+      "optimal": 107217,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr439.json"
+    },
+    {
+      "name": "pr76",
+      "cities": 76,
+      "optimal": 108159,
+      "edgeWeightType": "EUC_2D",
+      "file": "pr76.json"
+    },
+    {
+      "name": "rat195",
+      "cities": 195,
+      "optimal": 2323,
+      "edgeWeightType": "EUC_2D",
+      "file": "rat195.json"
+    },
+    {
+      "name": "rat575",
+      "cities": 575,
+      "optimal": 6773,
+      "edgeWeightType": "EUC_2D",
+      "file": "rat575.json"
+    },
+    {
+      "name": "rat783",
+      "cities": 783,
+      "optimal": 8806,
+      "edgeWeightType": "EUC_2D",
+      "file": "rat783.json"
+    },
+    {
+      "name": "rat99",
+      "cities": 99,
+      "optimal": 1211,
+      "edgeWeightType": "EUC_2D",
+      "file": "rat99.json"
+    },
+    {
+      "name": "rd100",
+      "cities": 100,
+      "optimal": 7910,
+      "edgeWeightType": "EUC_2D",
+      "file": "rd100.json"
+    },
+    {
+      "name": "rd400",
+      "cities": 400,
+      "optimal": 15281,
+      "edgeWeightType": "EUC_2D",
+      "file": "rd400.json"
+    },
+    {
+      "name": "rl11849",
+      "cities": 11849,
+      "optimal": 923288,
+      "edgeWeightType": "EUC_2D",
+      "file": "rl11849.json"
+    },
+    {
+      "name": "rl1304",
+      "cities": 1304,
+      "optimal": 252948,
+      "edgeWeightType": "EUC_2D",
+      "file": "rl1304.json"
+    },
+    {
+      "name": "rl1323",
+      "cities": 1323,
+      "optimal": 270199,
+      "edgeWeightType": "EUC_2D",
+      "file": "rl1323.json"
+    },
+    {
+      "name": "rl1889",
+      "cities": 1889,
+      "optimal": 316536,
+      "edgeWeightType": "EUC_2D",
+      "file": "rl1889.json"
+    },
+    {
+      "name": "rl5915",
+      "cities": 5915,
+      "optimal": 565530,
+      "edgeWeightType": "EUC_2D",
+      "file": "rl5915.json"
+    },
+    {
+      "name": "rl5934",
+      "cities": 5934,
+      "optimal": 556045,
+      "edgeWeightType": "EUC_2D",
+      "file": "rl5934.json"
+    },
+    {
+      "name": "st70",
+      "cities": 70,
+      "optimal": 675,
+      "edgeWeightType": "EUC_2D",
+      "file": "st70.json"
+    },
+    {
+      "name": "swiss42",
+      "cities": 0,
+      "optimal": 1273,
+      "edgeWeightType": "EXPLICIT",
+      "file": "swiss42.json"
+    },
+    {
+      "name": "ts225",
+      "cities": 225,
+      "optimal": 126643,
+      "edgeWeightType": "EUC_2D",
+      "file": "ts225.json"
+    },
+    {
+      "name": "tsp225",
+      "cities": 225,
+      "optimal": 3916,
+      "edgeWeightType": "EUC_2D",
+      "file": "tsp225.json"
+    },
+    {
+      "name": "u1060",
+      "cities": 1060,
+      "optimal": 224094,
+      "edgeWeightType": "EUC_2D",
+      "file": "u1060.json"
+    },
+    {
+      "name": "u1432",
+      "cities": 1432,
+      "optimal": 152970,
+      "edgeWeightType": "EUC_2D",
+      "file": "u1432.json"
+    },
+    {
+      "name": "u159",
+      "cities": 159,
+      "optimal": 42080,
+      "edgeWeightType": "EUC_2D",
+      "file": "u159.json"
+    },
+    {
+      "name": "u1817",
+      "cities": 1817,
+      "optimal": 57201,
+      "edgeWeightType": "EUC_2D",
+      "file": "u1817.json"
+    },
+    {
+      "name": "u2152",
+      "cities": 2152,
+      "optimal": 64253,
+      "edgeWeightType": "EUC_2D",
+      "file": "u2152.json"
+    },
+    {
+      "name": "u2319",
+      "cities": 2319,
+      "optimal": 234256,
+      "edgeWeightType": "EUC_2D",
+      "file": "u2319.json"
+    },
+    {
+      "name": "u574",
+      "cities": 574,
+      "optimal": 36905,
+      "edgeWeightType": "EUC_2D",
+      "file": "u574.json"
+    },
+    {
+      "name": "u724",
+      "cities": 724,
+      "optimal": 41910,
+      "edgeWeightType": "EUC_2D",
+      "file": "u724.json"
+    },
+    {
+      "name": "ulysses16.tsp",
+      "cities": 16,
+      "edgeWeightType": "GEO",
+      "file": "ulysses16.tsp.json"
+    },
+    {
+      "name": "ulysses22.tsp",
+      "cities": 22,
+      "edgeWeightType": "GEO",
+      "file": "ulysses22.tsp.json"
+    },
+    {
+      "name": "usa13509",
+      "cities": 13509,
+      "optimal": 19982859,
+      "edgeWeightType": "EUC_2D",
+      "file": "usa13509.json"
+    },
+    {
+      "name": "vm1084",
+      "cities": 1084,
+      "optimal": 239297,
+      "edgeWeightType": "EUC_2D",
+      "file": "vm1084.json"
+    },
+    {
+      "name": "vm1748",
+      "cities": 1748,
+      "optimal": 336556,
+      "edgeWeightType": "EUC_2D",
+      "file": "vm1748.json"
+    }
+  ]
+}

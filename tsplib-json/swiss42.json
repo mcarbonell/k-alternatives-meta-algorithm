@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "swiss42",
+    "type": "TSP",
+    "dimension": 42,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 1273,
+    "source": "swiss42.tsp",
+    "convertedAt": "2025-11-05T23:50:10.085Z"
+  },
+  "cities": []
+}

@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "hk48",
+    "type": "TSP",
+    "dimension": 48,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 11461,
+    "source": "hk48.tsp",
+    "convertedAt": "2025-11-05T23:50:09.925Z"
+  },
+  "cities": []
+}

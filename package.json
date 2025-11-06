@@ -1,0 +1,52 @@
+{
+  "name": "k-alternatives-tsp",
+  "version": "1.0.0",
+  "description": "k-Alternatives algorithm for Traveling Salesman Problem optimization",
+  "main": "k-alternatives-cli.js",
+  "bin": {
+    "k-alternatives": "./k-alternatives-cli.js"
+  },
+  "scripts": {
+    "start": "node k-alternatives-cli.js",
+    "benchmark": "node benchmark.js",
+    "benchmark:small": "node benchmark.js small balanced",
+    "benchmark:medium": "node benchmark.js medium balanced",
+    "benchmark:fast": "node benchmark.js all fast",
+    "benchmark:thorough": "node benchmark.js small thorough",
+    "test": "vitest",
+    "test:legacy": "node k-alternatives-cli.js tsplib/berlin52.tsp --maxK 3",
+    "help": "node k-alternatives-cli.js --help"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  },
+  "keywords": [
+    "tsp",
+    "traveling-salesman",
+    "optimization",
+    "k-alternatives",
+    "combinatorial",
+    "heuristics",
+    "tsplib"
+  ],
+  "author": "Mario Raúl Carbonell Martínez",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "preferGlobal": true,
+  "files": [
+    "k-alternatives-cli.js",
+    "benchmark.js",
+    "README.md",
+    "tsplib/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrcm/k-alternatives-tsp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mrcm/k-alternatives-tsp/issues"
+  },
+  "homepage": "https://github.com/mrcm/k-alternatives-tsp#readme"
+}

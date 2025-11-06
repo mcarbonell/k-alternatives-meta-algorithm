@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "dantzig42",
+    "type": "TSP",
+    "dimension": 42,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 699,
+    "source": "dantzig42.tsp",
+    "convertedAt": "2025-11-05T23:50:09.899Z"
+  },
+  "cities": []
+}

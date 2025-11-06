@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "name": "bayg29",
+    "type": "TSP",
+    "dimension": 29,
+    "edgeWeightType": "EXPLICIT",
+    "optimalDistance": 1610,
+    "source": "bayg29.tsp",
+    "convertedAt": "2025-11-05T23:50:09.845Z"
+  },
+  "cities": []
+}

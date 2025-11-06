@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>k-Alternatives - Demostración TSP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .pulse-soft {
+            animation: pulse-soft 2s infinite;
+        }
+        .city-node {
+            transition: all 0.3s ease;
+        }
+        .route-line {
+            transition: stroke 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 min-h-screen text-white">
+    <!-- Header -->
+    <header class="bg-black/30 backdrop-blur-md border-b border-white/10">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                        k-Alternatives Algorithm
+                    </h1>
+                    <p class="text-gray-300 mt-1">Optimización combinatoria para el Problema del Viajante (TSP)</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-400">Creado por Mario Raúl Carbonell Martínez</span>
+                    <button onclick="toggleInfo()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                        ℹ️ Info
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Visualization Panel -->
+            <div class="lg:col-span-2">
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold">Visualización del TSP</h2>
+                        <div class="flex items-center space-x-3">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="showNumbers" checked onchange="toggleCityNumbers()" 
+                                       class="w-4 h-4 text-blue-600 bg-gray-700 rounded focus:ring-blue-500">
+                                <span class="text-sm text-gray-300">Mostrar números</span>
+                            </label>
+                            <div id="status" class="px-3 py-1 bg-gray-700 rounded-full text-sm">
+                                Listo
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative bg-gray-900/50 rounded-lg p-4">
+                        <svg id="tspCanvas" width="100%" height="500" viewBox="0 0 800 500" class="w-full">
+                            <!-- Cities and routes will be drawn here -->
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="space-y-6">
+                <!-- Controls -->
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                    <h2 class="text-xl font-semibold mb-4">Controles</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Start/Stop Buttons -->
+                        <div class="flex space-x-3">
+                            <button id="startBtn" onclick="startSolving()" class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors font-semibold">
+                                ▶️ Iniciar
+                            </button>
+                            <button id="stopBtn" onclick="stopSolving()" disabled class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                                ⏹️ Detener
+                            </button>
+                        </div>
+
+                        <!-- Cities Control -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2">
+                                Número de Ciudades: <span id="citiesValue">20</span>
+                            </label>
+                            <input type="range" id="citiesSlider" min="5" max="50" value="20" 
+                                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                                   oninput="updateCitiesCount(this.value)">
+                        </div>
+
+                        <!-- Max K Control -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2">
+                                Max K: <span id="maxKValue">5</span>
+                            </label>
+                            <input type="range" id="maxKSlider" min="1" max="10" value="5" 
+                                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                                   oninput="updateMaxK(this.value)">
+                        </div>
+
+                        <!-- TSPLIB Problems -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Problemas TSPLIB</label>
+                            <select id="tsplibSelect" onchange="loadTSPLIBProblem(this.value)" 
+                                    class="w-full px-3 py-2 bg-gray-700 rounded-lg text-white mb-2">
+                                <option value="">Seleccionar problema TSPLIB...</option>
+                            </select>
+                        </div>
+
+                        <!-- Generate Cities Button -->
+                        <button onclick="generateRandomCities()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                            🎲 Generar Ciudades Aleatorias
+                        </button>
+
+                        <!-- Preset Problems -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Problemas Predefinidos</label>
+                            <select id="presetSelect" onchange="loadPreset(this.value)" 
+                                    class="w-full px-3 py-2 bg-gray-700 rounded-lg text-white">
+                                <option value="">Seleccionar...</option>
+                                <option value="circle">Círculo</option>
+                                <option value="grid">Cuadrícula</option>
+                                <option value="clusters">Clusters</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Panel -->
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                    <h2 class="text-xl font-semibold mb-4">Estadísticas</h2>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Problema:</span>
+                            <span id="problemName" class="font-mono text-purple-400">Aleatorio</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Tiempo:</span>
+                            <span id="timer" class="font-mono text-cyan-400">00:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Tiempo Óptimo:</span>
+                            <span id="optimalTime" class="font-mono text-green-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Iteración:</span>
+                            <span id="iteration" class="font-mono">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Mejoras:</span>
+                            <span id="improvements" class="font-mono">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">K Actual:</span>
+                            <span id="currentK" class="font-mono">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Mejor Distancia:</span>
+                            <span id="bestDistance" class="font-mono text-green-400">∞</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Distancia Óptima:</span>
+                            <span id="optimalDistance" class="font-mono text-blue-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Desviación Óptima:</span>
+                            <span id="deviation" class="font-mono text-yellow-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Progreso (vs Óptimo):</span>
+                            <span id="progress" class="font-mono">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-xl p-8 max-w-4xl max-h-[80vh] overflow-y-auto border border-white/20">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 class="text-2xl font-bold">Sobre el Algoritmo k-Alternatives</h2>
+                    <button onclick="toggleInfo()" class="text-gray-400 hover:text-white text-2xl">×</button>
+                </div>
+                
+                <div class="prose prose-invert max-w-none">
+                    <h3 class="text-lg font-semibold text-blue-400 mb-2">Concepto Principal</h3>
+                    <p class="text-gray-300 mb-4">
+                        El algoritmo k-Alternatives es un enfoque novedoso para optimización combinatoria que explora sistemáticamente 
+                        desviaciones de heurísticas locales con aprendizaje adaptativo.
+                    </p>
+
+                    <h3 class="text-lg font-semibold text-blue-400 mb-2">¿Cómo funciona?</h3>
+                    <ul class="list-disc list-inside text-gray-300 space-y-2 mb-4">
+                        <li><strong>k = 0:</strong> Siempre elige la mejor opción (voraz) → O(n)</li>
+                        <li><strong>k = 1:</strong> Una desviación de la heurística → O(n²)</li>
+                        <li><strong>k = 2:</strong> Dos desviaciones → O(n³)</li>
+                        <li><strong>k = n:</strong> Todas las desviaciones → Búsqueda exhaustiva O(n!)</li>
+                    </ul>
+
+                    <h3 class="text-lg font-semibold text-blue-400 mb-2">Innovaciones Clave</h3>
+                    <ul class="list-disc list-inside text-gray-300 space-y-2 mb-4">
+                        <li><strong>Exploración sistemática:</strong> No aleatoria como algoritmos genéticos</li>
+                        <li><strong>Aprendizaje adaptativo:</strong> Las heurísticas mejoran durante la búsqueda</li>
+                        <li><strong>Sin hiperparámetros:</strong> No requiere ajuste complejo</li>
+                        <li><strong>Generalizable:</strong> Funciona en múltiples problemas NP-duros</li>
+                    </ul>
+
+                    <h3 class="text-lg font-semibold text-blue-400 mb-2">Rendimiento</h3>
+                    <p class="text-gray-300 mb-4">
+                        Resuelve problemas TSP de 50 ciudades en segundos, comparable con algoritmos estado-del-arte 
+                        como LKH y Concorde, pero con ~300 líneas de código en JavaScript.
+                    </p>
+
+                    <h3 class="text-lg font-semibold text-blue-400 mb-2">Autor</h3>
+                    <p class="text-gray-300">
+                        Desarrollado por Mario Raúl Carbonell Martínez después de años de trabajo conceptual 
+                        e implementación con asistencia de IA.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="tsp-parser.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
