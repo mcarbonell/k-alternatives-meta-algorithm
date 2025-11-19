@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizador TSP</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        canvas { border: 1px solid #000; }
+        button { margin: 5px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <div>
+        <label for="numCities">Número de ciudades:</label>
+        <input type="number" id="numCities" value="20" min="3" max="100">
+    </div>
+    <div>
+        <button id="startBtn">Iniciar</button>
+        <button id="stopBtn">Detener</button>
+    </div>
+    <div>
+        <p>Rutas analizadas: <span id="routesAnalyzed">0</span></p>
+        <p>Mejoras: <span id="improvements">0</span></p>
+        <p>Mejor distancia: <span id="bestDistance">Infinito</span></p>
+        <p>Tiempo transcurrido: <span id="elapsedTime">0</span> segundos</p>
+    </div>
+    <canvas id="tspCanvas" width="800" height="600"></canvas>
+
+    <script>
+        let cities = [];
+        let bestRoute = [];
+        let numCities = 20;
+        let isRunning = false;
+        let stats = { routesAnalyzed: 0, improvements: 0, bestDistance: Infinity, startTime: 0 };
+        let intervalId;
+
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function generateCities() {
+            cities = Array.from({ length: numCities }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height
+            }));
+            bestRoute = Array.from({ length: numCities }, (_, i) => i);
+        }
+
+        function distance(city1, city2) {
+            const dx = city1.x - city2.x;
+            const dy = city1.y - city2.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function totalDistance(route) {
+            let total = 0;
+            for (let i = 0; i < route.length; i++) {
+                const from = cities[route[i]];
+                const to = cities[route[(i + 1) % route.length]];
+                total += distance(from, to);
+            }
+            return total;
+        }
+
+        function findNearestNeighbors(cityIndex) {
+            const distances = cities.map((city, index) => 
+                index !== cityIndex ? { index, dist: distance(cities[cityIndex], city) } : { index, dist: Infinity }
+            );
+            return distances.sort((a, b) => a.dist - b.dist).slice(0, 2).map(d => d.index);
+        }
+
+        function reconstructRoute(startCity) {
+            const visited = new Set([startCity]);
+            const route = [startCity];
+            let current = startCity;
+
+            while (route.length < numCities) {
+                const neighbors = findNearestNeighbors(current);
+                const next = neighbors.find(n => !visited.has(n)) || 
+                             cities.findIndex((_, i) => !visited.has(i));
+                route.push(next);
+                visited.add(next);
+                current = next;
+            }
+
+            return route;
+        }
+
+        function findWorstConnectedCity() {
+            let worstCity = 0;
+            let maxDiff = -Infinity;
+
+            for (let i = 0; i < numCities; i++) {
+                const currentNeighbors = [
+                    bestRoute[(i - 1 + numCities) % numCities],
+                    bestRoute[(i + 1) % numCities]
+                ];
+                const currentDist = distance(cities[i], cities[currentNeighbors[0]]) +
+                                    distance(cities[i], cities[currentNeighbors[1]]);
+                const bestNeighbors = findNearestNeighbors(i);
+                const bestDist = distance(cities[i], cities[bestNeighbors[0]]) +
+                                 distance(cities[i], cities[bestNeighbors[1]]);
+                const diff = currentDist - bestDist;
+                if (diff > maxDiff) {
+                    maxDiff = diff;
+                    worstCity = i;
+                }
+            }
+
+            return worstCity;
+        }
+
+        function optimizeStep() {
+            const worstCity = findWorstConnectedCity();
+            const newRoute = reconstructRoute(worstCity);
+            const newDistance = totalDistance(newRoute);
+            stats.routesAnalyzed++;
+
+            if (newDistance < stats.bestDistance) {
+                bestRoute = newRoute;
+                stats.improvements++;
+                stats.bestDistance = newDistance;
+                drawRoute();
+            }
+
+            updateStats();
+        }
+
+        function drawRoute() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar ciudades
+            cities.forEach(city => {
+                ctx.beginPath();
+                ctx.arc(city.x, city.y, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'blue';
+                ctx.fill();
+            });
+
+            // Dibujar ruta
+            ctx.beginPath();
+            ctx.moveTo(cities[bestRoute[0]].x, cities[bestRoute[0]].y);
+            bestRoute.forEach(cityIndex => {
+                const city = cities[cityIndex];
+                ctx.lineTo(city.x, city.y);
+            });
+            ctx.closePath();
+            ctx.strokeStyle = 'red';
+            ctx.stroke();
+        }
+
+        function updateStats() {
+            document.getElementById('routesAnalyzed').textContent = stats.routesAnalyzed;
+            document.getElementById('improvements').textContent = stats.improvements;
+            document.getElementById('bestDistance').textContent = stats.bestDistance.toFixed(2);
+            const elapsedTime = (Date.now() - stats.startTime) / 1000;
+            document.getElementById('elapsedTime').textContent = elapsedTime.toFixed(2);
+        }
+
+        function startOptimization() {
+            if (isRunning) return;
+            isRunning = true;
+            numCities = parseInt(document.getElementById('numCities').value);
+            generateCities();
+            stats = { routesAnalyzed: 0, improvements: 0, bestDistance: Infinity, startTime: Date.now() };
+            drawRoute();
+            intervalId = setInterval(optimizeStep, 0);
+        }
+
+        function stopOptimization() {
+            if (!isRunning) return;
+            isRunning = false;
+            clearInterval(intervalId);
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startOptimization);
+        document.getElementById('stopBtn').addEventListener('click', stopOptimization);
+    </script>
+</body>
+</html>

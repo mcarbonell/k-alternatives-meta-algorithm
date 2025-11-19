@@ -4,9 +4,10 @@
     "type": "TSP",
     "dimension": 1173,
     "edgeWeightType": "EUC_2D",
+    "edgeWeightFormat": "",
     "optimalDistance": 56892,
     "source": "pcb1173.tsp",
-    "convertedAt": "2025-11-05T23:50:09.941Z"
+    "convertedAt": "2025-11-19T10:25:40.978Z"
   },
   "cities": [
     {

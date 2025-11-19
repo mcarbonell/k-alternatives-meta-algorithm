@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP Solver</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            /* height: 100vh;
+            margin: 0; */
+            background-color: #f0f0f0;
+        }
+
+        canvas {
+            border: 1px solid #000;
+        }
+
+        button {
+            margin: 10px 5px;
+            padding: 5px 10px;
+        }
+
+        input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>TSP Solver KD Convex hull Cheapest Insertion</h1>
+    <div>
+        <label for="numCities">Número de Ciudades:</label>
+        <input type="number" id="numCities" value="10">
+        <label for="k">k:</label>
+        <input type="number" id="k" value="3">
+    </div>
+    <div>
+        <button id="generateBtn">Generar Ciudades Aleatorias</button>
+        <button id="solveBtn">Resolver TSP</button>
+    </div>
+    <canvas id="canvas" width="600" height="600"></canvas>
+    <div id="distanceOutput"></div>
+
+    <textarea name="cities" id="citiesinput" cols="50" rows="20"></textarea>
+
+    <script>
+        let cities = [];
+        let route = [];
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const citiesInput = document.querySelector('#citiesinput');
+
+
+        function updateDistance() {
+            let totalDistance = 0;
+            for (let i = 0; i < route.length; i++) {
+                const next = (i + 1) % route.length;
+                totalDistance += distance(route[i], route[next]);
+            }
+            document.getElementById('distanceOutput').textContent = `Distancia total: ${totalDistance.toFixed(2)}`;
+        }
+
+        function solveTSP() {
+            if (cities.length === 0) return;
+
+            const hull = grahamScan([...cities]);
+            let newRoute = hull;
+
+            const center = cities.reduce((acc, city) => ({
+                x: acc.x + city.x / cities.length,
+                y: acc.y + city.y / cities.length
+            }), { x: 0, y: 0 });
+
+            const remainingCities = cities.filter(city => !hull.includes(city))
+                .sort((a, b) => distance(a, center) - distance(b, center));
+
+            const k = parseInt(document.getElementById('k').value);
+
+            for (let city of remainingCities) {
+                let bestPos = 0;
+                let bestIncrease = Infinity;
+
+                for (let j = 0; j < newRoute.length; j++) {
+                    const increase = insertionCost(newRoute, city, j);
+                    if (increase < bestIncrease) {
+                        bestIncrease = increase;
+                        bestPos = j;
+                    }
+                }
+
+                newRoute.splice(bestPos + 1, 0, city);
+            }
+
+            route = newRoute;
+            drawCitiesAndRoute();
+            updateDistance();
+        }
+
+        function grahamScan(points) {
+            const start = points.reduce((min, p) => p.y < min.y ? p : min);
+
+            const sortedPoints = points.sort((a, b) => {
+                const angleA = Math.atan2(a.y - start.y, a.x - start.x);
+                const angleB = Math.atan2(b.y - start.y, b.x - start.x);
+                return angleA - angleB || distance(start, a) - distance(start, b);
+            });
+
+            const stack = [sortedPoints[0], sortedPoints[1]];
+            for (let i = 2; i < sortedPoints.length; i++) {
+                while (stack.length > 1 && !isLeftTurn(stack[stack.length - 2], stack[stack.length - 1], sortedPoints[i])) {
+                    stack.pop();
+                }
+                stack.push(sortedPoints[i]);
+            }
+
+            return stack;
+        }
+
+        function isLeftTurn(a, b, c) {
+            return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) > 0;
+        }
+
+        function distance(a, b) {
+            return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+        }
+
+        function insertionCost(route, city, pos) {
+            const prev = route[pos];
+            const next = route[(pos + 1) % route.length];
+            return distance(city, prev) + distance(city, next) - distance(prev, next);
+        }
+
+        function drawCitiesAndRoute() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            cities.forEach((city, index) => {
+                ctx.fillStyle = 'red';
+                ctx.beginPath();
+                ctx.arc(city.x, city.y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = 'black';
+                // ctx.fillText(index + 1, city.x + 10, city.y + 10);
+            });
+
+            if (route.length > 0) {
+                ctx.strokeStyle = 'blue';
+                ctx.beginPath();
+                ctx.moveTo(route[0].x, route[0].y);
+                route.forEach(city => {
+                    ctx.lineTo(city.x, city.y);
+                });
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+
+
+
+        document.getElementById('generateBtn').addEventListener('click', generateRandomCities);
+        document.getElementById('solveBtn').addEventListener('click', solveTSP);
+
+        function generateRandomCities() {
+            const numCities = parseInt(document.getElementById('numCities').value);
+            cities = [];
+            for (let i = 0; i < numCities; i++) {
+                cities.push({
+                    x: Math.random() * (canvas.width - 20) + 10,
+                    y: Math.random() * (canvas.height - 20) + 10
+                });
+            }
+            route = [];
+            drawCitiesAndRoute();
+
+            citiesInput.value = JSON.stringify(cities, null, 2);
+
+        }
+
+        citiesInput.addEventListener('input', () => {
+            try {
+                // Intentar parsear el contenido del textarea como JSON
+                let jsonText = citiesInput.value.replace(/^\s+|\s+$/g, ''); //Elimina espacios al inicio o al final
+                let parsedJSON = JSON.parse(jsonText);
+
+                // Si llegamos aquí, el JSON es válido
+                // Actualizar el array con el nuevo contenido
+                cities = parsedJSON;
+                // generateRandomPoints();
+                route = [];
+                drawCitiesAndRoute();
+
+            } catch (error) {
+                // Si llegamos aquí, el JSON no es válido
+                console.error('JSON inválido:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>

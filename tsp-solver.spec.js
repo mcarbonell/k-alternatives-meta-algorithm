@@ -1,6 +1,6 @@
 
 import { describe, it, expect } from 'vitest';
-import { TSPSolver } from './k-alternatives-core.js';
+import { TSPSolver } from './tsp-solver.js';
 import berlin52 from './tsplib-json/berlin52.json';
 
 describe('TSPSolver', () => {

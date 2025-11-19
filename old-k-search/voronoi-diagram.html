@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama de Voronoi</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            /* height: 100vh;
+            margin: 0; */
+            background-color: #f0f0f0;
+        }
+
+        button,
+        input {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        canvas {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Diagrama de Voronoi</h1>
+    <div>
+        <label for="pointCount">Num Points</label><input type="number" id="pointCount" value="20">
+        <button id="generateBtn">Generar Puntos Aleatorios</button>
+    </div>
+    <canvas id="voronoiCanvas" width="600" height="600"></canvas>
+
+    <textarea name="cities" id="citiesinput" cols="50" rows="20"></textarea>
+
+    <script>
+
+        const pointCountInput = document.getElementById('pointCount');
+        const generateBtn = document.getElementById('generateBtn');
+        const canvas = document.getElementById('voronoiCanvas');
+        const ctx = canvas.getContext('2d');
+        const citiesInput = document.querySelector('#citiesinput');
+
+        let points = [];
+
+        function generateRandomPoints() {
+            const numPoints = pointCountInput.value;
+            points = [];
+            for (let i = 0; i < numPoints; i++) {
+                points.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height
+                });
+            }
+
+            citiesInput.value = JSON.stringify(points, null, 2);
+            // return points;
+        }
+
+        function distance(p1, p2) {
+            return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+        }
+
+        function generateVoronoi(points) {
+            for (let y = 0; y < canvas.height; y++) {
+                for (let x = 0; x < canvas.width; x++) {
+                    let minDist = Infinity;
+                    let closestPoint;
+
+                    for (let point of points) {
+                        const dist = distance({ x, y }, point);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            closestPoint = point;
+                        }
+                    }
+
+                    const color = `hsl(${(points.indexOf(closestPoint) * 360 / points.length) % 360}, 70%, 50%)`;
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+
+            for (let point of points) {
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+
+        function generate() {
+            // const points = 
+            generateRandomPoints();
+            generateVoronoi(points);
+        }
+
+        generateBtn.addEventListener('click', generate);
+        citiesInput.addEventListener('input', () => {
+            try {
+                // Intentar parsear el contenido del textarea como JSON
+                let jsonText = citiesInput.value.replace(/^\s+|\s+$/g, ''); //Elimina espacios al inicio o al final
+                let parsedJSON = JSON.parse(jsonText);
+
+                // Si llegamos aquí, el JSON es válido
+                // Actualizar el array con el nuevo contenido
+                points = parsedJSON;
+                // generateRandomPoints();
+                generateVoronoi(points);
+
+            } catch (error) {
+                // Si llegamos aquí, el JSON no es válido
+                console.error('JSON inválido:', error);
+            }
+        });
+
+        generate();
+
+    </script>
+</body>
+
+</html>

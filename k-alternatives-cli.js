@@ -5,7 +5,7 @@
  * Author: Mario Raúl Carbonell Martínez
  */
 
-const { TSPSolver } = require('./k-alternatives-core.js');
+const { TSPSolver } = require('./tsp-solver.js');
 const { loadTSPJSON, loadMultipleProblems, loadProblemSets } = require('./tsp-json-parser.js');
 const fs = require('fs');
 const path = require('path');
@@ -275,7 +275,39 @@ Ejemplos:
     }
     
     if (args[0] === '--help') {
-        main();
+        // Print help message by clearing args and letting the logic fall through?
+        // No, simplest is to just copy the help printing logic or structure it better.
+        // For minimal change:
+        console.log(`
+🎯 k-Alternatives CLI - Optimización TSP por línea de comandos
+
+Uso:
+  node k-alternatives-cli.js <archivo.tsp|json>         [Resolver un problema]
+  node k-alternatives-cli.js --batch <directorio>      [Benchmark masivo]
+  node k-alternatives-cli.js --help                     [Ayuda]
+
+Opciones:
+  --maxK N              Máximo valor de K (default: log(n))
+  --max-iterations N    Límite máximo de iteraciones
+  --max-time N          Límite máximo de tiempo en segundos
+  --no-stop-optimal     No detenerse al encontrar óptimo (default: sí se detiene)
+  --report-every N      Reportar progreso cada N iteraciones (default: 100000)
+  --debug               Modo verbose
+  --verbose             Mostrar mejoras en tiempo real
+  --show-route          Mostrar ruta completa al final
+  --output file.json    Guardar resultados en archivo JSON
+
+Formatos soportados:
+  .json                 Formato JSON estructurado (recomendado)
+  .tsp                  Formato TSPLIB tradicional (legacy)
+
+Ejemplos:
+  node k-alternatives-cli.js tsplib-json/berlin52.json
+  node k-alternatives-cli.js tsplib-json/berlin52.json --max-time 30
+  node k-alternatives-cli.js tsplib-json/berlin52.json --no-stop-optimal --max-iterations 5000000
+  node k-alternatives-cli.js tsplib-json/berlin52.json --report-every 50000
+  node k-alternatives-cli.js --batch tsplib-json/ --maxK 5 --max-time 60 --output results.json
+        `);
         return;
     }
     

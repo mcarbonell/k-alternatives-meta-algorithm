@@ -3,7 +3,7 @@
     "totalProblems": 108,
     "withOptimal": 108,
     "withoutOptimal": 0,
-    "generatedAt": "2025-11-05T23:50:10.114Z"
+    "generatedAt": "2025-11-19T10:25:41.166Z"
   },
   "problems": [
     {
@@ -36,14 +36,14 @@
     },
     {
       "name": "bayg29",
-      "cities": 0,
+      "cities": 29,
       "optimal": 1610,
       "edgeWeightType": "EXPLICIT",
       "file": "bayg29.json"
     },
     {
       "name": "bays29",
-      "cities": 0,
+      "cities": 29,
       "optimal": 2020,
       "edgeWeightType": "EXPLICIT",
       "file": "bays29.json"
@@ -162,7 +162,7 @@
     },
     {
       "name": "dantzig42",
-      "cities": 0,
+      "cities": 42,
       "optimal": 699,
       "edgeWeightType": "EXPLICIT",
       "file": "dantzig42.json"
@@ -245,7 +245,7 @@
     },
     {
       "name": "gr120",
-      "cities": 0,
+      "cities": 120,
       "optimal": 6942,
       "edgeWeightType": "EXPLICIT",
       "file": "gr120.json"
@@ -427,7 +427,7 @@
     },
     {
       "name": "pa561.tsp",
-      "cities": 0,
+      "cities": 561,
       "edgeWeightType": "EXPLICIT",
       "file": "pa561.tsp.json"
     },

@@ -4,9 +4,10 @@
     "type": "TSP",
     "dimension": 22,
     "edgeWeightType": "GEO",
+    "edgeWeightFormat": "",
     "optimalDistance": null,
     "source": "ulysses22.tsp",
-    "convertedAt": "2025-11-05T23:50:10.099Z"
+    "convertedAt": "2025-11-19T10:25:41.151Z"
   },
   "cities": [
     {

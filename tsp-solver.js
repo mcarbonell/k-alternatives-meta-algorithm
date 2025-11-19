@@ -1,11 +1,21 @@
 /**
  * k-Alternatives TSP Solver - Specific Implementation
  * Author: Mario Raúl Carbonell Martínez (Refactored by Gemini)
+ * Updated: ${new Date().toISOString()} - Force Cache Bust
  */
 
-const { KDeviationOptimizer } = require('./k-optimizer.js');
+// Universal import for KDeviationOptimizer
+let BaseOptimizer;
+if (typeof require !== 'undefined') {
+    // Node.js environment
+    BaseOptimizer = require('./k-optimizer.js').KDeviationOptimizer;
+} else {
+    // Browser/Worker environment (loaded via importScripts)
+    // KDeviationOptimizer is already defined globally by k-optimizer.js
+    BaseOptimizer = self.KDeviationOptimizer;
+}
 
-class TSPSolver extends KDeviationOptimizer {
+class TSPSolver extends BaseOptimizer {
     constructor(options = {}) {
         super(options);
 
@@ -19,14 +29,77 @@ class TSPSolver extends KDeviationOptimizer {
     // --- Implementation of abstract methods ---
 
     initializeProblem(problemData) {
-        this.cities = problemData.cities;
+        this.cities = problemData.cities || [];
         this.edgeWeightType = problemData.metadata.edgeWeightType || 'EUC_2D';
+        this.edgeWeightFormat = problemData.metadata.edgeWeightFormat || '';
         this.problemName = problemData.metadata.name || 'Unknown';
         this.optimalValue = problemData.metadata.optimalDistance || null;
-        this.allItems = this.cities.map((_, i) => i);
+        
+        // Explicit weights handling
+        const explicitWeights = problemData.edgeWeights;
+        const dimension = problemData.metadata.dimension;
 
-        this.initializeDistanceMatrix();
+        if (this.cities.length === 0 && dimension > 0) {
+            // Create dummy cities for logic compatibility (indices)
+            this.cities = Array.from({ length: dimension }, (_, i) => ({ x: 0, y: 0 }));
+        }
+        
+        this.allItems = this.cities.map((_, i) => i);
+        
+        console.log(`[TSPSolver] Initializing problem: ${this.problemName} with ${this.cities.length} cities.`);
+
+        if (this.edgeWeightType === 'EXPLICIT' && explicitWeights) {
+            this.initializeExplicitDistanceMatrix(explicitWeights, dimension);
+        } else {
+            if (this.cities.length === 0) {
+                console.error('[TSPSolver] No cities provided to initializeProblem.');
+                throw new Error('Cannot initialize TSP problem with 0 cities.');
+            }
+            this.initializeDistanceMatrix();
+        }
+
         this.initializeLocalHeuristics();
+    }
+
+    initializeExplicitDistanceMatrix(weights, dimension) {
+        this.distances = [];
+        for (let i = 0; i < dimension; i++) {
+            this.distances[i] = new Array(dimension).fill(0);
+        }
+
+        if (this.edgeWeightFormat === 'LOWER_DIAG_ROW') {
+            let k = 0;
+            for (let i = 0; i < dimension; i++) {
+                for (let j = 0; j < i; j++) {
+                    const dist = weights[k++];
+                    this.distances[i][j] = dist;
+                    this.distances[j][i] = dist;
+                }
+                this.distances[i][i] = 0;
+            }
+        } else if (this.edgeWeightFormat === 'FULL_MATRIX') {
+            let k = 0;
+            for (let i = 0; i < dimension; i++) {
+                for (let j = 0; j < dimension; j++) {
+                    this.distances[i][j] = weights[k++];
+                }
+            }
+        } else {
+            // Fallback: Try to infer or assume LOWER_DIAG_ROW if length matches
+            if (weights.length === (dimension * (dimension - 1)) / 2) {
+                // Is lower diag row
+                let k = 0;
+                for (let i = 0; i < dimension; i++) {
+                    for (let j = 0; j < i; j++) {
+                        const dist = weights[k++];
+                        this.distances[i][j] = dist;
+                        this.distances[j][i] = dist;
+                    }
+                }
+            } else {
+                console.warn(`[TSPSolver] Unsupported explicit weight format: ${this.edgeWeightFormat}. Treating as 0.`);
+            }
+        }
     }
 
     getInitialSolution() {
@@ -54,6 +127,20 @@ class TSPSolver extends KDeviationOptimizer {
                 initialRoute.push(nearestCity);
                 visited.add(nearestCity);
                 currentCity = nearestCity;
+            } else {
+                // This should not happen for a connected graph
+                console.warn('No nearest city found!', { currentCity, remaining: this.cities.length - visited.size });
+                // Fallback: Pick a random unvisited city
+                const unvisited = [...this.allItems].filter(c => !visited.has(c));
+                if (unvisited.length > 0) {
+                    const randomCity = unvisited[Math.floor(Math.random() * unvisited.length)];
+                    initialRoute.push(randomCity);
+                    visited.add(randomCity);
+                    currentCity = randomCity;
+                } else {
+                    console.error('No unvisited cities left, yet route is incomplete!');
+                    break; // Escape infinite loop if somehow stuck
+                }
             }
         }
         return initialRoute;
@@ -71,9 +158,10 @@ class TSPSolver extends KDeviationOptimizer {
 
     updateHeuristics(improvedRoute) {
         // When a better route is found, reinforce the connections (edges)
-        for (let i = 0; i < improvedRoute.length; i++) {
+        // Match original behavior: do NOT wrap around, treat as open path for heuristic update
+        for (let i = 0; i < improvedRoute.length - 1; i++) {
             const city1 = improvedRoute[i];
-            const city2 = improvedRoute[(i + 1) % improvedRoute.length]; // Wrap around for the last edge
+            const city2 = improvedRoute[i + 1];
 
             // Move successful connection to the front of the heuristic list for both cities
             if (this.localHeuristics[city1][0] !== city2) {

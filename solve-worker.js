@@ -1,17 +1,20 @@
 /**
  * k-Alternatives Web Worker
- * Uses the core KAlternativesSolver class
+ * Uses the TSPSolver class
  */
 
 // Import core (in worker context, this will be loaded via importScripts)
-importScripts('k-alternatives-core.js');
+const timestamp = Date.now();
+importScripts(`k-optimizer.js?v=${timestamp}`, `tsp-solver.js?v=${timestamp}`);
 
 let solver = null;
 
 function startSolving(data) {
     try {
-        solver = new KAlternativesSolver({
+        // Initialize solver with callbacks
+        solver = new TSPSolver({
             maxK: data.maxK,
+            stopAtOptimal: true,
             debug: data.debug,
             onProgress: (stats) => {
                 self.postMessage({
@@ -19,9 +22,9 @@ function startSolving(data) {
                     id: data.id,
                     iteration: stats.iteration,
                     improvements: stats.improvements,
-                    distance: stats.bestDistance,
+                    distance: stats.bestValue, // Note: k-optimizer uses bestValue
                     currentK: stats.currentK,
-                    bestPossibleDistance: 0 // Not used in web interface
+                    bestPossibleDistance: 0 
                 });
             },
             onImprovement: (stats) => {
@@ -30,8 +33,8 @@ function startSolving(data) {
                     id: data.id,
                     iteration: stats.iteration,
                     improvements: stats.improvements,
-                    distance: stats.distance,
-                    route: stats.route,
+                    distance: stats.bestValue,
+                    route: solver.bestSolution, // Need to access the solution directly or from stats if available
                     currentK: stats.currentK
                 });
             },
@@ -40,21 +43,36 @@ function startSolving(data) {
                     type: 'solution',
                     id: data.id,
                     route: result.route,
-                    distance: result.distance,
+                    distance: result.bestDistance,
                     iteration: result.iterations,
-                    improvements: result.improvements,
-                    currentK: result.currentK
+                    improvements: solver.improvements,
+                    currentK: solver.currentK
+                });
+            },
+            onOptimalFound: (stats) => {
+                 self.postMessage({
+                    type: 'improvement', // Treat as improvement to update UI
+                    id: data.id,
+                    iteration: stats.iteration,
+                    improvements: stats.improvements,
+                    distance: stats.bestValue,
+                    route: solver.bestSolution,
+                    currentK: stats.currentK
                 });
             }
         });
         
-        solver.initialize(data.cities, {
-            edgeWeightType: data.edgeWeightType || 'EUC_2D',
-            problemName: data.problemName || 'Web Problem',
-            optimalDistance: data.optimalDistance || null
-        });
+        // Structure problem data for TSPSolver.initializeProblem
+        const problemData = {
+            cities: data.cities,
+            metadata: {
+                edgeWeightType: data.edgeWeightType || 'EUC_2D',
+                name: data.problemName || 'Web Problem',
+                optimalDistance: data.optimalDistance || null
+            }
+        };
         
-        solver.start();
+        solver.start(problemData);
         
     } catch (error) {
         console.error('Worker error:', error);

@@ -4,9 +4,10 @@
     "type": "TSP",
     "dimension": 535,
     "edgeWeightType": "GEO",
+    "edgeWeightFormat": "",
     "optimalDistance": 202339,
     "source": "ali535.tsp",
-    "convertedAt": "2025-11-05T23:50:09.841Z"
+    "convertedAt": "2025-11-19T10:25:40.843Z"
   },
   "cities": [
     {

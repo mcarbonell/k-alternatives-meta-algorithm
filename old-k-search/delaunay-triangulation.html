@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triangulación de Delaunay</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            /* height: 100vh;
+            margin: 0; */
+            background-color: #f0f0f0;
+        }
+
+        button,
+        input {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        canvas {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Triangulación de Delaunay</h1>
+    <div>
+        <label for="pointCount">Num Points</label><input type="number" id="pointCount" value="20">
+        <button id="generateBtn">Generar Puntos Aleatorios</button>
+    </div>
+    <canvas id="delaunayCanvas" width="600" height="600"></canvas>
+
+    <textarea name="cities" id="citiesinput" cols="50" rows="20"></textarea>
+
+
+    <script>
+
+        const pointCountInput = document.getElementById('pointCount');
+        const generateBtn = document.getElementById('generateBtn');
+        const canvas = document.getElementById('delaunayCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let points = [];
+        const citiesInput = document.querySelector('#citiesinput');
+
+
+        function generateRandomPoints() {
+            const numPoints = pointCountInput.value;
+            points = [];
+
+            for (let i = 0; i < numPoints; i++) {
+                points.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height
+                });
+            }
+
+            citiesInput.value = JSON.stringify(points, null, 2);
+            // return points;
+        }
+
+        function circumcircle(p1, p2, p3) {
+            const d = 2 * (p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
+            const ux = ((p1.x * p1.x + p1.y * p1.y) * (p2.y - p3.y) + (p2.x * p2.x + p2.y * p2.y) * (p3.y - p1.y) + (p3.x * p3.x + p3.y * p3.y) * (p1.y - p2.y)) / d;
+            const uy = ((p1.x * p1.x + p1.y * p1.y) * (p3.x - p2.x) + (p2.x * p2.x + p2.y * p2.y) * (p1.x - p3.x) + (p3.x * p3.x + p3.y * p3.y) * (p2.x - p1.x)) / d;
+            const center = { x: ux, y: uy };
+            const radius = Math.sqrt((p1.x - center.x) ** 2 + (p1.y - center.y) ** 2);
+            return { center, radius };
+        }
+
+        function isInCircumcircle(point, circle) {
+            const dx = point.x - circle.center.x;
+            const dy = point.y - circle.center.y;
+            return dx * dx + dy * dy <= circle.radius * circle.radius;
+        }
+
+        function delaunayTriangulation(points) {
+            const triangles = [];
+            const superTriangle = {
+                p1: { x: -1000, y: -1000 },
+                p2: { x: 2000, y: -1000 },
+                p3: { x: 500, y: 2000 }
+            };
+            triangles.push(superTriangle);
+
+            for (const point of points) {
+                const badTriangles = [];
+
+                for (const triangle of triangles) {
+                    const circle = circumcircle(triangle.p1, triangle.p2, triangle.p3);
+                    if (isInCircumcircle(point, circle)) {
+                        badTriangles.push(triangle);
+                    }
+                }
+
+                const polygon = [];
+                for (const triangle of badTriangles) {
+                    const edges = [
+                        { p1: triangle.p1, p2: triangle.p2 },
+                        { p1: triangle.p2, p2: triangle.p3 },
+                        { p1: triangle.p3, p2: triangle.p1 }
+                    ];
+                    for (const edge of edges) {
+                        if (!badTriangles.some(t =>
+                            t !== triangle &&
+                            ((t.p1 === edge.p1 && t.p2 === edge.p2) ||
+                                (t.p2 === edge.p1 && t.p1 === edge.p2) ||
+                                (t.p2 === edge.p1 && t.p3 === edge.p2) ||
+                                (t.p3 === edge.p1 && t.p2 === edge.p2) ||
+                                (t.p3 === edge.p1 && t.p1 === edge.p2) ||
+                                (t.p1 === edge.p1 && t.p3 === edge.p2))
+                        )) {
+                            polygon.push(edge);
+                        }
+                    }
+                }
+
+                for (const triangle of badTriangles) {
+                    const index = triangles.indexOf(triangle);
+                    if (index !== -1) triangles.splice(index, 1);
+                }
+
+                for (const edge of polygon) {
+                    triangles.push({
+                        p1: edge.p1,
+                        p2: edge.p2,
+                        p3: point
+                    });
+                }
+            }
+
+            return triangles.filter(t =>
+                t.p1 !== superTriangle.p1 && t.p1 !== superTriangle.p2 && t.p1 !== superTriangle.p3 &&
+                t.p2 !== superTriangle.p1 && t.p2 !== superTriangle.p2 && t.p2 !== superTriangle.p3 &&
+                t.p3 !== superTriangle.p1 && t.p3 !== superTriangle.p2 && t.p3 !== superTriangle.p3
+            );
+        }
+
+        function drawTriangulation(triangles, points) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar triángulos
+            ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
+            ctx.lineWidth = 1;
+            for (const triangle of triangles) {
+                ctx.beginPath();
+                ctx.moveTo(triangle.p1.x, triangle.p1.y);
+                ctx.lineTo(triangle.p2.x, triangle.p2.y);
+                ctx.lineTo(triangle.p3.x, triangle.p3.y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            // Dibujar puntos
+            ctx.fillStyle = 'red';
+            for (const point of points) {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        function solveTriangulation() {
+            const triangles = delaunayTriangulation(points);
+            drawTriangulation(triangles, points);
+        }
+
+
+
+        function generate() {
+            // const points = 
+            generateRandomPoints();
+            solveTriangulation();
+        }
+
+        generateBtn.addEventListener('click', generate);
+        citiesInput.addEventListener('input', () => {
+            try {
+                // Intentar parsear el contenido del textarea como JSON
+                let jsonText = citiesInput.value.replace(/^\s+|\s+$/g, ''); //Elimina espacios al inicio o al final
+                let parsedJSON = JSON.parse(jsonText);
+
+                // Si llegamos aquí, el JSON es válido
+                // Actualizar el array con el nuevo contenido
+                points = parsedJSON;
+                // generateRandomPoints();
+                solveTriangulation();
+
+            } catch (error) {
+                // Si llegamos aquí, el JSON no es válido
+                console.error('JSON inválido:', error);
+            }
+        });
+
+
+
+        canvas.addEventListener('click', (event) => {
+
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            // addCity({ x, y });
+            points.push({ x, y });
+            solveTriangulation();
+
+            citiesInput.value = JSON.stringify(points, null, 2);
+        });
+
+        generate();
+
+
+    </script>
+</body>
+
+</html>

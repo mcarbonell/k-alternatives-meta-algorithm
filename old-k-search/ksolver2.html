@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP Solver - Systematic Alternatives Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #stats {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>TSP Solver - Systematic Alternatives Search</h1>
+    <div>
+        <button id="generateBtn">Generar Ciudades Aleatorias</button>
+        <button id="solveBtn">Iniciar/Detener Solución</button>
+    </div>
+    <div id="stats">
+        <p>Iteración: <span id="iteration">0</span></p>
+        <p>Mejor Distancia: <span id="bestDistance">-</span></p>
+        <p>K actual: <span id="currentK">0</span></p>
+    </div>
+    <canvas id="tspCanvas" width="400" height="400" style="border:1px solid #000;"></canvas>
+
+    <script>
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        const generateBtn = document.getElementById('generateBtn');
+        const solveBtn = document.getElementById('solveBtn');
+        const iterationSpan = document.getElementById('iteration');
+        const bestDistanceSpan = document.getElementById('bestDistance');
+        const currentKSpan = document.getElementById('currentK');
+
+        let cities = [];
+        let bestRoute = [];
+        let bestDistance = Infinity;
+        let iteration = 0;
+        let isRunning = false;
+        let currentK = 0;
+        let localHeuristics = [];
+
+        function generateRandomCities(numCities) {
+            cities = [];
+            for (let i = 0; i < numCities; i++) {
+                cities.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height
+                });
+            }
+            bestRoute = [];
+            bestDistance = Infinity;
+            iteration = 0;
+            currentK = 0;
+            initializeLocalHeuristics();
+            drawCities();
+            updateStats();
+        }
+
+        function initializeLocalHeuristics() {
+            localHeuristics = cities.map((_, i) =>
+                cities.map((_, j) => j).filter(j => j !== i).sort((a, b) =>
+                    distance(cities[i], cities[a]) - distance(cities[i], cities[b])
+                )
+            );
+        }
+
+        function drawCities() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            cities.forEach(city => {
+                ctx.beginPath();
+                ctx.arc(city.x, city.y, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+            });
+        }
+
+        function drawRoute(route) {
+            ctx.beginPath();
+            ctx.moveTo(cities[route[0]].x, cities[route[0]].y);
+            for (let i = 1; i < route.length; i++) {
+                ctx.lineTo(cities[route[i]].x, cities[route[i]].y);
+            }
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function distance(city1, city2) {
+            return Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2));
+        }
+
+        function calculateDistance(route) {
+            let totalDistance = 0;
+            for (let i = 0; i < route.length - 1; i++) {
+                totalDistance += distance(cities[route[i]], cities[route[i + 1]]);
+            }
+            return totalDistance;
+        }
+
+        function updateStats() {
+            iterationSpan.textContent = iteration;
+            bestDistanceSpan.textContent = bestDistance.toFixed(2);
+            currentKSpan.textContent = currentK;
+        }
+
+        function systematicAlternativesSearch(startCity, remainingCities, currentRoute, alternativesLeft) {
+            iteration++;
+
+            if (remainingCities.size === 0) {
+                currentRoute.push(startCity);  // Return to the starting city
+                let routeDistance = calculateDistance(currentRoute);
+                if (routeDistance < bestDistance) {
+                    bestDistance = routeDistance;
+                    bestRoute = [...currentRoute];
+                    drawCities();
+                    drawRoute(bestRoute);
+                    updateLocalHeuristics(bestRoute);
+                }
+                updateStats();
+                return;
+            }
+
+            let currentCity = currentRoute[currentRoute.length - 1];
+            let heuristic = localHeuristics[currentCity].filter(city => remainingCities.has(city));
+
+            for (let i = 0; i <= Math.min(alternativesLeft, heuristic.length - 1); i++) {
+                let nextCity = heuristic[i];
+                let newRoute = [...currentRoute, nextCity];
+                let newRemainingCities = new Set(remainingCities);
+                newRemainingCities.delete(nextCity);
+
+                systematicAlternativesSearch(startCity, newRemainingCities, newRoute, alternativesLeft - i);
+
+                if (!isRunning) return;  // Stop if the user has clicked the stop button
+            }
+        }
+
+        function updateLocalHeuristics(improvedRoute) {
+            for (let i = 0; i < improvedRoute.length - 1; i++) {
+                let city1 = improvedRoute[i];
+                let city2 = improvedRoute[i + 1];
+
+                // Move city2 to the front of city1's heuristic list
+                localHeuristics[city1] = [city2, ...localHeuristics[city1].filter(c => c !== city2)];
+
+                // Move city1 to the front of city2's heuristic list
+                localHeuristics[city2] = [city1, ...localHeuristics[city2].filter(c => c !== city1)];
+            }
+        }
+
+        function solve() {
+            if (!isRunning) return;
+
+            let startCity = 0;
+            let remainingCities = new Set(cities.map((_, index) => index).filter(i => i !== startCity));
+
+            systematicAlternativesSearch(startCity, remainingCities, [startCity], currentK);
+
+            currentK++;
+            updateStats();
+
+            requestAnimationFrame(solve);
+        }
+
+        generateBtn.addEventListener('click', () => generateRandomCities(20));
+        solveBtn.addEventListener('click', () => {
+            isRunning = !isRunning;
+            if (isRunning) {
+                solveBtn.textContent = 'Detener Solución';
+                currentK = 0;
+                iteration = 0;
+                solve();
+            } else {
+                solveBtn.textContent = 'Iniciar Solución';
+            }
+        });
+
+        generateRandomCities(20);
+    </script>
+</body>
+
+</html>

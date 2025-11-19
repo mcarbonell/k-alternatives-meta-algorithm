@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>k-Alternatives TSP Solver (Legacy UI)</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f0f2f5; }
+        button, input, select { margin: 5px; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+        button { cursor: pointer; background-color: #007bff; color: white; border: none; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #stats { margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 800px; }
+        #stats p { margin: 5px 0; font-size: 14px; color: #333; }
+        #stats span { font-weight: bold; color: #007bff; }
+        #canvas-container { position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; border-radius: 8px; padding: 10px; }
+        canvas { border: 1px solid #ddd; border-radius: 4px; cursor: crosshair; }
+        #controls { margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 800px; }
+        .control-group { margin-bottom: 10px; display: flex; align-items: center; flex-wrap: wrap; }
+        label { margin-right: 5px; font-weight: bold; color: #555; }
+        #log { width: 800px; height: 150px; margin-top: 20px; padding: 10px; background: #333; color: #0f0; font-family: monospace; border-radius: 8px; overflow-y: auto; font-size: 12px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>k-Alternatives TSP Solver</h1>
+
+    <div id="stats">
+        <p>Ciudades: <span id="numCities">0</span></p>
+        <p>Iteración: <span id="iteration">0</span></p>
+        <p>Mejoras: <span id="improvements">0</span></p>
+        <p>K Actual: <span id="currentK">0</span></p>
+        <p>Mejor Distancia: <span id="bestDistance">-</span></p>
+        <p>Óptimo Conocido: <span id="optimalDistance">-</span></p>
+        <p>Desviación: <span id="deviation">-</span></p>
+        <p>Tiempo: <span id="timer">00:00</span></p>
+    </div>
+
+    <div id="controls">
+        <div class="control-group">
+            <label>Generar:</label>
+            <input type="number" id="cityCount" value="50" style="width: 60px"> ciudades
+            <button id="generateBtn">🎲 Aleatorio</button>
+            <button id="circleBtn">⭕ Círculo</button>
+        </div>
+        <div class="control-group">
+            <label>TSPLIB:</label>
+            <select id="tspFileSelect" style="width: 280px">
+                <option value="">Seleccionar problema...</option>
+                <!-- Options populated via JS -->
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Config:</label>
+            <label>Max K:</label><input type="number" id="maxK" value="5" style="width: 40px">
+            <input type="checkbox" id="drawNumbers"><label for="drawNumbers">Números</label>
+            <input type="checkbox" id="debug"><label for="debug">Log Detallado</label>
+        </div>
+        <div class="control-group">
+            <button id="solveBtn" style="background-color: #28a745; width: 100%;">▶️ INICIAR SOLUCIÓN</button>
+            <button id="stopBtn" style="background-color: #dc3545; display: none; width: 100%;">⏹️ DETENER</button>
+        </div>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="tspCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <pre id="log"></pre>
+
+    <!-- Parser Script -->
+    <script src="tsp-parser.js"></script>
+
+    <script>
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        let worker = null; // Worker instance (recreated on every run)
+        const parser = new TSPLIBParser();
+
+        // State
+        let cities = [];
+        let isRunning = false;
+        let startTime = null;
+        let timerInterval = null;
+        let currentProblemName = 'Random';
+        let optimalDistance = null;
+
+        // DOM Elements
+        const els = {
+            numCities: document.getElementById('numCities'),
+            iteration: document.getElementById('iteration'),
+            improvements: document.getElementById('improvements'),
+            currentK: document.getElementById('currentK'),
+            bestDistance: document.getElementById('bestDistance'),
+            optimalDistance: document.getElementById('optimalDistance'),
+            deviation: document.getElementById('deviation'),
+            timer: document.getElementById('timer'),
+            log: document.getElementById('log'),
+            solveBtn: document.getElementById('solveBtn'),
+            stopBtn: document.getElementById('stopBtn'),
+            tspSelect: document.getElementById('tspFileSelect'),
+            cityCount: document.getElementById('cityCount'),
+            maxK: document.getElementById('maxK'),
+            drawNumbers: document.getElementById('drawNumbers'),
+            debug: document.getElementById('debug')
+        };
+
+        // Initialize
+        init();
+
+        function init() {
+            // Populate TSPLIB dropdown
+            const problems = parser.getAvailableProblems();
+            problems.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.name;
+                opt.textContent = `${p.name} (${p.cities})`;
+                els.tspSelect.appendChild(opt);
+            });
+
+            // Event Listeners
+            document.getElementById('generateBtn').onclick = generateRandom;
+            document.getElementById('circleBtn').onclick = generateCircle;
+            // Auto-load on change
+            els.tspSelect.onchange = loadTSPLIB;
+            
+            els.solveBtn.onclick = startSolving;
+            els.stopBtn.onclick = stopSolving;
+            els.drawNumbers.onchange = drawMap;
+
+            // Initial random generation
+            generateRandom();
+        }
+
+        function createWorker() {
+            // Force immediate termination of any existing worker
+            if (worker) {
+                worker.terminate();
+            }
+            
+            // Create fresh worker with cache bust
+            worker = new Worker('solve-worker.js?v=' + Date.now());
+            
+            worker.onmessage = function(e) {
+                const data = e.data;
+                
+                if (data.type === 'stats' || data.type === 'improvement' || data.type === 'solution') {
+                    updateStats(data);
+                    if (data.route) drawRoute(data.route);
+                    
+                    if (data.type === 'improvement' && els.debug.checked) {
+                        log(`Mejora: ${data.distance} (K=${data.currentK})`);
+                    }
+
+                    if (data.type === 'solution') {
+                        stopSolving(false); // Don't kill worker, just update UI
+                        log(`✅ FINALIZADO. Distancia: ${data.distance}`);
+                    }
+                } else if (data.type === 'error') {
+                    log(`❌ Error: ${data.error}`);
+                    stopSolving();
+                }
+            };
+        }
+
+        function startSolving() {
+            if (cities.length < 3) return alert('Se necesitan al menos 3 ciudades');
+            
+            // Stop any previous run (safety)
+            if (isRunning) stopSolving();
+
+            // Initialize fresh worker
+            createWorker();
+            
+            isRunning = true;
+            updateUIState(true);
+            resetStats();
+            startTimer();
+            log(`🚀 Iniciando solución para ${cities.length} ciudades (MaxK=${els.maxK.value})...`);
+
+            // Use original coordinates if loaded from JSON, otherwise use the generated (scaled) ones
+            const solveCities = window.workerCities || cities;
+
+            worker.postMessage({
+                type: 'start',
+                id: Date.now().toString(),
+                cities: solveCities, 
+                maxK: parseInt(els.maxK.value),
+                edgeWeightType: 'EUC_2D', 
+                problemName: currentProblemName,
+                optimalDistance: optimalDistance,
+                debug: els.debug.checked
+            });
+        }
+
+        function stopSolving(kill = true) {
+            isRunning = false;
+            updateUIState(false);
+            stopTimer();
+            
+            if (kill && worker) {
+                worker.terminate(); // Immediate kill
+                worker = null; // Garbage collect
+                log('⏹️ Detenido manualmente.');
+            } else if (worker) {
+                // Soft stop (tell worker to stop logic but keep instance alive if needed, though we usually recreate)
+                worker.postMessage({ type: 'stop' });
+            }
+        }
+
+        function updateUIState(running) {
+            els.solveBtn.style.display = running ? 'none' : 'block';
+            els.stopBtn.style.display = running ? 'block' : 'none';
+            document.querySelectorAll('button:not(#stopBtn)').forEach(b => b.disabled = running);
+        }
+
+        function updateStats(data) {
+            els.iteration.textContent = data.iteration.toLocaleString();
+            els.improvements.textContent = data.improvements;
+            els.currentK.textContent = data.currentK;
+            els.bestDistance.textContent = Math.round(data.distance).toLocaleString();
+
+            if (optimalDistance) {
+                const dev = ((data.distance / optimalDistance - 1) * 100).toFixed(2);
+                els.deviation.textContent = dev + '%';
+                
+                // Color coding deviation
+                if (dev < 1) els.deviation.style.color = 'green';
+                else if (dev < 5) els.deviation.style.color = 'orange';
+                else els.deviation.style.color = 'red';
+            }
+        }
+
+        function resetStats() {
+            els.iteration.textContent = '0';
+            els.improvements.textContent = '0';
+            els.currentK.textContent = '0';
+            els.bestDistance.textContent = '-';
+            els.deviation.textContent = '-';
+            els.log.textContent = '';
+        }
+
+        // Generators
+        function generateRandom() {
+            const count = parseInt(els.cityCount.value);
+            createCities(count, () => ({
+                x: Math.random() * 760 + 20,
+                y: Math.random() * 560 + 20
+            }));
+            currentProblemName = 'Random';
+            optimalDistance = null;
+            els.optimalDistance.textContent = '-';
+        }
+
+        function generateCircle() {
+            const count = parseInt(els.cityCount.value);
+            const cx = 400, cy = 300, r = 250;
+            createCities(count, (i) => {
+                const angle = (i / count) * Math.PI * 2;
+                return {
+                    x: cx + Math.cos(angle) * r,
+                    y: cy + Math.sin(angle) * r
+                };
+            });
+            currentProblemName = 'Circle';
+            optimalDistance = null; // Technically calculable, but simple enough
+            els.optimalDistance.textContent = '-';
+        }
+
+        function createCities(count, posFunc) {
+            cities = [];
+            window.workerCities = null;
+            for (let i = 0; i < count; i++) {
+                cities.push(posFunc(i));
+            }
+            els.numCities.textContent = count;
+            drawMap();
+            log(`Generadas ${count} ciudades.\n`);
+        }
+
+        async function loadTSPLIB() {
+            const name = els.tspSelect.value;
+            if (!name) return;
+
+            try {
+                log(`Cargando ${name}.json...
+`);
+                const response = await fetch(`tsplib-json/${name}.json`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                
+                // Store original cities for solving (to match optimal distance)
+                // But for visualization we need to scale them
+                const originalCities = data.cities;
+                
+                // Scale cities to fit canvas (800x600) with padding
+                cities = scaleCities(originalCities, 800, 600, 40);
+                
+                currentProblemName = data.metadata.name;
+                optimalDistance = data.metadata.optimalDistance;
+                
+                els.optimalDistance.textContent = optimalDistance ? optimalDistance.toLocaleString() : 'N/A';
+                els.numCities.textContent = cities.length;
+                els.cityCount.value = cities.length;
+                
+                // Update worker with the NEW problem data
+                // Note: We are sending the SCALED cities to the worker in this demo 
+                // because the worker calculates distances based on the coordinates it receives.
+                // If we want to compare strictly with optimalDistance, we should send originalCities
+                // but then the visualization would be out of sync or we'd need to map back.
+                //
+                // FIX: To match the optimal distance (which is based on original coords),
+                // we MUST send originalCities to the worker.
+                // But we draw with 'cities' (scaled).
+                // The worker will return routes (indices), so drawing will work fine!
+                
+                // Let's store original cities in a separate variable to send to worker
+                window.workerCities = originalCities; 
+                
+                drawMap();
+                log(`Cargado ${name} (${cities.length} ciudades). Óptimo: ${optimalDistance}
+`);
+            } catch (e) {
+                log(`Error cargando JSON: ${e.message}
+`);
+                console.error(e);
+            }
+        }
+
+        function scaleCities(originalCities, width, height, padding) {
+            if (!originalCities.length) return [];
+            
+            const xs = originalCities.map(c => c.x);
+            const ys = originalCities.map(c => c.y);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            
+            const rangeX = maxX - minX || 1;
+            const rangeY = maxY - minY || 1;
+            
+            const scaleX = (width - 2 * padding) / rangeX;
+            const scaleY = (height - 2 * padding) / rangeY;
+            const scale = Math.min(scaleX, scaleY);
+            
+            return originalCities.map(c => ({
+                x: padding + (c.x - minX) * scale,
+                y: (height - padding) - (c.y - minY) * scale // Invert Y for correct visualization (bottom-up)
+            }));
+        }
+
+        // Drawing
+        function drawMap() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw cities
+            ctx.fillStyle = 'red';
+            cities.forEach((c, i) => {
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                if (els.drawNumbers.checked) {
+                    ctx.fillStyle = 'black';
+                    ctx.font = '10px Arial';
+                    ctx.fillText(i, c.x + 5, c.y - 5);
+                    ctx.fillStyle = 'red';
+                }
+            });
+        }
+
+        function drawRoute(route) {
+            drawMap(); // Clear and redraw cities
+            
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            if (route.length > 0) {
+                const first = cities[route[0]];
+                ctx.moveTo(first.x, first.y);
+                
+                for (let i = 1; i < route.length; i++) {
+                    const c = cities[route[i]];
+                    ctx.lineTo(c.x, c.y);
+                }
+                ctx.closePath(); // Connect back to start
+            }
+            ctx.stroke();
+        }
+
+        // Utils
+        function log(msg) {
+            const line = `[${new Date().toLocaleTimeString()}] ${msg}
+`;
+            els.log.textContent = line + els.log.textContent;
+        }
+
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const s = Math.floor((Date.now() - startTime) / 1000);
+                const m = Math.floor(s / 60);
+                els.timer.textContent = `${m.toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>

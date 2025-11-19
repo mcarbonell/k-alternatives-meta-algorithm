@@ -4,9 +4,10 @@
     "type": "TSP",
     "dimension": 1000,
     "edgeWeightType": "CEIL_2D",
+    "edgeWeightFormat": "",
     "optimalDistance": null,
     "source": "dsj1000.tsp",
-    "convertedAt": "2025-11-05T23:50:09.899Z"
+    "convertedAt": "2025-11-19T10:25:40.913Z"
   },
   "cities": [
     {

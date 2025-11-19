@@ -17,41 +17,86 @@ function parseTSPFile(content) {
         type: 'TSP',
         dimension: 0,
         edgeWeightType: '',
-        cities: []
+        edgeWeightFormat: '',
+        cities: [],
+        distanceMatrix: []
     };
 
-    let inCoordsSection = false;
+    let section = '';
+    let displayData = [];
+    let edgeWeights = [];
 
     for (const line of lines) {
         const trimmed = line.trim();
         if (trimmed === 'EOF') break;
         
-        if (trimmed.startsWith('NAME:')) {
-            result.name = trimmed.substring(5).trim();
-        } else if (trimmed.startsWith('NAME :')) {
-            result.name = trimmed.substring(6).trim();
-        } else if (trimmed.startsWith('TYPE:')) {
-            result.type = trimmed.substring(5).trim();
-        } else if (trimmed.startsWith('TYPE :')) {
-            result.type = trimmed.substring(6).trim();
-        } else if (trimmed.startsWith('DIMENSION:')) {
-            result.dimension = parseInt(trimmed.substring(10).trim());
-        } else if (trimmed.startsWith('DIMENSION :')) {
-            result.dimension = parseInt(trimmed.substring(11).trim());
-        } else if (trimmed.startsWith('EDGE_WEIGHT_TYPE:')) {
-            result.edgeWeightType = trimmed.substring(18).trim();
-        } else if (trimmed.startsWith('EDGE_WEIGHT_TYPE :')) {
-            result.edgeWeightType = trimmed.substring(19).trim();
-        } else if (trimmed === 'NODE_COORD_SECTION') {
-            inCoordsSection = true;
-        } else if (inCoordsSection && trimmed && !isNaN(trimmed.split(/\s+/)[0])) {
+        // Header parsing
+        if (trimmed.includes(':')) {
+            const [key, ...valueParts] = trimmed.split(':');
+            const value = valueParts.join(':').trim();
+            const upperKey = key.trim().toUpperCase();
+            
+            if (upperKey === 'NAME') result.name = value;
+            else if (upperKey === 'TYPE') result.type = value;
+            else if (upperKey === 'DIMENSION') result.dimension = parseInt(value);
+            else if (upperKey === 'EDGE_WEIGHT_TYPE') result.edgeWeightType = value;
+            else if (upperKey === 'EDGE_WEIGHT_FORMAT') result.edgeWeightFormat = value;
+            continue;
+        }
+
+        // Section detection
+        if (trimmed.startsWith('NODE_COORD_SECTION')) {
+            section = 'COORDS';
+            continue;
+        } else if (trimmed.startsWith('DISPLAY_DATA_SECTION')) {
+            section = 'DISPLAY';
+            continue;
+        } else if (trimmed.startsWith('EDGE_WEIGHT_SECTION')) {
+            section = 'WEIGHTS';
+            continue;
+        }
+
+        // Data parsing based on section
+        if (section === 'COORDS' && trimmed && !isNaN(trimmed.split(/\s+/)[0])) {
             const parts = trimmed.split(/\s+/);
             if (parts.length >= 3) {
+                // TSPLIB usually: ID X Y. Some formats might differ.
                 const x = parseFloat(parts[1]);
                 const y = parseFloat(parts[2]);
                 result.cities.push({ x, y });
             }
+        } else if (section === 'DISPLAY' && trimmed && !isNaN(trimmed.split(/\s+/)[0])) {
+             const parts = trimmed.split(/\s+/);
+            if (parts.length >= 3) {
+                const x = parseFloat(parts[1]);
+                const y = parseFloat(parts[2]);
+                displayData.push({ x, y });
+            }
+        } else if (section === 'WEIGHTS') {
+            // Collect all numbers from the lines
+            const numbers = trimmed.split(/\s+/).filter(n => n !== '').map(Number);
+            edgeWeights.push(...numbers);
         }
+    }
+
+    // Post-processing
+    
+    // 1. If no cities found in NODE_COORD_SECTION, check DISPLAY_DATA_SECTION
+    if (result.cities.length === 0 && displayData.length > 0) {
+        result.cities = displayData;
+    }
+
+    // 2. If explicit weights, try to reconstruct matrix (simplistic approach for full matrix or lower diag)
+    if (result.edgeWeightType === 'EXPLICIT' && edgeWeights.length > 0) {
+        // Determine format logic based on length vs dimension
+        // N*N = Full Matrix
+        // N*(N+1)/2 = Lower/Upper Triangular (approx)
+        
+        // For fri26 (LOWER_DIAG_ROW), we just store the flat array for now, 
+        // or try to expand it if the solver expects a full matrix.
+        // Let's store the flat array in a generic 'edgeWeights' property 
+        // and let the solver/adapter handle the indexing logic based on FORMAT.
+        result.edgeWeights = edgeWeights;
     }
     
     return result;
@@ -92,11 +137,13 @@ function convertTSPFile(inputFile, outputFile, optimalSolutions) {
                 type: problem.type,
                 dimension: problem.dimension,
                 edgeWeightType: problem.edgeWeightType,
+                edgeWeightFormat: problem.edgeWeightFormat,
                 optimalDistance: optimalDistance || null,
                 source: path.basename(inputFile),
                 convertedAt: new Date().toISOString()
             },
-            cities: problem.cities
+            cities: problem.cities,
+            edgeWeights: problem.edgeWeights // Include explicit weights if present
         };
         
         // Write JSON file

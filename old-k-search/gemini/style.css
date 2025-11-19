@@ -1,0 +1,132 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+canvas {
+    border: 1px solid #ccc;
+    background-color: #fff;
+    display: block;
+    margin: 20px auto;
+    cursor: crosshair;
+}
+
+#controls, #infoPanel, .io-section, .log-section {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#controls .control-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Espacio entre elementos */
+}
+#controls .control-group:last-child {
+    margin-bottom: 0;
+}
+
+
+label {
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+button,
+input[type="number"],
+input[type="checkbox"] {
+    margin: 5px;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:active {
+    background-color: #004085;
+}
+
+#btnClearCities {
+    background-color: #dc3545;
+}
+#btnClearCities:hover {
+    background-color: #c82333;
+}
+
+
+input[type="number"] {
+    width: 60px; /* Ajustado para que quepa mejor */
+}
+
+#infoPanel p {
+    margin: 8px 0;
+    font-size: 1em;
+}
+
+#infoPanel span {
+    font-weight: bold;
+    color: #0056b3;
+}
+
+.instruction {
+    font-style: italic;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+textarea {
+    width: calc(100% - 22px); /* Full width menos padding y border */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+    min-height: 80px;
+}
+
+#logOutput {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    height: 100px;
+    overflow-y: auto;
+    text-align: left;
+    font-size: 0.85em;
+    white-space: pre-wrap; /* Para que haga wrap sin perder formato pre */
+    word-wrap: break-word;
+}
