@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathfinding k-Alternativas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { margin-bottom: 10px; }
+        .controls {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background: #005fa3; }
+        button:disabled { background: #444; cursor: not-allowed; }
+        button.secondary { background: #555; }
+        button.secondary:hover { background: #666; }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .stat { color: #aaa; }
+        .val { color: #fff; font-weight: bold; }
+
+        canvas {
+            background: #111;
+            border: 2px solid #444;
+            border-radius: 4px;
+            cursor: crosshair;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .box { width: 12px; height: 12px; border: 1px solid #555; }
+    </style>
+</head>
+<body>
+
+    <h1>Pathfinding k-Alternativas</h1>
+
+    <div class="controls">
+        <div>
+            <label>Max K: <input type="number" id="maxK" value="5" min="0" max="20" style="width: 50px; background: #444; color: white; border: 1px solid #555; padding: 5px;"></label>
+        </div>
+        <div>
+            <label>Speed: <input type="range" id="speedRange" min="1" max="50" value="5"></label>
+        </div>
+        <div>
+            <label><input type="checkbox" id="pessimisticMode"> Heurística Pesimista</label>
+        </div>
+        <button id="btnRun" onclick="ui.start()">Ejecutar</button>
+        <button id="btnStep" class="secondary" onclick="ui.step()">Paso</button>
+        <button id="btnReset" class="secondary" onclick="ui.reset()">Resetear Algoritmo</button>
+        <button id="btnClear" class="secondary" onclick="ui.clearGrid()">Limpiar Muro</button>
+        
+        <div class="info-panel">
+            <div><span class="stat">Estado:</span> <span id="status" class="val">Listo</span></div>
+            <div><span class="stat">Current K:</span> <span id="currK" class="val">0</span></div>
+            <div><span class="stat">Mejor Coste:</span> <span id="bestCost" class="val">-</span></div>
+            <div><span class="stat">Mejoras:</span> <span id="improvements" class="val">0</span></div>
+        </div>
+    </div>
+
+    <canvas id="gridCanvas" width="600" height="600"></canvas>
+
+    <div class="legend">
+        <div class="legend-item"><div class="box" style="background:#00ff00"></div> Inicio</div>
+        <div class="legend-item"><div class="box" style="background:#ff0000"></div> Fin</div>
+        <div class="legend-item"><div class="box" style="background:#666"></div> Muro</div>
+        <div class="legend-item"><div class="box" style="background:#ffff00"></div> Camino Actual</div>
+        <div class="legend-item"><div class="box" style="background:rgba(0, 255, 0, 0.3); border-color: lime"></div> Mejor Camino</div>
+        <div class="legend-item"><div class="box" style="background:#333; color: #777; text-align:center; line-height:12px; font-size:10px">h</div> Heurística Aprendida</div>
+    </div>
+
+<script>
+/**
+ * Clase principal del Optimizador K-Alternativas para Pathfinding
+ * Autor: Mario Raúl Carbonell Martínez
+ */
+class KPathOptimizer {
+    constructor(gridWidth, gridHeight, startNode, endNode, walls, pessimistic = false) {
+        this.width = gridWidth;
+        this.height = gridHeight;
+        this.startNode = startNode;
+        this.endNode = endNode;
+        this.walls = walls; // Set of strings "x,y"
+
+        // Estado del algoritmo
+        this.maxK = 5;
+        this.currentK = 0;
+        this.bestPath = null;
+        this.bestCost = Infinity;
+        
+        // Matriz de heurísticas (h)
+        this.h = []; 
+        for(let x=0; x<this.width; x++) {
+            this.h[x] = [];
+            for(let y=0; y<this.height; y++) {
+                if (pessimistic) {
+                    // Pesimista (Manhattan + Penalización): Guía hacia el objetivo pero con alto coste inicial para lo desconocido.
+                    const MANHATTAN_DISTANCE = Math.abs(x - endNode.x) + Math.abs(y - endNode.y);
+                    const LARGE_PENALTY = 500; // Penalización fija para hacerla 'pesimista' pero dirigida
+                    this.h[x][y] = MANHATTAN_DISTANCE + LARGE_PENALTY;
+                } else {
+                    // Manhattan (Optimista): Incentiva explorar
+                    this.h[x][y] = Math.abs(x - endNode.x) + Math.abs(y - endNode.y);
+                }
+            }
+        }
+
+        // Estado de ejecución
+        this.isRunning = false;
+        this.isFinished = false;
+        this.improvements = 0;
+        
+        // Control de iteración visual
+        this.generator = null; 
+    }
+
+    // Generador principal para poder pausar/visualizar paso a paso
+    *solveGenerator() {
+        this.currentK = 0;
+        let improvedInThisK = false;
+
+        while (this.currentK <= this.maxK) {
+            improvedInThisK = false;
+            yield { type: 'k_start', k: this.currentK };
+
+            // Iniciamos la búsqueda recursiva desde el nodo inicial
+            const searchGen = this.search(this.startNode, [this.startNode], 0, this.currentK, new Set([`${this.startNode.x},${this.startNode.y}`]));
+            
+            for (const step of searchGen) {
+                if (step.type === 'found_better') {
+                    improvedInThisK = true;
+                    this.updateHeuristics(step.path);
+                    yield { type: 'improvement', path: step.path, cost: step.cost };
+                    // Romper para reiniciar con el mismo K (según lógica original)
+                    break; 
+                }
+                yield step; // Propagar pasos de visualización
+            }
+
+            if (improvedInThisK) {
+                yield { type: 'log', msg: `Mejora encontrada. Repitiendo K=${this.currentK}` };
+                continue;
+            } else {
+                this.currentK++;
+            }
+        }
+        this.isFinished = true;
+        yield { type: 'finished' };
+    }
+
+    // Búsqueda con discrepancia limitada (DFS generator)
+    *search(node, currentPath, currentG, kBudget, visitedSet) {
+        // 1. Chequear si llegamos al destino
+        if (node.x === this.endNode.x && node.y === this.endNode.y) {
+            if (currentG < this.bestCost) {
+                this.bestCost = currentG;
+                this.bestPath = [...currentPath];
+                this.improvements++;
+                yield { type: 'found_better', path: this.bestPath, cost: this.bestCost };
+                return true;
+            }
+            return false;
+        }
+
+        // 2. Poda básica: si g ya es peor que el mejor conocido, volver
+        if (currentG >= this.bestCost) return false;
+
+        yield { type: 'visiting', node: node, path: currentPath };
+
+        // 3. Obtener vecinos válidos
+        let neighbors = this.getNeighbors(node).filter(n => !visitedSet.has(`${n.x},${n.y}`));
+
+        // 4. Ordenar vecinos por f(n) = g(n) + h(n)
+        neighbors.sort((a, b) => {
+            let fA = (currentG + 1) + this.h[a.x][a.y];
+            let fB = (currentG + 1) + this.h[b.x][b.y];
+            return fA - fB;
+        });
+
+        // 5. Iterar vecinos consumiendo presupuesto K
+        for (let i = 0; i < neighbors.length; i++) {
+            let costK = i;
+            
+            if (kBudget >= costK) {
+                let nextNode = neighbors[i];
+                
+                visitedSet.add(`${nextNode.x},${nextNode.y}`);
+                currentPath.push(nextNode);
+                
+                // Llamada recursiva
+                const found = yield* this.search(nextNode, currentPath, currentG + 1, kBudget - costK, visitedSet);
+                
+                currentPath.pop();
+                visitedSet.delete(`${nextNode.x},${nextNode.y}`);
+
+                if (found) return true; 
+            } else {
+                break;
+            }
+        }
+        return false;
+    }
+
+    getNeighbors(node) {
+        const dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // N, E, S, W
+        const res = [];
+        for (let d of dirs) {
+            let nx = node.x + d[0];
+            let ny = node.y + d[1];
+            if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height) {
+                if (!this.walls.has(`${nx},${ny}`)) {
+                    res.push({x: nx, y: ny});
+                }
+            }
+        }
+        return res;
+    }
+
+    updateHeuristics(path) {
+        // Aprendizaje: coste real desde el nodo i hasta el final
+        for (let i = 0; i < path.length; i++) {
+            let node = path[i];
+            let costToGoal = (path.length - 1) - i;
+            
+            if (costToGoal < this.h[node.x][node.y]) {
+                this.h[node.x][node.y] = costToGoal;
+            }
+        }
+    }
+}
+
+/**
+ * Control de UI y Canvas
+ */
+const canvas = document.getElementById('gridCanvas');
+const ctx = canvas.getContext('2d');
+const gridSize = 20; // pixels per cell
+const cols = canvas.width / gridSize;
+const rows = canvas.height / gridSize;
+
+// Estado global
+let startPos = {x: 2, y: rows/2};
+let endPos = {x: cols-3, y: rows/2};
+let walls = new Set();
+let currentPathVisual = [];
+
+// Instancia del optimizador (evitamos nombre 'runner' para no colisionar con variable global antigua)
+let optimizer = null; 
+let isRunning = false;
+
+// Input handling
+let isDrawing = false;
+let drawMode = 'wall'; // wall, start, end
+
+function drawGrid() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Dibujar celdas
+    for(let x=0; x<cols; x++) {
+        for(let y=0; y<rows; y++) {
+            // Base
+            ctx.strokeStyle = '#222';
+            ctx.strokeRect(x*gridSize, y*gridSize, gridSize, gridSize);
+            
+            // Muros
+            if(walls.has(`${x},${y}`)) {
+                ctx.fillStyle = '#666';
+                ctx.fillRect(x*gridSize, y*gridSize, gridSize, gridSize);
+            }
+
+            // Heurística (si hay solver)
+            if (optimizer && optimizer.h[x][y] < 20000) { // Dibujar solo si es razonable (no el gigante 99999)
+                let originalH = Math.abs(x - endPos.x) + Math.abs(y - endPos.y);
+                if (optimizer.h[x][y] < originalH) {
+                    ctx.fillStyle = 'rgba(0, 100, 255, 0.2)';
+                    ctx.fillRect(x*gridSize + 1, y*gridSize + 1, gridSize-2, gridSize-2);
+                }
+            }
+        }
+    }
+
+    // Dibujar Start/End
+    ctx.fillStyle = '#00ff00';
+    ctx.fillRect(startPos.x*gridSize, startPos.y*gridSize, gridSize, gridSize);
+    
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(endPos.x*gridSize, endPos.y*gridSize, gridSize, gridSize);
+
+    // Dibujar Path Actual (Exploración)
+    if (currentPathVisual.length > 0) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#ffff00';
+        ctx.lineWidth = 2;
+        ctx.moveTo(currentPathVisual[0].x*gridSize + gridSize/2, currentPathVisual[0].y*gridSize + gridSize/2);
+        for(let p of currentPathVisual) {
+            ctx.lineTo(p.x*gridSize + gridSize/2, p.y*gridSize + gridSize/2);
+        }
+        ctx.stroke();
+        
+        // Cabeza
+        let head = currentPathVisual[currentPathVisual.length-1];
+        ctx.fillStyle = '#ffff00';
+        ctx.fillRect(head.x*gridSize+4, head.y*gridSize+4, gridSize-8, gridSize-8);
+    }
+
+    // Dibujar Mejor Camino
+    if (optimizer && optimizer.bestPath) {
+        ctx.beginPath();
+        ctx.strokeStyle = 'lime';
+        ctx.lineWidth = 3;
+        ctx.moveTo(optimizer.bestPath[0].x*gridSize + gridSize/2, optimizer.bestPath[0].y*gridSize + gridSize/2);
+        for(let p of optimizer.bestPath) {
+            ctx.lineTo(p.x*gridSize + gridSize/2, p.y*gridSize + gridSize/2);
+        }
+        ctx.stroke();
+    }
+}
+
+// UI Controller logic (renombrado a uiController para evitar confusión)
+const uiController = {
+    start: () => {
+        if (isRunning) return;
+        
+        const maxK = parseInt(document.getElementById('maxK').value);
+        const pessimistic = document.getElementById('pessimisticMode').checked;
+        
+        optimizer = new KPathOptimizer(cols, rows, startPos, endPos, new Set(walls), pessimistic);
+        optimizer.maxK = maxK;
+        optimizer.generator = optimizer.solveGenerator();
+        
+        isRunning = true;
+        document.getElementById('status').innerText = 'Corriendo...';
+        document.getElementById('status').style.color = '#00ff00';
+        
+        uiController.loop();
+    },
+    
+    loop: () => {
+        if (!isRunning) return;
+
+        const speed = 51 - parseInt(document.getElementById('speedRange').value);
+        let stepsPerFrame = Math.max(1, Math.floor((50 - speed) / 2));
+        if (speed > 45) stepsPerFrame = 1;
+        if (speed < 5) stepsPerFrame = 50;
+
+        let res;
+        for(let i=0; i<stepsPerFrame; i++) {
+            res = optimizer.generator.next();
+            
+            if (res.done) {
+                isRunning = false;
+                document.getElementById('status').innerText = 'Terminado';
+                document.getElementById('status').style.color = '#fff';
+                drawGrid();
+                return;
+            }
+
+            const val = res.value;
+            
+            if (val.type === 'visiting') {
+                currentPathVisual = val.path;
+            } else if (val.type === 'k_start') {
+                document.getElementById('currK').innerText = val.k;
+            } else if (val.type === 'improvement') {
+                document.getElementById('bestCost').innerText = val.cost;
+                document.getElementById('improvements').innerText = optimizer.improvements;
+                // Breve pausa visual al encontrar mejora
+                drawGrid();
+            }
+        }
+        
+        drawGrid();
+        
+        if (speed > 40) {
+            setTimeout(uiController.loop, (speed - 40) * 10);
+        } else {
+            requestAnimationFrame(uiController.loop);
+        }
+    },
+
+    step: () => {
+        if (!optimizer) {
+            uiController.start();
+            isRunning = false;
+        }
+        
+        const res = optimizer.generator.next();
+        if (res.done) {
+            document.getElementById('status').innerText = 'Terminado';
+            return;
+        }
+        
+        const val = res.value;
+        if (val.type === 'visiting') currentPathVisual = val.path;
+        if (val.type === 'k_start') document.getElementById('currK').innerText = val.k;
+        if (val.type === 'improvement') {
+            document.getElementById('bestCost').innerText = val.cost;
+            document.getElementById('improvements').innerText = optimizer.improvements;
+        }
+        
+        drawGrid();
+    },
+
+    reset: () => {
+        isRunning = false;
+        optimizer = null;
+        currentPathVisual = [];
+        document.getElementById('status').innerText = 'Listo';
+        document.getElementById('currK').innerText = '0';
+        document.getElementById('bestCost').innerText = '-';
+        document.getElementById('improvements').innerText = '0';
+        drawGrid();
+    },
+    
+    clearGrid: () => {
+        walls.clear();
+        uiController.reset();
+    }
+};
+
+// Event Listeners Canvas
+canvas.addEventListener('mousedown', e => {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) / gridSize);
+    const y = Math.floor((e.clientY - rect.top) / gridSize);
+    
+    if (x === startPos.x && y === startPos.y) drawMode = 'start';
+    else if (x === endPos.x && y === endPos.y) drawMode = 'end';
+    else {
+        drawMode = 'wall';
+        toggleWall(x, y);
+    }
+});
+
+canvas.addEventListener('mousemove', e => {
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) / gridSize);
+    const y = Math.floor((e.clientY - rect.top) / gridSize);
+    
+    if (x < 0 || x >= cols || y < 0 || y >= rows) return;
+
+    if (drawMode === 'start') {
+        startPos = {x, y};
+        uiController.reset();
+    } else if (drawMode === 'end') {
+        endPos = {x, y};
+        uiController.reset();
+    } else if (drawMode === 'wall') {
+        walls.add(`${x},${y}`);
+    }
+    drawGrid();
+});
+
+canvas.addEventListener('mouseup', () => {
+    isDrawing = false;
+});
+
+function toggleWall(x, y) {
+    const key = `${x},${y}`;
+    if (walls.has(key)) walls.delete(key);
+    else walls.add(key);
+    drawGrid();
+}
+
+// Init
+window.ui = uiController;
+drawGrid();
+
+</script>
+</body>
+</html>
