@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP - Inserción Espacial Optimizada (KD-Tree)</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        canvas { border: 1px solid black; cursor: crosshair; margin-top: 10px; }
+        .controls { margin: 10px; padding: 10px; background: #f0f0f0; border-radius: 8px; }
+        button { padding: 8px 16px; font-size: 14px; cursor: pointer; }
+        .stats { margin-top: 10px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>TSP - Inserción Recursiva con Optimización Espacial</h1>
+    
+    <div class="controls">
+        <button onclick="generateRandom(50)">Generar 50 Aleatorios</button>
+        <button onclick="clearCanvas()">Limpiar</button>
+        <br><br>
+        <label>Vecinos a revisar (M): <input type="number" id="kNeighbors" value="20" min="5" max="100"></label>
+    </div>
+
+    <p>Haz clic en el canvas para agregar ciudades dinámicamente.</p>
+    <canvas id="tspCanvas" width="800" height="500"></canvas>
+    <div class="stats" id="stats">Nodos: 0 | Costo: 0.00</div>
+
+    <script>
+        // --- KD-Tree Implementation ---
+        class Node {
+            constructor(point, axis, data) {
+                this.point = point; // [x, y]
+                this.left = null;
+                this.right = null;
+                this.axis = axis;
+                this.data = data; // Stores the original city object or index
+            }
+        }
+
+        class KDTree {
+            constructor(points) {
+                // Points expected as objects with x, y properties
+                // We convert them to [x, y] for internal processing but keep ref
+                const formatted = points.map(p => ({ 
+                    arr: [p.x, p.y], 
+                    data: p 
+                }));
+                this.root = this.buildTree(formatted, 0);
+            }
+
+            buildTree(points, depth) {
+                if (points.length === 0) return null;
+                const axis = depth % 2;
+                points.sort((a, b) => a.arr[axis] - b.arr[axis]);
+                const medianIndex = Math.floor(points.length / 2);
+                const node = new Node(points[medianIndex].arr, axis, points[medianIndex].data);
+                node.left = this.buildTree(points.slice(0, medianIndex), depth + 1);
+                node.right = this.buildTree(points.slice(medianIndex + 1), depth + 1);
+                return node;
+            }
+
+            insert(city) {
+                const point = [city.x, city.y];
+                // Rebuild is expensive, but for incremental insertion in this demo it's okay.
+                // Ideally we would do a proper insert. Implementing proper insert for simplicity here:
+                const newNode = { arr: point, data: city };
+                if (!this.root) {
+                    this.root = new Node(point, 0, city);
+                } else {
+                    this._insertRecursive(this.root, point, city, 0);
+                }
+            }
+
+            _insertRecursive(node, point, data, depth) {
+                const axis = depth % 2;
+                if (point[axis] < node.point[axis]) {
+                    if (node.left === null) node.left = new Node(point, (depth + 1) % 2, data);
+                    else this._insertRecursive(node.left, point, data, depth + 1);
+                } else {
+                    if (node.right === null) node.right = new Node(point, (depth + 1) % 2, data);
+                    else this._insertRecursive(node.right, point, data, depth + 1);
+                }
+            }
+
+            nearestNeighbors(city, k) {
+                const point = [city.x, city.y];
+                const neighbors = [];
+                this.searchNearest(this.root, point, k, neighbors);
+                // Return just the data (city objects)
+                return neighbors.map(n => n.node.data);
+            }
+
+            searchNearest(node, point, k, neighbors) {
+                if (!node) return;
+                const d = Math.hypot(point[0] - node.point[0], point[1] - node.point[1]);
+
+                // Insert into sorted neighbors list
+                if (neighbors.length < k || d < neighbors[neighbors.length - 1].distance) {
+                    // Avoid duplicating self
+                    if (d > 0.0001) { 
+                        neighbors.push({ node, distance: d });
+                        neighbors.sort((a, b) => a.distance - b.distance);
+                        if (neighbors.length > k) neighbors.pop();
+                    }
+                }
+
+                const axis = node.axis;
+                const diff = point[axis] - node.point[axis];
+                const nearChild = diff < 0 ? node.left : node.right;
+                const farChild = diff < 0 ? node.right : node.left;
+
+                this.searchNearest(nearChild, point, k, neighbors);
+
+                if (neighbors.length < k || Math.abs(diff) < neighbors[neighbors.length - 1].distance) {
+                    this.searchNearest(farChild, point, k, neighbors);
+                }
+            }
+        }
+
+        // --- TSP Logic ---
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        const statsDiv = document.getElementById('stats');
+        
+        let cities = [];
+        let tour = []; // Stores indices of cities in the 'cities' array
+        let kdtree = new KDTree([]);
+
+        function clearCanvas() {
+            cities = [];
+            tour = [];
+            kdtree = new KDTree([]);
+            drawTour();
+        }
+
+        function generateRandom(n) {
+            clearCanvas();
+            for(let i=0; i<n; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                addCityInternal(x, y, false);
+            }
+            drawTour();
+        }
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            addCityInternal(x, y, true);
+        });
+
+        function addCityInternal(x, y, redraw) {
+            const newCity = {x, y, id: cities.length};
+            cities.push(newCity);
+            kdtree.insert(newCity);
+
+            if (cities.length <= 3) {
+                tour.push(newCity.id); // Simply append initial cities
+            } else {
+                insertCityAndOptimize(newCity.id);
+            }
+            
+            if (redraw) drawTour();
+        }
+
+        // Standard Cheapest Insertion to place the new city initially
+        function insertCityAndOptimize(cityIndex) {
+            let bestInsertion = { cost: Infinity, idx: -1 };
+            
+            // Initial placement: Look at ALL edges (global best insertion)
+            // Optimizing this initial step with KD-Tree is possible but less critical for "Recursive" part.
+            // Let's keep it global for initial placement to ensure valid topology, 
+            // then refine locally.
+            for (let i = 0; i < tour.length; i++) {
+                const j = (i + 1) % tour.length;
+                const cost = insertionCost(cityIndex, tour[i], tour[j]);
+                if (cost < bestInsertion.cost) {
+                    bestInsertion = { cost, idx: i };
+                }
+            }
+
+            // Insert the city into the tour
+            tour.splice(bestInsertion.idx + 1, 0, cityIndex);
+
+            // Start the recursive/cascading optimization
+            // We optimize the new city and its immediate neighbors
+            const insertedPos = bestInsertion.idx + 1;
+            optimizeNeighbors(cityIndex);
+        }
+
+        function optimizeNeighbors(startCityIdx) {
+            let modified = new Set([startCityIdx]);
+            const maxK = parseInt(document.getElementById('kNeighbors').value) || 20;
+
+            while (modified.size > 0) {
+                // Pop an element
+                const currentCityId = modified.values().next().value;
+                modified.delete(currentCityId);
+
+                // Find current position in tour
+                const currentPos = tour.indexOf(currentCityId);
+                if (currentPos === -1) continue; // Should not happen
+
+                // Find M nearest neighbors using KD-Tree
+                const neighbors = kdtree.nearestNeighbors(cities[currentCityId], maxK);
+                
+                // Identify candidate edges from these spatial neighbors
+                // For each neighbor, consider the edge entering it and leaving it in the current tour
+                const candidatePositions = new Set();
+                
+                neighbors.forEach(neighbor => {
+                    const neighborPos = tour.indexOf(neighbor.id);
+                    if (neighborPos !== -1) {
+                        candidatePositions.add(neighborPos); // Insert before neighbor
+                        candidatePositions.add((neighborPos + 1) % tour.length); // Insert after neighbor
+                    }
+                });
+
+                // Also calculate cost of removing current city (to compare improvement)
+                const prevPos = (currentPos - 1 + tour.length) % tour.length;
+                const nextPos = (currentPos + 1) % tour.length;
+                const prevCityId = tour[prevPos];
+                const nextCityId = tour[nextPos];
+                
+                const currentCostContribution = 
+                    dist(cities[prevCityId], cities[currentCityId]) + 
+                    dist(cities[currentCityId], cities[nextCityId]);
+                
+                const bridgedCost = dist(cities[prevCityId], cities[nextCityId]);
+                const savingByRemoval = currentCostContribution - bridgedCost;
+
+                // Find best re-insertion spot among candidates
+                let bestMove = { gain: 0, pos: -1 };
+
+                candidatePositions.forEach(pos => {
+                    // Skip if pos is adjacent to current (no move)
+                    if (pos === currentPos || pos === (currentPos + 1) % tour.length) return;
+
+                    // Calculate cost of inserting at 'pos' (between pos-1 and pos)
+                    // Note: logic for 'pos' means inserting at index 'pos', shifting original 'pos' to right.
+                    // So we are breaking edge (pos-1, pos).
+                    
+                    const p = (pos - 1 + tour.length) % tour.length;
+                    const n = pos; // The node currently at 'pos'
+
+                    // Be careful: if we remove 'current', the indices shift.
+                    // It's safer to think in terms of Node IDs.
+                    const nodeP = tour[p];
+                    const nodeN = tour[n];
+                    
+                    // If nodeP or nodeN is 'current', skip (adjacent) - handled by index check above mainly
+                    if (nodeP === currentCityId || nodeN === currentCityId) return;
+
+                    const costToInsert = 
+                        dist(cities[nodeP], cities[currentCityId]) + 
+                        dist(cities[currentCityId], cities[nodeN]) - 
+                        dist(cities[nodeP], cities[nodeN]);
+
+                    const gain = savingByRemoval - costToInsert;
+
+                    if (gain > 0.00001 && gain > bestMove.gain) {
+                        bestMove = { gain, pos: pos, nodeP, nodeN };
+                    }
+                });
+
+                if (bestMove.gain > 0) {
+                    // Apply Move
+                    // 1. Remove from old position
+                    tour.splice(currentPos, 1);
+                    
+                    // 2. Re-calculate new insertion index (indices might have shifted)
+                    // We want to insert after 'nodeP'
+                    let newIdxP = tour.indexOf(bestMove.nodeP);
+                    tour.splice(newIdxP + 1, 0, currentCityId);
+
+                    // 3. Propagate optimization
+                    // Mark neighbors of old position (now connected)
+                    modified.add(prevCityId);
+                    modified.add(nextCityId);
+                    // Mark neighbors of new position (now separated by current)
+                    modified.add(bestMove.nodeP);
+                    modified.add(bestMove.nodeN);
+                    
+                    // Also keep 'current' in the set? Maybe, if it can move again?
+                    // Let's avoid infinite loops for now by not re-adding 'current' immediately,
+                    // unless strictly necessary. The neighbors will trigger checks.
+                }
+            }
+        }
+
+        function insertionCost(cityIdx, prevIdx, nextIdx) {
+            return dist(cities[cityIdx], cities[prevIdx]) + 
+                   dist(cities[cityIdx], cities[nextIdx]) - 
+                   dist(cities[prevIdx], cities[nextIdx]);
+        }
+
+        function dist(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
+        }
+
+        function tourCost() {
+            let c = 0;
+            for (let i = 0; i < tour.length; i++) {
+                c += dist(cities[tour[i]], cities[tour[(i + 1) % tour.length]]);
+            }
+            return c;
+        }
+
+        function drawTour() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw cities
+            for (let i = 0; i < cities.length; i++) {
+                const city = cities[i];
+                ctx.beginPath();
+                ctx.arc(city.x, city.y, 4, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+                // ctx.fillStyle = 'black';
+                // ctx.fillText(i, city.x + 5, city.y - 5);
+            }
+
+            // Draw tour
+            if (tour.length > 0) {
+                ctx.beginPath();
+                const start = cities[tour[0]];
+                ctx.moveTo(start.x, start.y);
+                for (let i = 1; i <= tour.length; i++) { // <= to close loop
+                    const city = cities[tour[i % tour.length]];
+                    ctx.lineTo(city.x, city.y);
+                }
+                ctx.strokeStyle = 'blue';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            statsDiv.textContent = `Nodos: ${cities.length} | Costo: ${tourCost().toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
