@@ -1,5 +1,9 @@
 # k-Alternatives: A General-Purpose Meta-Heuristic
 
+**Repository:** [https://github.com/mcarbonell/k-alternatives-meta-algorithm](https://github.com/mcarbonell/k-alternatives-meta-algorithm)
+
+**Author:** Mario Raúl Carbonell Martínez
+
 **k-Alternatives** is a stochastic search algorithm designed to optimize combinatorial problems by exploring controlled deviations from a heuristic baseline.
 
 Originally designed for the **Traveling Salesperson Problem (TSP)**, the architecture has been generalized to solve other optimization problems, such as the **Knapsack Problem**, demonstrating remarkable robustness.
