@@ -1,0 +1,229 @@
+// Implementación del algoritmo TSP con visualización en canvas
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP Solver</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <label for="numCities">Número de ciudades:</label>
+        <input type="number" id="numCities" value="20" min="3" max="100">
+        <label for="numNearest">Número de cercanas a reevaluar:</label>
+        <input type="number" id="numNearest" value="5" min="1" max="20">
+        <button id="generateBtn">Generar ciudades</button>
+        <button id="solveBtn">Resolver TSP</button>
+    </div>
+    <canvas id="tspCanvas" width="600" height="600"></canvas>
+    <div id="distanceOutput"></div>
+
+    <script>
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        let cities = [];
+        let tour = [];
+        let distanceMatrix = [];
+        let drawNumbers = true;
+
+        function generateRandomCities(n) {
+            cities = [];
+            for (let i = 0; i < n; i++) {
+                cities.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height
+                });
+            }
+            drawCities();
+        }
+
+        function drawCities() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            cities.forEach((city, index) => {
+                ctx.beginPath();
+                ctx.fillStyle = 'red';
+                ctx.arc(city.x, city.y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+
+                if (drawNumbers) {
+                    // Dibujar el índice de la ciudad
+                    ctx.font = '12px Arial';
+                    ctx.fillStyle = 'black';
+                    ctx.fillText(index + 1, city.x + 7, city.y + 4); // Ajusta las coordenadas según sea necesario
+                }
+            });
+        }
+
+        function drawTour() {
+            ctx.strokeStyle = 'green';
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+            ctx.moveTo(cities[tour[0]].x, cities[tour[0]].y);
+            for (let i = 1; i < tour.length; i++) {
+                ctx.lineTo(cities[tour[i]].x, cities[tour[i]].y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        function distance(city1, city2) {
+            const dx = city1.x - city2.x;
+            const dy = city1.y - city2.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function calculateDistanceMatrix() {
+            distanceMatrix = cities.map(() => new Array(cities.length).fill(0));
+            for (let i = 0; i < cities.length; i++) {
+                for (let j = i + 1; j < cities.length; j++) {
+                    const dist = distance(cities[i], cities[j]);
+                    distanceMatrix[i][j] = dist;
+                    distanceMatrix[j][i] = dist;
+                }
+            }
+        }
+
+        function findConvexHull() {
+            // Implementación simple del algoritmo de Graham Scan
+            function crossProduct(o, a, b) {
+                return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+            }
+
+            const sorted = cities.slice().sort((a, b) => a.y - b.y || a.x - b.x);
+            const lower = [];
+            for (let i = 0; i < sorted.length; i++) {
+                while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], sorted[i]) <= 0) {
+                    lower.pop();
+                }
+                lower.push(sorted[i]);
+            }
+            const upper = [];
+            for (let i = sorted.length - 1; i >= 0; i--) {
+                while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], sorted[i]) <= 0) {
+                    upper.pop();
+                }
+                upper.push(sorted[i]);
+            }
+            upper.pop();
+            lower.pop();
+            return lower.concat(upper);
+        }
+
+        function solveTSP(numNearest) {
+            calculateDistanceMatrix();
+            const hull = findConvexHull();
+            tour = hull.map(city => cities.indexOf(city));
+
+
+            const remaining = cities.filter(city => !hull.includes(city));
+
+            remaining.sort((a, b) => {
+                const sumDistA = cities.reduce((sum, c) => sum + distance(a, c), 0);
+                const sumDistB = cities.reduce((sum, c) => sum + distance(b, c), 0);
+                return sumDistB - sumDistA; // Ordenar de exterior a interior
+            });
+
+
+            // drawTour();
+
+            console.log('tour', tour);
+            console.log('remaining', remaining);
+            // return;
+
+            for (const city of remaining) {
+                insertCity(cities.indexOf(city), numNearest);
+            }
+
+            drawCities();
+            drawTour();
+            updateDistance();
+            console.log('END solveTSP');
+        }
+
+        function insertCity(cityIndex, numNearest) {
+            let bestPosition = 0;
+            let bestIncrease = Infinity;
+
+            for (let i = 0; i < tour.length; i++) {
+                const next = (i + 1) % tour.length;
+                const increase = distanceMatrix[tour[i]][cityIndex] + distanceMatrix[cityIndex][tour[next]] - distanceMatrix[tour[i]][tour[next]];
+                if (increase < bestIncrease) {
+                    bestIncrease = increase;
+                    bestPosition = i + 1;
+                }
+            }
+
+            tour.splice(bestPosition, 0, cityIndex);
+            // reevaluateNearby(cityIndex, numNearest);
+        }
+
+        function reevaluateNearby(cityIndex, numNearest) {
+            const nearby = tour.filter(index => index !== cityIndex)
+                .sort((a, b) => distanceMatrix[cityIndex][a] - distanceMatrix[cityIndex][b])
+                .slice(0, numNearest);
+
+            const modified = new Set(nearby);
+            while (modified.size > 0) {
+                const current = modified.values().next().value;
+                modified.delete(current);
+
+                const currentPos = tour.indexOf(current);
+                tour.splice(currentPos, 1);
+
+                let bestPos = 0;
+                let bestIncrease = Infinity;
+
+                for (let i = 0; i < tour.length; i++) {
+                    const next = (i + 1) % tour.length;
+                    const increase = distanceMatrix[tour[i]][current] + distanceMatrix[current][tour[next]] - distanceMatrix[tour[i]][tour[next]];
+                    if (increase < bestIncrease) {
+                        bestIncrease = increase;
+                        bestPos = i + 1;
+                    }
+                }
+
+                if (bestPos !== currentPos && bestPos !== (currentPos + 1) % tour.length) {
+                    tour.splice(bestPos, 0, current);
+                    const newNearby = tour.filter(index => index !== current)
+                        .sort((a, b) => distanceMatrix[current][a] - distanceMatrix[current][b])
+                        .slice(0, numNearest);
+                    newNearby.forEach(index => modified.add(index));
+                } else {
+                    tour.splice(currentPos, 0, current);
+                }
+            }
+        }
+
+        function updateDistance() {
+            let totalDistance = 0;
+            for (let i = 0; i < tour.length; i++) {
+                const next = (i + 1) % tour.length;
+                totalDistance += distanceMatrix[tour[i]][tour[next]];
+            }
+            document.getElementById('distanceOutput').textContent = `Distancia total: ${totalDistance.toFixed(2)}`;
+        }
+
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const numCities = parseInt(document.getElementById('numCities').value);
+            generateRandomCities(numCities);
+        });
+
+        document.getElementById('solveBtn').addEventListener('click', () => {
+            const numNearest = parseInt(document.getElementById('numNearest').value);
+            solveTSP(numNearest);
+        });
+
+        // Inicialización
+        generateRandomCities(20);
+    </script>
+</body>
+
+</html>

@@ -3,11 +3,20 @@
  * Author: Mario Raúl Carbonell Martínez (Implemented by Gemini)
  */
 
-const { KDeviationOptimizer } = require('./k-optimizer.js');
+// Universal import for KDeviationOptimizer
+let BaseOptimizer;
+if (typeof require !== 'undefined') {
+    // Node.js environment
+    BaseOptimizer = require('./k-optimizer.js').KDeviationOptimizer;
+} else {
+    // Browser/Worker environment (loaded via importScripts)
+    BaseOptimizer = self.KDeviationOptimizer;
+}
 
-class KnapsackSolver extends KDeviationOptimizer {
+class KnapsackSolver extends BaseOptimizer {
     constructor(options = {}) {
-        super(options);
+        // Force deterministic order for Knapsack
+        super({ ...options, shuffle: false });
         // The base optimizer is a minimizer. By returning negative value from evaluateSolution,
         // we are effectively maximizing. The base this.bestValue starts at Infinity, which is correct.
         this.bestValue = Infinity;
@@ -23,20 +32,35 @@ class KnapsackSolver extends KDeviationOptimizer {
         this.maxWeight = problemData.maxWeight;
         this.problemName = problemData.name || 'KnapsackProblem';
         this.optimalValue = problemData.optimalValue ? -problemData.optimalValue : null; // Store as negative
-        this.allItems = this.items.map(item => item.index);
+        
+        // Initialize heuristics FIRST to populate globalSortedIndices
+        this.initializeGlobalHeuristics();
 
-        this.initializeLocalHeuristics();
+        // CRITICAL: For shuffle:false to work as a "Greedy" iterator, 
+        // allItems must be in the preferred heuristic order.
+        this.allItems = this.globalSortedIndices.slice();
     }
 
     getInitialSolution() {
-        // The initial "solution" is just the default order of items to consider
-        return this.allItems.slice().sort((a, b) => this.items[b].ratio - this.items[a].ratio);
+        // The initial "solution" is the strict Greedy order
+        return this.globalSortedIndices.slice();
     }
 
     getHeuristicChoices(currentItem, remainingItems) {
-        // Heuristic: from the current item, which item is best to consider next?
-        // This is based on the pre-sorted list of items by ratio.
-        return this.localHeuristics[currentItem];
+        // In Knapsack, the "next best choice" does NOT depend on the "current item".
+        // It simply depends on the Global Heuristic (Efficiency Ratio).
+        // We iterate through our global sorted list and return valid candidates that are in 'remainingItems'.
+        
+        const choices = [];
+        // Optimization: We iterate the pre-sorted global list. 
+        // Since remainingItems is a Set, lookup is O(1). Total complexity O(N).
+        for (let i = 0; i < this.globalSortedIndices.length; i++) {
+            const idx = this.globalSortedIndices[i];
+            if (remainingItems.has(idx)) {
+                choices.push(idx);
+            }
+        }
+        return choices;
     }
 
     evaluateSolution(solution) {
@@ -58,31 +82,21 @@ class KnapsackSolver extends KDeviationOptimizer {
     }
 
     updateHeuristics(improvedSolution) {
-        // The same learning mechanism as TSP can apply: if a sequence of
-        // considerations [..., itemA, itemB, ...] led to a good result,
-        // we reinforce that sequence.
-        for (let i = 0; i < improvedSolution.length - 1; i++) {
-            const itemA = improvedSolution[i];
-            const itemB = improvedSolution[i + 1];
-
-            if (this.localHeuristics[itemA][0] !== itemB) {
-                this.localHeuristics[itemA] = [itemB, ...this.localHeuristics[itemA].filter(i => i !== itemB)];
-            }
-        }
+        // Disable dynamic learning for strict K-deviation behavior from global ratio.
+        // This adheres to the "Single Global Heuristic" requirement.
     }
 
     // --- Knapsack-specific methods ---
 
-    initializeLocalHeuristics() {
-        // Create a static, sorted list of items by value-ratio
-        const sortedByRatio = this.items.slice().sort((a, b) => b.ratio - a.ratio).map(item => item.index);
-
-        this.localHeuristics = [];
-        for (let i = 0; i < this.items.length; i++) {
-            // The heuristic for any item is always the globally best-ratio items that haven't been considered yet.
-            // This is a simplification for Knapsack, as the "next choice" doesn't depend on the "current city".
-            this.localHeuristics[i] = sortedByRatio.filter(j => j !== i);
-        }
+    initializeGlobalHeuristics() {
+        // SINGLE GLOBAL HEURISTIC
+        // Sort all items by ratio (Value / Weight) descending.
+        this.globalSortedIndices = this.items
+            .slice()
+            .sort((a, b) => b.ratio - a.ratio)
+            .map(item => item.index);
+            
+        this.localHeuristics = null; 
     }
     
     // Override getFinalResult to return positive value
@@ -99,4 +113,6 @@ class KnapsackSolver extends KDeviationOptimizer {
 // Export for different environments
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { KnapsackSolver };
+} else {
+    self.KnapsackSolver = KnapsackSolver;
 }

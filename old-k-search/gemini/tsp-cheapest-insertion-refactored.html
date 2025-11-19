@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP - Inserción Mejorada y Optimización Local</title>
+    <link rel="stylesheet" href="style.css"> <!-- CSS externo -->
+</head>
+
+<body>
+    <div class="container">
+        <h1>TSP: Inserción Mejorada y Optimización Local</h1>
+
+        <div id="controls">
+            <div class="control-group">
+                <label for="numNearestCities">Nº Ciudades Cercanas (Opt.):</label>
+                <input type="number" id="numNearestCities" min="1" value="5" style="width: 60px;">
+            </div>
+            <div class="control-group display-options">
+                <label><input type="checkbox" id="showNumbers" checked> Números</label>
+                <label><input type="checkbox" id="showArrows" checked> Flechas</label>
+            </div>
+            <div class="control-group action-buttons">
+                <button id="btnRandomizeTour">Optimizar Tour Actual</button>
+                <button id="btnDetectIntersections">Eliminar Cruces (2-Opt)</button>
+                <button id="btnConvexHull">Mostrar Envolvente Convexa</button>
+                <button id="btnClearCities">Limpiar Ciudades</button>
+            </div>
+        </div>
+
+        <div id="infoPanel">
+            <p>Distancia Actual: <span id="currentDistance">-</span></p>
+            <p>Mejor Distancia Global: <span id="bestOverallDistance">-</span></p>
+            <p>Pasos de Optimización: <span id="optimizationSteps">-</span></p>
+            <p>Nº Ciudades: <span id="numCitiesDisplay">0</span></p>
+        </div>
+
+        <p class="instruction">Haz clic en el canvas para agregar ciudades. Pega un JSON de ciudades abajo.</p>
+        <canvas id="tspCanvas" width="600" height="600"></canvas>
+
+        <div class="io-section">
+            <label for="citiesInputArea">Datos de Ciudades (JSON):</label>
+            <textarea id="citiesInputArea" cols="60" rows="10" placeholder="Pega aquí un array de objetos [{x:10,y:20},...] o deja que se auto-rellene al hacer clic."></textarea>
+            <button id="btnLoadCities">Cargar Ciudades del Textarea</button>
+        </div>
+
+        <div class="log-section">
+            <label for="logOutput">Registro de Eventos:</label>
+            <pre id="logOutput"></pre>
+        </div>
+    </div>
+
+    <script src="tsp-solver.js"></script>
+    <script src="tsp-drawer.js"></script>
+    <script src="ui-controller.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

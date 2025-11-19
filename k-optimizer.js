@@ -15,7 +15,8 @@ class KDeviationOptimizer {
             onSolution: options.onSolution || null,
             onOptimalFound: options.onOptimalFound || null,
             onMaxIterationsReached: options.onMaxIterationsReached || null,
-            onMaxTimeReached: options.onMaxTimeReached || null
+            onMaxTimeReached: options.onMaxTimeReached || null,
+            shuffle: options.shuffle !== false // Default to true
         };
 
         // Generic state
@@ -146,18 +147,30 @@ class KDeviationOptimizer {
 
         const improvementsBeforeK = this.improvements;
 
+        // Create the execution order of starting items.
+        // If shuffle is true (default), we randomize to explore diverse starting points (good for TSP).
+        // If shuffle is false, we stick to the order provided in this.allItems (good for Knapsack/Greedy).
         let order = [...Array(this.allItems.length).keys()];
-        this.shuffle(order);
+        if (this.options.shuffle) {
+            this.shuffle(order);
+        }
+
+        const allItemsSet = new Set(this.allItems);
 
         for (let i = 0; i < order.length && this.isRunning; i++) {
-            const startItem = order[i];
-            const remainingItems = new Set(this.allItems.filter(item => item !== startItem));
-            this.systematicSearch(remainingItems, [startItem], this.currentK);
+            // order[i] is the index in this.allItems array
+            // We need the actual item ID from this.allItems
+            const startItem = this.allItems[order[i]];
+            
+            // Optimized: Reuse the Set instead of creating a new one every time
+            allItemsSet.delete(startItem);
+            this.systematicSearch(allItemsSet, [startItem], this.currentK);
+            allItemsSet.add(startItem);
         }
 
         // If improvements were made at this K level, repeat the search for the same K
-        // with a new random shuffle of starting points.
-        if (this.improvements > improvementsBeforeK && this.isRunning) {
+        // with a new random shuffle of starting points (ONLY if shuffling is enabled).
+        if (this.improvements > improvementsBeforeK && this.isRunning && this.options.shuffle) {
             setTimeout(() => this.solve(), 0);
             return;
         }

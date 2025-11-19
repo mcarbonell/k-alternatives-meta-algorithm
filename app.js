@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize Web Worker
 function initializeWorker() {
-    worker = new Worker('solve-worker.js');
+    worker = new Worker('solve-worker.js?v=' + Date.now());
     
     worker.onmessage = function(e) {
         handleWorkerMessage(e.data);
@@ -423,7 +423,7 @@ function startSolving() {
     if (worker) {
         worker.terminate();
     }
-    worker = new Worker('solve-worker.js');
+    worker = new Worker('solve-worker.js?v=' + Date.now());
     
     worker.onmessage = function(e) {
         handleWorkerMessage(e.data);

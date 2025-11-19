@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP - Algoritmo de Inserción Más Barata Modificado</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        canvas { border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <h1>TSP - Algoritmo de Inserción Más Barata Modificado</h1>
+    <p>Haz clic en el canvas para agregar ciudades</p>
+    <canvas id="tspCanvas" width="600" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        let cities = [];
+        let tour = [];
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            addCity(x, y);
+        });
+
+        function addCity(x, y) {
+            cities.push({x, y});
+            if (cities.length > 1) {
+                insertCityAndOptimize(cities.length - 1);
+            } else {
+                tour.push(0);
+            }
+            drawTour();
+        }
+
+        function insertCityAndOptimize(cityIndex) {
+            let bestInsertion = { cost: Infinity, i: -1 };
+            for (let i = 0; i < tour.length; i++) {
+                const j = (i + 1) % tour.length;
+                const cost = insertionCost(cityIndex, tour[i], tour[j]);
+                if (cost < bestInsertion.cost) {
+                    bestInsertion = { cost, i };
+                }
+            }
+
+            tour.splice(bestInsertion.i + 1, 0, cityIndex);
+            optimizeNeighbors(bestInsertion.i, (bestInsertion.i + 2) % tour.length);
+        }
+
+        function optimizeNeighbors(start, end) {
+            let modified = new Set([start, end]);
+            while (modified.size > 0) {
+                const current = modified.values().next().value;
+                modified.delete(current);
+                const prev = (current - 1 + tour.length) % tour.length;
+                const next = (current + 1) % tour.length;
+
+                let bestPosition = { cost: tourCost(), pos: current };
+                for (let i = 0; i < tour.length; i++) {
+                    if (i !== prev && i !== current && i !== next) {
+                        const newTour = [...tour];
+                        newTour.splice(current, 1);
+                        newTour.splice(i, 0, tour[current]);
+                        const cost = tourCost(newTour);
+                        if (cost < bestPosition.cost) {
+                            bestPosition = { cost, pos: i };
+                        }
+                    }
+                }
+
+                if (bestPosition.pos !== current) {
+                    const city = tour[current];
+                    tour.splice(current, 1);
+                    tour.splice(bestPosition.pos, 0, city);
+                    modified.add((bestPosition.pos - 1 + tour.length) % tour.length);
+                    modified.add((bestPosition.pos + 1) % tour.length);
+                }
+            }
+        }
+
+        function insertionCost(city, prev, next) {
+            return dist(cities[city], cities[prev]) + dist(cities[city], cities[next]) - dist(cities[prev], cities[next]);
+        }
+
+        function dist(a, b) {
+            return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+        }
+
+        function tourCost(t = tour) {
+            let cost = 0;
+            for (let i = 0; i < t.length; i++) {
+                cost += dist(cities[t[i]], cities[t[(i + 1) % t.length]]);
+            }
+            return cost;
+        }
+
+        function drawTour() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar ciudades
+            cities.forEach((city, index) => {
+                ctx.beginPath();
+                ctx.arc(city.x, city.y, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+                ctx.fillStyle = 'black';
+                ctx.fillText(index, city.x + 10, city.y + 10);
+            });
+
+            // Dibujar tour
+            ctx.beginPath();
+            ctx.moveTo(cities[tour[0]].x, cities[tour[0]].y);
+            for (let i = 1; i <= tour.length; i++) {
+                const city = cities[tour[i % tour.length]];
+                ctx.lineTo(city.x, city.y);
+            }
+            ctx.strokeStyle = 'blue';
+            ctx.stroke();
+
+            // Mostrar costo total
+            ctx.fillStyle = 'black';
+            ctx.fillText(`Costo total: ${tourCost().toFixed(2)}`, 10, 20);
+        }
+    </script>
+</body>
+</html>

@@ -4,9 +4,10 @@
     "type": "TSP",
     "dimension": 229,
     "edgeWeightType": "GEO",
+    "edgeWeightFormat": "",
     "optimalDistance": 134602,
     "source": "gr229.tsp",
-    "convertedAt": "2025-11-05T23:50:09.919Z"
+    "convertedAt": "2025-11-19T10:25:40.934Z"
   },
   "cities": [
     {

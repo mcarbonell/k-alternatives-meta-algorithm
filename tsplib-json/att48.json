@@ -4,9 +4,10 @@
     "type": "TSP",
     "dimension": 48,
     "edgeWeightType": "ATT",
+    "edgeWeightFormat": "",
     "optimalDistance": 10628,
     "source": "att48.tsp",
-    "convertedAt": "2025-11-05T23:50:09.843Z"
+    "convertedAt": "2025-11-19T10:25:40.844Z"
   },
   "cities": [
     {

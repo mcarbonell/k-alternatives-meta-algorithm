@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Soluciones Aleatorias para TSP (Interactivo con Cursor Normal)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+        button, input {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analizador de Soluciones Aleatorias para TSP (Interactivo con Cursor Normal)</h1>
+    <div>
+        <label for="numCitiesInput">Número inicial de ciudades:</label>
+        <input type="number" id="numCitiesInput" min="3" value="10">
+        <button id="generateBtn">Generar Soluciones</button>
+        <button id="stopBtn">Detener</button>
+        <button id="resetBtn">Reiniciar</button>
+    </div>
+    <div>Soluciones generadas: <span id="solutionCount">0</span></div>
+    <div>Ciudades actuales: <span id="cityCount">0</span></div>
+    <canvas id="tspCanvas" width="600" height="400"></canvas>
+
+    <script>
+        // Configuración
+        const canvasWidth = 600;
+        const canvasHeight = 400;
+        const cityRadius = 5;
+
+        // Variables globales
+        let cities = [];
+        let connectionStats = [];
+        let solutionsGenerated = 0;
+        let isGenerating = false;
+
+        // Elementos del DOM
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        const generateBtn = document.getElementById('generateBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const solutionCountSpan = document.getElementById('solutionCount');
+        const cityCountSpan = document.getElementById('cityCount');
+        const numCitiesInput = document.getElementById('numCitiesInput');
+
+        // Inicialización
+        function init() {
+            const initialCities = parseInt(numCitiesInput.value);
+            cities = generateRandomCities(initialCities);
+            initializeConnectionStats();
+            drawCities();
+            updateCityCount();
+        }
+
+        function generateRandomCities(num) {
+            return Array.from({ length: num }, () => ({
+                x: Math.random() * canvasWidth,
+                y: Math.random() * canvasHeight
+            }));
+        }
+
+        function initializeConnectionStats() {
+            connectionStats = Array.from({ length: cities.length }, () =>
+                Array(cities.length).fill().map(() => ({ count: 0, totalDistance: 0 }))
+            );
+        }
+
+        // Lógica principal
+        function generateRandomSolution() {
+            return shuffle([...Array(cities.length).keys()]);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function evaluateSolution(solution) {
+            let totalDistance = 0;
+            for (let i = 0; i < solution.length; i++) {
+                const cityA = solution[i];
+                const cityB = solution[(i + 1) % solution.length];
+                const distance = calculateDistance(cities[cityA], cities[cityB]);
+                totalDistance += distance;
+            }
+            
+            for (let i = 0; i < solution.length; i++) {
+                const cityA = solution[i];
+                const cityB = solution[(i + 1) % solution.length];
+                updateConnectionStats(cityA, cityB, totalDistance);
+            }
+            
+            return totalDistance;
+        }
+
+        function calculateDistance(cityA, cityB) {
+            const dx = cityA.x - cityB.x;
+            const dy = cityA.y - cityB.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function updateConnectionStats(cityA, cityB, totalDistance) {
+            connectionStats[cityA][cityB].count++;
+            connectionStats[cityA][cityB].totalDistance += totalDistance;
+            connectionStats[cityB][cityA].count++;
+            connectionStats[cityB][cityA].totalDistance += totalDistance;
+        }
+
+        function getBestConnections() {
+            const bestConnections = [];
+            for (let i = 0; i < cities.length; i++) {
+                const cityConnections = [];
+                for (let j = 0; j < cities.length; j++) {
+                    if (i !== j) {
+                        const stats = connectionStats[i][j];
+                        const avgDistance = stats.count > 0 ? stats.totalDistance / stats.count : Infinity;
+                        cityConnections.push({ to: j, avgDistance: avgDistance });
+                    }
+                }
+                cityConnections.sort((a, b) => a.avgDistance - b.avgDistance);
+                bestConnections.push(cityConnections.slice(0, 2));
+            }
+            return bestConnections;
+        }
+
+        // Funciones de dibujo
+        function drawCities() {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            cities.forEach(city => {
+                ctx.beginPath();
+                ctx.arc(city.x, city.y, cityRadius, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+            });
+        }
+
+        function drawBestConnections() {
+            const bestConnections = getBestConnections();
+            bestConnections.forEach((connections, cityIndex) => {
+                connections.forEach((conn, index) => {
+                    const cityA = cities[cityIndex];
+                    const cityB = cities[conn.to];
+                    ctx.beginPath();
+                    ctx.moveTo(cityA.x, cityA.y);
+                    ctx.lineTo(cityB.x, cityB.y);
+                    ctx.strokeStyle = 'blue';
+                    ctx.lineWidth = index === 0 ? 2 : 1;
+                    ctx.stroke();
+                });
+            });
+        }
+
+        // Funciones de interactividad
+        function addCity(x, y) {
+            cities.push({ x, y });
+            initializeConnectionStats();
+            drawCities();
+            updateCityCount();
+        }
+
+        function updateCityCount() {
+            cityCountSpan.textContent = cities.length;
+        }
+
+        // Controladores de eventos
+        generateBtn.addEventListener('click', startGenerating);
+        stopBtn.addEventListener('click', stopGenerating);
+        resetBtn.addEventListener('click', resetSimulation);
+        numCitiesInput.addEventListener('change', resetSimulation);
+        canvas.addEventListener('click', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            addCity(x, y);
+        });
+
+        function startGenerating() {
+            if (!isGenerating) {
+                isGenerating = true;
+                generateSolutions();
+            }
+        }
+
+        function stopGenerating() {
+            isGenerating = false;
+        }
+
+        function resetSimulation() {
+            stopGenerating();
+            solutionsGenerated = 0;
+            solutionCountSpan.textContent = solutionsGenerated;
+            init();
+        }
+
+        function generateSolutions() {
+            if (!isGenerating) return;
+
+            for (let i = 0; i < 1000; i++) {
+                const solution = generateRandomSolution();
+                evaluateSolution(solution);
+                solutionsGenerated++;
+            }
+
+            solutionCountSpan.textContent = solutionsGenerated;
+            drawCities();
+            drawBestConnections();
+
+            requestAnimationFrame(generateSolutions);
+        }
+
+        // Iniciar la simulación
+        init();
+    </script>
+</body>
+</html>

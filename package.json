@@ -1,7 +1,7 @@
 {
-  "name": "k-alternatives-tsp",
+  "name": "k-alternatives-algorithm",
   "version": "1.0.0",
-  "description": "k-Alternatives algorithm for Traveling Salesman Problem optimization",
+  "description": "k-Alternatives Optimization Framework",
   "main": "k-alternatives-cli.js",
   "bin": {
     "k-alternatives": "./k-alternatives-cli.js"
@@ -23,6 +23,7 @@
   "keywords": [
     "tsp",
     "traveling-salesman",
+    "knapsack",
     "optimization",
     "k-alternatives",
     "combinatorial",
@@ -43,10 +44,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mrcm/k-alternatives-tsp.git"
+    "url": "https://github.com/mcarbonell/k-alternatives-algorithm.git"
   },
   "bugs": {
-    "url": "https://github.com/mrcm/k-alternatives-tsp/issues"
+    "url": "https://github.com/mcarbonell/k-alternatives-algorithm/issues"
   },
-  "homepage": "https://github.com/mrcm/k-alternatives-tsp#readme"
+  "homepage": "https://github.com/mcarbonell/k-alternatives-algorithm#readme"
 }

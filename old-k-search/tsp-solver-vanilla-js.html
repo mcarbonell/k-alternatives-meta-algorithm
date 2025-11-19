@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #stats {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>TSP Solver</h1>
+    <div>
+        <button id="generateBtn">Generar Ciudades Aleatorias</button>
+        <button id="solveBtn">Iniciar/Detener Solución</button>
+    </div>
+    <div id="stats">
+        <p>Iteración: <span id="iteration">0</span></p>
+        <p>Mejor Distancia: <span id="bestDistance">-</span></p>
+    </div>
+    <canvas id="tspCanvas" width="400" height="400" style="border:1px solid #000;"></canvas>
+
+    <script>
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        const generateBtn = document.getElementById('generateBtn');
+        const solveBtn = document.getElementById('solveBtn');
+        const iterationSpan = document.getElementById('iteration');
+        const bestDistanceSpan = document.getElementById('bestDistance');
+
+        let cities = [];
+        let bestRoute = [];
+        let bestDistance = Infinity;
+        let iteration = 0;
+        let isRunning = false;
+
+        function generateRandomCities(numCities) {
+            cities = [];
+            for (let i = 0; i < numCities; i++) {
+                cities.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height
+                });
+            }
+            bestRoute = [];
+            bestDistance = Infinity;
+            iteration = 0;
+            drawCities();
+            updateStats();
+        }
+
+        function drawCities() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            cities.forEach(city => {
+                ctx.beginPath();
+                ctx.arc(city.x, city.y, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+            });
+        }
+
+        function drawRoute(route) {
+            ctx.beginPath();
+            ctx.moveTo(cities[route[0]].x, cities[route[0]].y);
+            for (let i = 1; i < route.length; i++) {
+                ctx.lineTo(cities[route[i]].x, cities[route[i]].y);
+            }
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function calculateDistance(route) {
+            let distance = 0;
+            for (let i = 0; i < route.length - 1; i++) {
+                const city1 = cities[route[i]];
+                const city2 = cities[route[i + 1]];
+                distance += Math.sqrt(
+                    Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2)
+                );
+            }
+            return distance;
+        }
+
+        function updateStats() {
+            iterationSpan.textContent = iteration;
+            bestDistanceSpan.textContent = bestDistance.toFixed(2);
+        }
+
+        function solveTSP() {
+            if (cities.length === 0) return;
+
+            let currentRoute = Array.from({ length: cities.length }, (_, i) => i);
+            let currentDistance = calculateDistance(currentRoute);
+
+            function solve() {
+                if (!isRunning) return;
+
+                iteration++;
+
+                const newRoute = [...currentRoute];
+                const i = Math.floor(Math.random() * newRoute.length);
+                const j = Math.floor(Math.random() * newRoute.length);
+                [newRoute[i], newRoute[j]] = [newRoute[j], newRoute[i]];
+
+                const newDistance = calculateDistance(newRoute);
+
+                if (newDistance < currentDistance) {
+                    currentRoute = newRoute;
+                    currentDistance = newDistance;
+
+                    if (currentDistance < bestDistance) {
+                        bestRoute = currentRoute;
+                        bestDistance = currentDistance;
+                        drawCities();
+                        drawRoute(bestRoute);
+                        updateStats();
+                    }
+                }
+
+                updateStats();
+                requestAnimationFrame(solve);
+            }
+
+            solve();
+        }
+
+        generateBtn.addEventListener('click', () => generateRandomCities(10));
+        solveBtn.addEventListener('click', () => {
+            isRunning = !isRunning;
+            if (isRunning) {
+                solveBtn.textContent = 'Detener Solución';
+                solveTSP();
+            } else {
+                solveBtn.textContent = 'Iniciar Solución';
+            }
+        });
+
+        generateRandomCities(10);
+    </script>
+</body>
+</html>

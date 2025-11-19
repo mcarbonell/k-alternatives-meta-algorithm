@@ -4,9 +4,10 @@
     "type": "TSP",
     "dimension": 14,
     "edgeWeightType": "GEO",
+    "edgeWeightFormat": "FUNCTION",
     "optimalDistance": 3323,
     "source": "burma14.tsp",
-    "convertedAt": "2025-11-05T23:50:09.860Z"
+    "convertedAt": "2025-11-19T10:25:40.866Z"
   },
   "cities": [
     {

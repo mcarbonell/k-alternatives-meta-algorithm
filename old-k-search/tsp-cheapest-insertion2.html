@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP - Algoritmo de Inserción Más Barata Modificado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        canvas {
+            border: 1px solid black;
+        }
+
+        #controls {
+            margin: 20px 0;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        button,
+        input {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>TSP - Algoritmo de Inserción Más Barata Modificado 2</h1>
+    <div id="controls">
+        <label for="nearestCities">Ciudades cercanas a modificar:</label>
+        <input type="number" id="nearestCities" min="2" value="2" style="width: 50px;">
+        <label for="showNumbers">
+            <input type="checkbox" id="showNumbers" checked> Mostrar números de ciudades
+        </label>
+        <label for="showArrows">
+            <input type="checkbox" id="showArrows" checked> Mostrar Flechas
+        </label>
+
+        <br>
+        <button id="randomOrderBtn">Orden Aleatorio</button>
+        <input type="checkbox" id="repeat"><label for="repeat">Repeat</label>
+
+        <button id="detectIntersectionsBtn">Detect Intersections</button>
+        <button id="convexHullBtn">Perímetro</button>
+
+        <p>Distancia Actual: <span id="currentDistance">-</span></p>
+        <p>Mejor Distancia: <span id="bestDistance">-</span></p>
+        <p>Soluciones: <span id="solutions">-</span></p>
+    </div>
+    <p>Haz clic en el canvas para agregar ciudades</p>
+    <canvas id="tspCanvas" width="600" height="600"></canvas>
+    <br>
+
+    <pre id="log"></pre>
+
+    <textarea name="cities" id="citiesinput" cols="50" rows="20"></textarea>
+
+    <script>
+        const canvas = document.getElementById('tspCanvas');
+        const ctx = canvas.getContext('2d');
+        const nearestCitiesInput = document.getElementById('nearestCities');
+        const showNumbersCheckbox = document.getElementById('showNumbers');
+        const showArrowsCheckbox = document.getElementById('showArrows');
+        const currentDistanceSpan = document.getElementById('currentDistance');
+        const bestDistanceSpan = document.getElementById('bestDistance');
+        const solutionsSpan = document.getElementById('solutions');
+
+        const randomOrderBtn = document.getElementById('randomOrderBtn');
+        const detectIntersectionsBtn = document.getElementById('detectIntersectionsBtn');
+        const convexHullBtn = document.getElementById('convexHullBtn');
+
+
+
+        const citiesInput = document.querySelector('#citiesinput');
+        const repeatInput = document.querySelector('#repeat');
+        const log = document.querySelector('#log');
+
+        let cities = [];
+        let nextInTour = [0];
+        let prevInTour = [0];
+        let distances = [];
+        let nearest = [];
+        let minPossible = [];
+
+        let nearestCitiesCount = 5;
+        nearestCitiesCount = nearestCitiesInput.value;
+
+
+        let solutions = 0;
+        let currentDistance = Infinity;
+        let bestDistance = Infinity;
+        let bestPossibleDistance = Infinity;
+
+        function shuffle(array) {
+            let currentIndex = array.length;
+
+            while (currentIndex != 0) {
+                let randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+        }
+
+        function insertionCost(city, prev, next) {
+            return distance(city, prev) + distance(city, next) - distance(prev, next);
+        }
+
+        function dist(city1, city2) {
+            return Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2));
+
+        }
+
+        function distance(city1, city2) {
+            return distances[city1][city2];
+        }
+
+        function calcDistance(city1, city2) {
+            return Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2));
+        }
+
+        function tourCost() {
+            let cost = 0;
+            for (let i = 0; i < cities.length; i++) {
+                cost += distance(i, nextInTour[i]);
+            }
+            return cost;
+        }
+
+
+        function initializeDistances() {
+
+            // console.log('initializeDistances');
+            distances = cities.map((_, i) =>
+                cities.map((_, j) => calcDistance(cities[i], cities[j]))
+            );
+
+            nearest = cities.map((_, i) =>
+                cities.map((_, j) => j).filter(j => j !== i).sort((a, b) =>
+                    distances[i][a] - distances[i][b]
+                )
+            );
+
+            bestPossibleDistance = 0;
+            for (let i = 0; i < cities.length; i++) {
+                let a = nearest[i][0];
+                let b = nearest[i][1];
+                minPossible[i] = distances[i][a] + distances[i][b];
+                bestPossibleDistance += minPossible[i];
+            }
+            bestPossibleDistance = bestPossibleDistance / 2;
+            // console.log('initializeDistances END');
+        }
+
+
+        function solveRandomOrder() {
+            console.log('solve');
+
+            bestDistance = Infinity;
+            currentDistance = tourCost();
+            while (currentDistance !== bestDistance) {
+                bestDistance = currentDistance;
+                let modified = new Set(nearest[0]);
+                optimizeNeighbors(modified);
+                currentDistance = tourCost();
+            }
+
+            drawTour();
+
+            if (repeatInput.checked) {
+                // setTimeout(solveRandomOrder, 1);
+            }
+            console.log('solve END');
+        }
+
+
+        function addCity(city) {
+            cities.push(city);
+            if (cities.length > 1) {
+                insertCityAndOptimize(cities.length - 1);
+            } else {
+                tour.push(0);
+            }
+
+        }
+
+        function insertCityAndOptimize(cityIndex) {
+
+            let bestInsertion = { cost: Infinity, prevCity: 0 };
+            let nearCities = findNearestCities(cityIndex, nearestCitiesCount);
+
+            for (let i = 0; i < nearCities.length; i++) {
+                const city1 = nearCities[i];
+                const city2 = nextInTour[city1];
+                const cost = insertionCost(cityIndex, city1, city2);
+                if (cost < bestInsertion.cost) {
+                    bestInsertion = { cost, prevCity: city1 };
+                }
+            }
+
+            nextInTour[cityIndex] = nextInTour[bestInsertion.prevCity];
+            nextInTour[bestInsertion.prevCity] = cityIndex;
+            prevInTour[cityIndex] = bestInsertion.prevCity;
+            prevInTour[nextInTour[cityIndex]] = cityIndex;
+
+            // Marcar las X ciudades más cercanas como modificadas
+            if (cities.length > 3) {
+                let modified = new Set(findNearestCities(cityIndex, nearestCitiesCount));
+                modified.add(...findNearestCities(nextInTour[cityIndex], nearestCitiesCount));
+                modified.add(...findNearestCities(prevInTour[cityIndex], nearestCitiesCount));
+                optimizeNeighbors(modified);
+            }
+        }
+
+        function findNearestCities(cityIndex, count) {
+            return nearest[cityIndex].slice(0, count);
+        }
+
+        function optimizeNeighbors(modified) {
+
+            while (modified.size > 0) {
+                const current = modified.values().next().value;
+                modified.delete(current);
+
+                const prev = prevInTour[current];
+                const next = nextInTour[current];
+
+                const currentCost = insertionCost(current, prev, next);
+
+                let bestPosition = { cost: currentCost, prevCity: prev, nextCity: next };
+                let nearCities = findNearestCities(current, nearestCitiesCount);
+
+                for (let i = 0; i < nearCities.length; i++) {
+                    const city1 = nearCities[i];
+                    const city2 = nextInTour[city1];
+                    if (city2 === current) continue;
+                    const cost = insertionCost(current, city1, city2);
+
+                    if (cost < bestPosition.cost) {
+                        bestPosition = { cost, prevCity: city1, nextCity: city2 };
+                    }
+                }
+
+                if (bestPosition.prevCity !== prev) {
+
+                    nextInTour[prev] = next;
+                    prevInTour[next] = prev;
+
+                    nextInTour[current] = nextInTour[bestPosition.prevCity];
+                    nextInTour[bestPosition.prevCity] = current;
+                    prevInTour[current] = bestPosition.prevCity;
+                    prevInTour[nextInTour[current]] = current;
+
+                    // modified.add(...findNearestCities(current, nearestCitiesCount));
+                    modified.add(...findNearestCities(nextInTour[current], nearestCitiesCount));
+                    modified.add(...findNearestCities(prevInTour[current], nearestCitiesCount));
+                }
+            }
+        }
+
+
+        function orientacion(p, q, r) {
+            let val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+            if (val === 0) return 0;  // Colineales
+            return (val > 0) ? 1 : 2; // Sentido horario o antihorario
+        }
+
+        function enSegmento(p, q, r) {
+            return (
+                q.x <= Math.max(p.x, r.x) &&
+                q.x >= Math.min(p.x, r.x) &&
+                q.y <= Math.max(p.y, r.y) &&
+                q.y >= Math.min(p.y, r.y)
+            );
+        }
+
+        function intersectan(p1, q1, p2, q2) {
+            let o1 = orientacion(p1, q1, p2);
+            let o2 = orientacion(p1, q1, q2);
+            let o3 = orientacion(p2, q2, p1);
+            let o4 = orientacion(p2, q2, q1);
+
+            if (o1 !== o2 && o3 !== o4)
+                return true;
+
+            if (o1 === 0 && enSegmento(p1, p2, q1)) return true;
+            if (o2 === 0 && enSegmento(p1, q2, q1)) return true;
+            if (o3 === 0 && enSegmento(p2, p1, q2)) return true;
+            if (o4 === 0 && enSegmento(p2, q1, q2)) return true;
+
+            return false;
+        }
+
+
+        function detectIntersections() {
+            // console.log('detectIntersections');
+
+            let cityIndex = 0;
+            let tour = [0];
+            for (let i = 0; i < cities.length; i++) {
+                cityIndex = nextInTour[cityIndex];
+                tour.push(cityIndex);
+            }
+            // console.log('tour', tour);
+
+            for (let i = 0; i < tour.length - 1; i++) {
+                let cityA = cities[tour[i]];
+                let cityB = cities[tour[i + 1]];
+                for (let j = i + 2; j < tour.length - 1; j++) {
+                    if (tour[j + 1] == tour[i]) continue;
+                    let cityC = cities[tour[j]];
+                    let cityD = cities[tour[j + 1]];
+                    // console.log('detectando', cityA, cityB, cityC, cityD);
+
+                    if (intersectan(cityA, cityB, cityC, cityD)) {
+                        // console.log('intersectan', tour[i], tour[i + 1], tour[j], tour[j + 1]);
+                        repairIntersection(tour[i], tour[j]);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function repairIntersection(i, j) {
+            let end1 = nextInTour[i];
+            let end2 = nextInTour[j];
+            prevInTour[end1] = nextInTour[j];
+            prevInTour[end2] = end1;
+            nextInTour[j] = i;
+            nextInTour[i] = j;
+
+            let aux = j;
+            do {
+                let aux2 = nextInTour[aux];
+                nextInTour[aux] = prevInTour[aux];
+                prevInTour[aux] = aux2;
+                aux = nextInTour[aux];
+            } while (aux !== end2);
+
+
+        }
+
+        function repairIntersections() {
+            let count = 0;
+            while (detectIntersections()) {
+                console.log('repairing intersection', ++count);
+            }
+            drawTour();
+        }
+
+
+
+        //////////////////////////////////////////////////////////////////////////////
+        //  Andrew's Monotone Chain. 
+        //////////////////////////////////////////////////////////////////////////////
+
+        function convexHull(points) {
+
+            if (points.length <= 3) return [...points];
+
+            // Ordenar los puntos por coordenada x, y si hay empate, por coordenada y
+            points.sort((a, b) => a.x !== b.x ? a.x - b.x : a.y - b.y);
+
+            const lower = [];
+            for (let i = 0; i < points.length; i++) {
+                while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], points[i]) <= 0) {
+                    lower.pop();
+                }
+                lower.push(points[i]);
+            }
+
+            const upper = [];
+            for (let i = points.length - 1; i >= 0; i--) {
+                while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], points[i]) <= 0) {
+                    upper.pop();
+                }
+                upper.push(points[i]);
+            }
+
+            // Unir los dos arreglos y eliminar el último punto de cada uno (punto duplicado)
+            lower.pop();
+            upper.pop();
+            const hull = lower.concat(upper);
+
+            return hull;
+        }
+
+        function cross(o, a, b) {
+            return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+        }
+
+        //////////////////////////////////////////////////////////////////////////////
+        //  Dibujo
+        //////////////////////////////////////////////////////////////////////////////
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '12px Arial';
+            ctx.fillStyle = 'black';
+        }
+
+        function drawArrow(a, b) {
+            // Calcula la dirección del vector
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const angle = Math.atan2(dy, dx);
+
+            // Dibuja la línea principal
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+
+            // Dibuja la flecha
+            const arrowSize = 10; // Ajusta el tamaño de la flecha
+            ctx.beginPath();
+            ctx.moveTo(b.x, b.y);
+            ctx.lineTo(b.x - arrowSize * Math.cos(angle - Math.PI / 4), b.y - arrowSize * Math.sin(angle - Math.PI / 4));
+            ctx.moveTo(b.x, b.y);
+            ctx.lineTo(b.x - arrowSize * Math.cos(angle + Math.PI / 4), b.y - arrowSize * Math.sin(angle + Math.PI / 4));
+            ctx.stroke();
+        }
+
+        function drawCities() {
+            // Dibujar ciudades
+            cities.forEach((city, index) => {
+                ctx.beginPath();
+                ctx.arc(city.x, city.y, 3, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+                if (showNumbersCheckbox.checked) {
+                    ctx.fillStyle = 'black';
+                    ctx.fillText(index, city.x + 10, city.y + 10);
+                }
+            });
+        }
+
+        function drawRoute() {
+            // Dibujar tour
+            ctx.beginPath();
+            ctx.moveTo(cities[0].x, cities[0].y);
+            ctx.strokeStyle = 'blue';
+            let cityIndex = 0;
+            for (let i = 0; i < cities.length; i++) {
+                const nextcityIndex = nextInTour[cityIndex];
+                //
+                if (showArrowsCheckbox.checked)
+                    drawArrow(cities[cityIndex], cities[nextcityIndex]);
+                else
+                    ctx.lineTo(cities[nextcityIndex].x, cities[nextcityIndex].y);
+                cityIndex = nextcityIndex;
+            }
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'blue';
+            ctx.stroke();
+        }
+
+        function drawConvexHull(hull) {
+
+            ctx.beginPath();
+            ctx.moveTo(hull[0].x, hull[0].y);
+            // ctx.strokeStyle = 'green';
+            for (let i = 0; i <= hull.length; i++) {
+                let j = (i + 1) % hull.length;
+                ctx.lineTo(hull[j].x, hull[j].y);
+            }
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'green';
+            ctx.stroke();
+        }
+
+
+
+        function drawInfo() {
+            // Mostrar costo total
+            solutions += 1;
+            currentDistance = tourCost();
+
+            ctx.fillStyle = 'black';
+            ctx.fillText(`Costo total: ${currentDistance.toFixed(2)}`, 10, 10);
+
+            if (bestDistance > currentDistance) {
+                bestDistance = currentDistance;
+                bestDistanceSpan.innerText = bestDistance.toFixed(2);
+            }
+
+            currentDistanceSpan.innerText = currentDistance.toFixed(2);
+            solutionsSpan.innerText = solutions.toLocaleString('es-ES');
+
+            log.textContent =
+                'Cities:' + cities.length
+                + ' Distance:' + currentDistance.toFixed(2) + ' ' + '\n'
+                + log.textContent;
+        }
+
+        function drawTour() {
+            clearCanvas();
+            drawRoute();
+            drawCities();
+            drawInfo();
+        }
+
+        //////////////////////////////////////////////////////////////////////////////
+        //  Event listeners para los controles
+        //////////////////////////////////////////////////////////////////////////////
+
+        citiesInput.addEventListener('input', () => {
+            try {
+                // Intentar parsear el contenido del textarea como JSON
+
+                let jsonText = citiesInput.value.replace(/^\s+|\s+$/g, ''); //Elimina espacios al inicio o al final
+                let parsedJSON = JSON.parse(jsonText);
+
+                // Si llegamos aquí, el JSON es válido
+                // Actualizar el array con el nuevo contenido
+                log.textContent = '';
+                // shuffle(parsedJSON);
+                cities = [...parsedJSON];
+                nextInTour = cities.map((_, index) => (index + 1) % cities.length);
+                prevInTour = cities.map((_, index) => (index - 1) % cities.length);
+                solutions = 0;
+
+                initializeDistances();
+
+                // let modified = new Set(nearest[0]);
+                // optimizeNeighbors(modified);
+                // solveRandomOrder();
+
+                drawTour();
+                console.log('Array actualizado:', cities);
+                // Aquí puedes añadir código adicional para manejar el array actualizado
+                // Por ejemplo, actualizar la UI, enviar datos al servidor, etc.
+
+            } catch (error) {
+                // Si llegamos aquí, el JSON no es válido
+                console.error('JSON inválido:', error);
+
+                // Aquí puedes añadir código para manejar el error
+                // Por ejemplo, mostrar un mensaje de error al usuario
+            }
+        });
+
+        randomOrderBtn.addEventListener('click', (event) => {
+            setTimeout(solveRandomOrder, 0);
+        });
+
+        detectIntersectionsBtn.addEventListener('click', (event) => {
+            // setTimeout(detectIntersections, 0);
+            setTimeout(repairIntersections, 0);
+
+        });
+
+        convexHullBtn.addEventListener('click', (event) => {
+
+            // let hull = grahamScan(cities);
+            let hull = convexHull([...cities]);
+            console.log('cities', cities);
+            console.log('Convex Hull', hull);
+            drawConvexHull(hull);
+        });
+
+        canvas.addEventListener('click', (event) => {
+            currentDistance = Infinity;
+            bestDistance = Infinity;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            // addCity({ x, y });
+            cities.push({ x, y });
+
+            // nextInTour = cities.map((_, index) => (index + 1) % cities.length);
+            // prevInTour = cities.map((_, index) => (index - 1) % cities.length);
+            // solutions = 0;
+            initializeDistances();
+
+            insertCityAndOptimize(cities.length - 1);
+
+            // tour.push(cities.length - 1);
+
+            citiesInput.value = JSON.stringify(cities, null, 2);
+            drawTour();
+        });
+
+        nearestCitiesInput.addEventListener('change', () => {
+            nearestCitiesCount = nearestCitiesInput.value;
+        });
+
+        showNumbersCheckbox.addEventListener('change', drawTour);
+        showArrowsCheckbox.addEventListener('change', drawTour);
+
+
+
+
+    </script>
+</body>
+
+</html>

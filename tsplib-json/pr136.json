@@ -4,9 +4,10 @@
     "type": "TSP",
     "dimension": 136,
     "edgeWeightType": "EUC_2D",
+    "edgeWeightFormat": "",
     "optimalDistance": 96772,
     "source": "pr136.tsp",
-    "convertedAt": "2025-11-05T23:50:10.040Z"
+    "convertedAt": "2025-11-19T10:25:41.089Z"
   },
   "cities": [
     {
