@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparativa: k-Alternatives vs A*</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .controls {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            width: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"],
+        input[type="range"] {
+            width: 100%;
+            background: #444;
+            color: white;
+            border: 1px solid #555;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 5px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #005fa3;
+        }
+
+        button.secondary {
+            background: #555;
+        }
+
+        button.secondary:hover {
+            background: #666;
+        }
+
+        button.astar {
+            background: #cc7a00;
+        }
+
+        button.astar:hover {
+            background: #a36100;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            text-align: left;
+            padding: 5px;
+            border-bottom: 1px solid #444;
+        }
+
+        .stats-table th {
+            color: #aaa;
+        }
+
+        .val-k {
+            color: #00ff00;
+        }
+
+        .val-astar {
+            color: #ffa500;
+        }
+
+        canvas {
+            background: #111;
+            border: 2px solid #444;
+            border-radius: 4px;
+            cursor: crosshair;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .box {
+            width: 12px;
+            height: 12px;
+            border: 1px solid #555;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Comparativa: k-Alternatives vs A*</h1>
+
+    <div class="main-container">
+        <div class="controls">
+            <div class="control-group">
+                <h3>Configuración</h3>
+                <label>Max K (k-Alt): <input type="number" id="maxK" value="2" min="0" max="20"></label>
+                <label>Velocidad: <input type="range" id="speedRange" min="1" max="50" value="45"></label>
+                <label><input type="checkbox" id="pessimisticMode" checked> Heurística Pesimista (k-Alt)</label>
+            </div>
+
+            <div class="control-group">
+                <h3>Acciones</h3>
+                <button onclick="ui.runKAlternatives()">Ejecutar k-Alternatives</button>
+                <button class="astar" onclick="ui.runAStar()">Ejecutar A*</button>
+                <button class="secondary" onclick="ui.clearGrid()">Limpiar Muro</button>
+                <button class="secondary" onclick="ui.reset()">Resetear Caminos</button>
+            </div>
+
+            <div class="control-group">
+                <h3>Resultados</h3>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th class="val-k">k-Alt</th>
+                            <th class="val-astar">A*</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Coste</td>
+                            <td id="k-cost">-</td>
+                            <td id="astar-cost">-</td>
+                        </tr>
+                        <tr>
+                            <td>Nodos Visitados</td>
+                            <td id="k-visited">-</td>
+                            <td id="astar-visited">-</td>
+                        </tr>
+                        <tr>
+                            <td>Tiempo (ms)</td>
+                            <td id="k-time">-</td>
+                            <td id="astar-time">-</td>
+                        </tr>
+                        <tr>
+                            <td>Estado</td>
+                            <td id="k-status">Inactivo</td>
+                            <td id="astar-status">Inactivo</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div>
+            <canvas id="gridCanvas" width="600" height="600"></canvas>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="box" style="background:#00ff00"></div> Inicio
+                </div>
+                <div class="legend-item">
+                    <div class="box" style="background:#ff0000"></div> Fin
+                </div>
+                <div class="legend-item">
+                    <div class="box" style="background:#666"></div> Muro
+                </div>
+                <div class="legend-item">
+                    <div class="box" style="background:lime"></div> Camino k-Alt
+                </div>
+                <div class="legend-item">
+                    <div class="box" style="background:orange"></div> Camino A*
+                </div>
+                <div class="legend-item">
+                    <div class="box" style="background:rgba(0, 255, 0, 0.2)"></div> Expl. k-Alt
+                </div>
+                <div class="legend-item">
+                    <div class="box" style="background:rgba(255, 165, 0, 0.2)"></div> Expl. A*
+                </div>
+            </div>
+            <div id="debug-log"
+                style="margin-top: 10px; font-family: monospace; font-size: 12px; color: #aaa; max-height: 100px; overflow-y: auto; border: 1px solid #444; padding: 5px;">
+                Debug Log...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- UI CONTROLLER ---
+
+        const canvas = document.getElementById('gridCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 20;
+        const cols = canvas.width / gridSize;
+        const rows = canvas.height / gridSize;
+
+        let startPos = { x: 2, y: Math.floor(rows / 2) };
+        let endPos = { x: cols - 3, y: Math.floor(rows / 2) };
+        let walls = new Set();
+
+        // Worker State
+        let kWorker = null;
+        let aStarWorker = null;
+
+        // Visual State
+        let kPath = null;
+        let aStarPath = null;
+        let kVisited = new Set();
+        let aStarVisited = new Set();
+        let kCurrentK = 0;
+
+        let isRunningK = false;
+        let isRunningAStar = false;
+        let drawMode = 'wall';
+
+        // Event Queue for visualization smoothing
+        let kEvents = [];
+        let aStarEvents = [];
+
+        function log(msg) {
+            const el = document.getElementById('debug-log');
+            el.innerHTML += `<div>${new Date().toLocaleTimeString()} - ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar celdas
+            for (let x = 0; x < cols; x++) {
+                for (let y = 0; y < rows; y++) {
+                    ctx.strokeStyle = '#222';
+                    ctx.strokeRect(x * gridSize, y * gridSize, gridSize, gridSize);
+
+                    // Muros
+                    if (walls.has(`${x},${y}`)) {
+                        ctx.fillStyle = '#666';
+                        ctx.fillRect(x * gridSize, y * gridSize, gridSize, gridSize);
+                    }
+
+                    // Visitados A*
+                    if (aStarVisited.has(`${x},${y}`)) {
+                        ctx.fillStyle = 'rgba(255, 165, 0, 0.2)'; // Naranja transparente
+                        ctx.fillRect(x * gridSize + 1, y * gridSize + 1, gridSize - 2, gridSize - 2);
+                    }
+
+                    // Visitados K-Alt
+                    if (kVisited.has(`${x},${y}`)) {
+                        ctx.fillStyle = 'rgba(0, 255, 0, 0.2)'; // Verde transparente
+                        ctx.fillRect(x * gridSize + 1, y * gridSize + 1, gridSize - 2, gridSize - 2);
+                    }
+                }
+            }
+
+            // Start/End
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(startPos.x * gridSize, startPos.y * gridSize, gridSize, gridSize);
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(endPos.x * gridSize, endPos.y * gridSize, gridSize, gridSize);
+
+            // Caminos Finales
+            if (aStarPath) drawPath(aStarPath, 'orange', 4);
+            if (kPath) drawPath(kPath, 'lime', 2);
+
+            // Texto de K actual
+            if (isRunningK || kPath) {
+                ctx.fillStyle = 'white';
+                ctx.font = '16px monospace';
+                ctx.fillText(`K: ${kCurrentK}`, 10, 20);
+            }
+        }
+
+        function drawPath(path, color, width) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.moveTo(path[0].x * gridSize + gridSize / 2, path[0].y * gridSize + gridSize / 2);
+            for (let p of path) {
+                ctx.lineTo(p.x * gridSize + gridSize / 2, p.y * gridSize + gridSize / 2);
+            }
+            ctx.stroke();
+        }
+
+        const ui = {
+            runKAlternatives: () => {
+                if (isRunningK) return;
+
+                // Reset K state
+                if (kWorker) kWorker.terminate();
+                kWorker = new Worker('pathfinding-worker.js?v=' + Date.now());
+
+                kVisited.clear();
+                kPath = null;
+                kCurrentK = 0;
+                kEvents = [];
+                isRunningK = true;
+
+                document.getElementById('k-status').innerText = 'Ejecutando...';
+                document.getElementById('k-status').style.color = '#00ff00';
+                log('Iniciando k-Alternatives...');
+
+                const maxK = parseInt(document.getElementById('maxK').value);
+                const pessimistic = document.getElementById('pessimisticMode').checked;
+
+                kWorker.postMessage({
+                    type: 'init_and_run',
+                    config: {
+                        algorithm: 'k',
+                        width: cols,
+                        height: rows,
+                        startNode: startPos,
+                        endNode: endPos,
+                        walls: Array.from(walls),
+                        options: { maxK, pessimistic }
+                    }
+                });
+
+                kWorker.onmessage = (e) => {
+                    const msg = e.data;
+                    if (msg.type === 'error') {
+                        log('Error en Worker K-Alt: ' + msg.message);
+                        console.error(msg.stack);
+                        return;
+                    }
+                    if (Array.isArray(msg)) {
+                        kEvents.push(...msg);
+                    } else {
+                        kEvents.push(msg);
+                    }
+                };
+
+                kWorker.onerror = (err) => {
+                    const errorMsg = err.error ? err.error.toString() : (err.message || 'Error desconocido');
+                    log('Error critico en Worker K-Alt: ' + errorMsg);
+                    console.error('K-Alt Worker Error:', err);
+                };
+
+                requestAnimationFrame(ui.loop);
+            },
+
+            runAStar: () => {
+                if (isRunningAStar) return;
+
+                if (aStarWorker) aStarWorker.terminate();
+                aStarWorker = new Worker('pathfinding-worker.js?v=' + Date.now());
+
+                aStarVisited.clear();
+                aStarPath = null;
+                aStarEvents = [];
+                isRunningAStar = true;
+
+                document.getElementById('astar-status').innerText = 'Ejecutando...';
+                document.getElementById('astar-status').style.color = '#ffa500';
+                log('Iniciando A*...');
+
+                aStarWorker.postMessage({
+                    type: 'init_and_run',
+                    config: {
+                        algorithm: 'astar',
+                        width: cols,
+                        height: rows,
+                        startNode: startPos,
+                        endNode: endPos,
+                        walls: Array.from(walls)
+                    }
+                });
+
+                aStarWorker.onmessage = (e) => {
+                    const msg = e.data;
+                    if (msg.type === 'error') {
+                        log('Error en Worker A*: ' + msg.message);
+                        console.error(msg.stack);
+                        return;
+                    }
+                    if (Array.isArray(msg)) {
+                        aStarEvents.push(...msg);
+                    } else {
+                        aStarEvents.push(msg);
+                    }
+                };
+
+                aStarWorker.onerror = (err) => {
+                    const errorMsg = err.error ? err.error.toString() : (err.message || 'Error desconocido');
+                    log('Error critico en Worker A*: ' + errorMsg);
+                    console.error('A* Worker Error:', err);
+                };
+
+                requestAnimationFrame(ui.loop);
+            },
+
+            loop: () => {
+                if (!isRunningK && !isRunningAStar) return;
+
+                const speed = 51 - parseInt(document.getElementById('speedRange').value);
+                let eventsPerFrame = Math.floor(Math.pow(1.15, (50 - speed)) * 2);
+                if (speed < 5) eventsPerFrame = 5000;
+
+                // Process K events
+                if (isRunningK) {
+                    let processed = 0;
+                    while (processed < eventsPerFrame && kEvents.length > 0) {
+                        const val = kEvents.shift();
+                        processed++;
+
+                        if (val.type === 'visiting') {
+                            kVisited.add(`${val.node.x},${val.node.y}`);
+                            document.getElementById('k-visited').innerText = kVisited.size;
+                        } else if (val.type === 'found_better') {
+                            kPath = val.path;
+                            document.getElementById('k-cost').innerText = val.cost;
+                            log(`K-Alt encontró camino: coste ${val.cost}`);
+                        } else if (val.type === 'k_start') {
+                            kCurrentK = val.k;
+                        } else if (val.type === 'finished_signal' || val.type === 'finished') {
+                            isRunningK = false;
+                            document.getElementById('k-status').innerText = 'Terminado';
+                            document.getElementById('k-status').style.color = '#fff';
+                            log('K-Alt terminado');
+                        }
+                    }
+                }
+
+                // Process A* events
+                if (isRunningAStar) {
+                    let processed = 0;
+                    while (processed < eventsPerFrame && aStarEvents.length > 0) {
+                        const val = aStarEvents.shift();
+                        processed++;
+
+                        if (val.type === 'visiting') {
+                            aStarVisited.add(`${val.node.x},${val.node.y}`);
+                            document.getElementById('astar-visited').innerText = aStarVisited.size;
+                        } else if (val.type === 'found') {
+                            aStarPath = val.path;
+                            document.getElementById('astar-cost').innerText = val.cost;
+                            log(`A* encontró camino: coste ${val.cost}, nodos ${val.path.length}`);
+                        } else if (val.type === 'finished_signal' || val.type === 'finished') {
+                            isRunningAStar = false;
+                            document.getElementById('astar-status').innerText = 'Terminado';
+                            document.getElementById('astar-status').style.color = '#fff';
+                            log('A* terminado');
+                        }
+                    }
+                }
+
+                drawGrid();
+                if (isRunningK || isRunningAStar) {
+                    requestAnimationFrame(ui.loop);
+                }
+            },
+
+            reset: () => {
+                if (kWorker) kWorker.terminate();
+                if (aStarWorker) aStarWorker.terminate();
+                isRunningK = false;
+                isRunningAStar = false;
+
+                kPath = null;
+                aStarPath = null;
+                kVisited.clear();
+                aStarVisited.clear();
+                kEvents = [];
+                aStarEvents = [];
+                kCurrentK = 0;
+
+                document.getElementById('k-cost').innerText = '-';
+                document.getElementById('k-visited').innerText = '-';
+                document.getElementById('k-status').innerText = 'Inactivo';
+                document.getElementById('astar-cost').innerText = '-';
+                document.getElementById('astar-visited').innerText = '-';
+                document.getElementById('astar-status').innerText = 'Inactivo';
+                log('Reset completo');
+                drawGrid();
+            },
+
+            clearGrid: () => {
+                walls.clear();
+                ui.reset();
+            }
+        };
+
+        // --- INPUT HANDLING ---
+
+        canvas.addEventListener('mousedown', e => {
+            if (isRunningK || isRunningAStar) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / gridSize);
+            const y = Math.floor((e.clientY - rect.top) / gridSize);
+
+            if (x === startPos.x && y === startPos.y) drawMode = 'start';
+            else if (x === endPos.x && y === endPos.y) drawMode = 'end';
+            else {
+                drawMode = 'wall';
+                toggleWall(x, y);
+            }
+
+            const mouseMoveHandler = (e) => {
+                const x = Math.floor((e.clientX - rect.left) / gridSize);
+                const y = Math.floor((e.clientY - rect.top) / gridSize);
+                if (x < 0 || x >= cols || y < 0 || y >= rows) return;
+
+                if (drawMode === 'start') {
+                    startPos = { x, y };
+                    ui.reset();
+                } else if (drawMode === 'end') {
+                    endPos = { x, y };
+                    ui.reset();
+                } else if (drawMode === 'wall') {
+                    walls.add(`${x},${y}`);
+                }
+                drawGrid();
+            };
+
+            const mouseUpHandler = () => {
+                window.removeEventListener('mousemove', mouseMoveHandler);
+                window.removeEventListener('mouseup', mouseUpHandler);
+            };
+
+            window.addEventListener('mousemove', mouseMoveHandler);
+            window.addEventListener('mouseup', mouseUpHandler);
+        });
+
+        function toggleWall(x, y) {
+            const key = `${x},${y}`;
+            if (walls.has(key)) walls.delete(key);
+            else walls.add(key);
+            drawGrid();
+        }
+
+        drawGrid();
+
+    </script>
+</body>
+
+</html>

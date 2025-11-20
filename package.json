@@ -1,53 +1,28 @@
 {
-  "name": "k-alternatives-algorithm",
+  "name": "k-alternatives-benchmark",
   "version": "1.0.0",
-  "description": "k-Alternatives Optimization Framework",
-  "main": "k-alternatives-cli.js",
-  "bin": {
-    "k-alternatives": "./k-alternatives-cli.js"
-  },
+  "description": "Comprehensive benchmark suite for k-alternatives meta-heuristic algorithm",
+  "main": "run-all-benchmarks.js",
   "scripts": {
-    "start": "node k-alternatives-cli.js",
-    "benchmark": "node benchmark.js",
-    "benchmark:small": "node benchmark.js small balanced",
-    "benchmark:medium": "node benchmark.js medium balanced",
-    "benchmark:fast": "node benchmark.js all fast",
-    "benchmark:thorough": "node benchmark.js small thorough",
-    "test": "vitest",
-    "test:legacy": "node k-alternatives-cli.js tsplib/berlin52.tsp --maxK 3",
-    "help": "node k-alternatives-cli.js --help"
-  },
-  "devDependencies": {
-    "vitest": "^1.6.0"
+    "benchmark": "node run-all-benchmarks.js",
+    "benchmark:quick": "node competitive-benchmark.js quick",
+    "benchmark:standard": "node competitive-benchmark.js standard",
+    "benchmark:thorough": "node competitive-benchmark.js thorough",
+    "benchmark:unified": "node unified-benchmark.js",
+    "benchmark:competitive": "node competitive-benchmark.js",
+    "benchmark:minima": "node local-minima-analysis.js",
+    "stats": "node tsp-stats.js",
+    "test:tsp": "node benchmark.js small balanced",
+    "test:knapsack": "node knapsack-benchmark-real.js"
   },
   "keywords": [
-    "tsp",
-    "traveling-salesman",
-    "knapsack",
     "optimization",
-    "k-alternatives",
-    "combinatorial",
-    "heuristics",
-    "tsplib"
+    "tsp",
+    "knapsack",
+    "pathfinding",
+    "meta-heuristic",
+    "benchmark"
   ],
   "author": "Mario Raúl Carbonell Martínez",
-  "license": "MIT",
-  "engines": {
-    "node": ">=12.0.0"
-  },
-  "preferGlobal": true,
-  "files": [
-    "k-alternatives-cli.js",
-    "benchmark.js",
-    "README.md",
-    "tsplib/"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mcarbonell/k-alternatives-algorithm.git"
-  },
-  "bugs": {
-    "url": "https://github.com/mcarbonell/k-alternatives-algorithm/issues"
-  },
-  "homepage": "https://github.com/mcarbonell/k-alternatives-algorithm#readme"
+  "license": "MIT"
 }

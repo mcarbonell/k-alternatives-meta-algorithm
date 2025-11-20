@@ -87,10 +87,10 @@ Para mantener la eficiencia, el algoritmo mantiene el coste de la mejor solució
 
 El algoritmo soporta dos filosofías de inicialización para $h(n)$:
 
-1.  **Optimista (Manhattan/Euclídea):** $h(n) \le coste\_real$.
+1.  **Optimista (Manhattan/Euclídea):** 
     *   Fomenta la exploración. El algoritmo "cree" que puede haber atajos a través de lo desconocido.
 
-2.  **Pesimista (Valor Gigante):** $h(n) \gg coste\_real$ + coste estimado Manhattan/Euclídea.
+2.  **Pesimista (Manhattan + Penalización):** 
     *   Fomenta la explotación ("Quédate en el camino conocido").
     *   Solo explora nuevas rutas si se le fuerza mediante el presupuesto $k$.
     *   Útil para estabilizar rutas en entornos dinámicos o adherirse a un "camino seguro".
@@ -153,3 +153,7 @@ Este algoritmo es especialmente interesante para aplicaciones donde se requiere 
 | Embebido | ~10KB | <0.5ms | 85-90% |
 
 *Valores típicos con k≤3 para mapas de 1000-10000 nodos*
+
+
+## Ejemplo Interactivo
+Hay un ejemplo interactivo con código y visualización en pathfinding-k-alternatives.html
