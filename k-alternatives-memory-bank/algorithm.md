@@ -199,7 +199,7 @@ localHeuristics[state] = [option1, option2, ...] // reordered based on success
 
 ### Performance Optimizations
 - **Early termination**: Stop if lower bound reached
-- **Adaptive maxK**: Increase maxK only if no improvements with curren k. 
+- **Adaptive maxK**: Increase maxK only if no improvements with current k. 
 - **Parallel exploration**: Multiple workers with different starting points
 - **Hybrid refinement**: Combine with local search (2-opt, 3-opt)
 

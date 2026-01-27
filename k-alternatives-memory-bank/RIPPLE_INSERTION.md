@@ -102,7 +102,7 @@ Let $N$ be the number of cities and $M$ be the number of spatial neighbors check
 
 | Scenario | Recommended Solver | Why? |
 | :--- | :--- | :--- |
-| **Static Planning** (Route 100 stops from scratch) | **k-Alternatives** | Better global optimization power. |
+| **Static Planning** (Route 1000 stops from scratch) | **LKH** | Better global optimization power. |
 | **Dynamic/Online** (Add stop to active route) | **Ripple Insertion** | Retains existing route structure while locally optimizing. Instant feedback. |
 | **Interactive UI** (User clicks to add points) | **Ripple Insertion** | Visually pleasing "organic" adjustment; zero UI freeze. |
 | **Gaming AI** (RTS Unit Pathing) | **Ripple Insertion** | Fast, "good enough" routing that reacts to map changes. |
