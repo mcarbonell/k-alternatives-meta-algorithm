@@ -1,3 +1,7 @@
+// solve-worker.js 
+// Web worker para resolver una instancia del TSP
+// Autor: Mario Raúl Carbonell Martínez
+// Agosto 2025
 
 let id = '';
 let cities = [];
@@ -252,7 +256,7 @@ self.onmessage = function (e) {
         improvements = 0;
         currentK = 0;
 
-        // MaxK es el entero superior/inferior más próximo al logaritmo neperiano del numero de ciudades.
+        // MaxK es el entero superior/inferior más próximo al logaritmo del numero de ciudades.
         // maxK = Math.floor(Math.log(cities.length));
         initializeLocalHeuristics();
         setTimeout(solve, 0);
