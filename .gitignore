@@ -32,6 +32,6 @@ coverage/
 results/
 *.log
 
-.zencoder/*
+.zencoder/
 .zenflow/
 
