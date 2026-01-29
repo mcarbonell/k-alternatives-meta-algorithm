@@ -120,6 +120,34 @@ Performance on standard TSP instances (EUC_2D):
 
 **Average Gap: ~4.0%** - Excellent results for an $O(N \log N)$ algorithm designed for dynamic insertion rather than static optimization.
 
+UPDATE: With bigger instances the performance degrades
+
+| Instance | N   | Optimal    | Achieved   | Gap      | Ratio  |
+|:---------|:----|:-----------|:-----------|:---------|:-------|
+| tsp225   | 225 | 3916.00    | 4229.62    | 8.01%    | 1.0801 |
+| a280     | 280 | 2579.00    | 2779.26    | 7.76%    | 1.0776 |
+| pcb442   | 442 | 50778.00   | 55360.84   | 9.03%    | 1.0903 |
+| rat575   | 575 | 6773.00    | 7452.18    | 10.03%   | 1.1003 |
+| d657     | 657 | 48912.00   | 55231.00   | 12.92%   | 1.1292 |
+
+I have some ideas to improve the algorithm:
+- Add more operators, not only Relocate, as 2-opt, 3-opt, or-opt, etc.
+- Start with the convex hull. Now the insertion order is as appears in the TSPLIB file.
+- Increase the number of neigbours M as a function of N.
+
+
+
+## 📊 **Comparison with other heuristics**
+
+| Algorithm                | Complexity | Best for...                          | Typical Gap (N=100) | Dynamic? |
+|--------------------------|-------------|-----------------------------------------|--------------------|-----------|
+| **Nearest Neighbor**     | O(N²)       | Extreme speed                         | 5-15%              | ❌        |
+| **Cheapest Insertion**   | O(N²)       | Decent quality                         | 4-8%               | ❌        |
+| **Savings (Clarke-Wright)**| O(N²)     | Routes with close points               | 5-10%              | ❌        |
+| **LKH (Simulated Annealing)**| O(N²)     | **Best quality (static)**            | 0.5-2%             | ❌        |
+| **👉 Ripple Insertion**  | **O(N log N)** | **Dynamic + Interactive**             | **~4%**            | ✅✅✅     |
+
+
 ## 🎯 Use Cases
 
 | Scenario | Recommended Solver | Why? |
@@ -131,7 +159,7 @@ Performance on standard TSP instances (EUC_2D):
 
 ## 🔍 Demo
 
-Open `tsp-spatial-insertion-animated.html` in your browser to visualize the algorithm.
+Open `ripple-insertion-animated.html` in your browser to visualize the algorithm.
 
 ![Ripple Insertion Demo](../img/ripple_insertion.png)
 
