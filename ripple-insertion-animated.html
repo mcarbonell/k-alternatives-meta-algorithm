@@ -223,7 +223,8 @@
         let isOptimizing = false;
         let optimalValue = null;
         let problemName = '';
-        let edgeWeightType = 'EUC_2D'; // 'EUC_2D' or 'GEO'
+        let edgeWeightType = 'EUC_2D'; // 'EUC_2D', 'GEO', 'ATT', 'CEIL_2D', 'EXPLICIT'
+        let explicitWeights = null; // For EXPLICIT edge weight type
 
         // Visual State
         let activeSet = new Set();
@@ -242,6 +243,7 @@
             optimalValue = null;
             problemName = '';
             edgeWeightType = 'EUC_2D';
+            explicitWeights = null;
             updateComparisonStats();
             drawState();
         }
@@ -269,6 +271,13 @@
                 problemName = data.metadata.name;
                 optimalValue = data.metadata.optimalDistance;
                 edgeWeightType = data.metadata.edgeWeightType || 'EUC_2D';
+
+                // Handle EXPLICIT edge weights
+                if (edgeWeightType === 'EXPLICIT' && data.edgeWeights) {
+                    explicitWeights = data.edgeWeights;
+                } else {
+                    explicitWeights = null;
+                }
 
                 // Normalize coordinates to fit canvas
                 const citiesData = data.cities;
@@ -550,17 +559,59 @@
         // Store original coordinates for distance calculation
         // Already declared at the top of the script
 
-        function geoDistance(lat1, lon1, lat2, lon2) {
-            // TSPLIB GEO distance calculation
-            // Convert to radians
-            const PI = Math.PI;
-            const RRR = 6378.388; // Earth radius in km
+        // TSPLIB distance calculation functions
+        function nint(x) {
+            return Math.floor(x + 0.5);
+        }
 
-            const q1 = Math.cos(lon1 * PI / 180.0 - lon2 * PI / 180.0);
-            const q2 = Math.cos(lat1 * PI / 180.0 - lat2 * PI / 180.0);
-            const q3 = Math.cos(lat1 * PI / 180.0 + lat2 * PI / 180.0);
+        function toRad(coordinate) {
+            // TSPLIB GEO format: DDD.MM (degrees + minutes)
+            // Convert to radians using TSPLIB formula
+            const PI = 3.141592;
+            const deg = Math.floor(coordinate);
+            const min = coordinate - deg;
+            return PI * (deg + 5.0 * min / 3.0) / 180.0;
+        }
 
-            return Math.floor(RRR * Math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1.0);
+        function distEUC2D(n1, n2) {
+            const xd = n1.x - n2.x;
+            const yd = n1.y - n2.y;
+            return nint(Math.sqrt(xd * xd + yd * yd));
+        }
+
+        function distCEIL2D(n1, n2) {
+            const xd = n1.x - n2.x;
+            const yd = n1.y - n2.y;
+            return Math.ceil(Math.sqrt(xd * xd + yd * yd));
+        }
+
+        function distATT(n1, n2) {
+            const xd = n1.x - n2.x;
+            const yd = n1.y - n2.y;
+            const rij = Math.sqrt((xd * xd + yd * yd) / 10.0);
+            const tij = nint(rij);
+            // Special rounding rule for ATT
+            if (tij < rij) {
+                return tij + 1;
+            } else {
+                return tij;
+            }
+        }
+
+        function distGEO(n1, n2) {
+            const RRR = 6378.388;
+            // In TSPLIB GEO, x is latitude, y is longitude
+            const lat1 = toRad(n1.x);
+            const lon1 = toRad(n1.y);
+            const lat2 = toRad(n2.x);
+            const lon2 = toRad(n2.y);
+
+            const q1 = Math.cos(lon1 - lon2);
+            const q2 = Math.cos(lat1 - lat2);
+            const q3 = Math.cos(lat1 + lat2);
+
+            const dij = Math.floor(RRR * Math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1.0);
+            return dij;
         }
 
         function dist(a, b) {
@@ -572,12 +623,23 @@
                 return Math.hypot(a.x - b.x, a.y - b.y);
             }
 
-            if (edgeWeightType === 'GEO') {
-                // For GEO, x is longitude, y is latitude
-                return geoDistance(origA.y, origA.x, origB.y, origB.x);
-            } else {
-                // Default EUC_2D
-                return Math.hypot(origA.x - origB.x, origA.y - origB.y);
+            switch (edgeWeightType) {
+                case 'GEO':
+                    return distGEO(origA, origB);
+                case 'ATT':
+                    return distATT(origA, origB);
+                case 'CEIL_2D':
+                    return distCEIL2D(origA, origB);
+                case 'EXPLICIT':
+                    // Use pre-computed distance matrix
+                    if (explicitWeights && explicitWeights[a.id] && explicitWeights[a.id][b.id] !== undefined) {
+                        return explicitWeights[a.id][b.id];
+                    }
+                    // Fallback to EUC_2D if matrix not available
+                    return distEUC2D(origA, origB);
+                case 'EUC_2D':
+                default:
+                    return distEUC2D(origA, origB);
             }
         }
 

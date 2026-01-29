@@ -116,7 +116,7 @@ Despite being designed for **dynamic insertion** (not static optimization), Ripp
 
 **Average Gap: ~4%** - Remarkable for an $O(N \log N)$ algorithm that processes cities incrementally!
 
-**Demo:** Open `tsp-spatial-insertion-animated.html` in your browser to visualize the algorithm and test against TSPLIB instances.
+**Demo:** Open `ripple-insertion-animated.html` in your browser to visualize the algorithm and test against TSPLIB instances.
 
 ---
 
