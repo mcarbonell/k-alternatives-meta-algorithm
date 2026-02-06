@@ -10,15 +10,87 @@ Originally designed for the **Traveling Salesperson Problem (TSP)**, the archite
 
 ## 🧠 The Core Concept
 
-The algorithm is based on **Limited Discrepancy Search (LDS)** combined with a **Multi-Start Construction** strategy.
+The algorithm combines **Limited Discrepancy Search (LDS)** with **Multi-Start Construction** and introduces a **novel adaptive learning mechanism** that makes it unique in the landscape of optimization algorithms.
 
-1.  **Base Heuristic:** The algorithm relies on a greedy heuristic (e.g., "Nearest Neighbor" for TSP, "Value/Weight Ratio" for Knapsack).
-2.  **k-Deviations:** Instead of always following the heuristic, the algorithm is allowed to make up to $K$ "sub-optimal" choices (deviations) during the construction of a solution.
-3.  **Multi-Start:** The solver attempts to build solutions starting from different initial states (e.g., starting the tour at different cities or packing the knapsack starting with different items).
+### 1. Base Heuristic
+The algorithm relies on a greedy heuristic to guide solution construction:
+- **TSP**: "Nearest Neighbor" - at each step, choose the closest unvisited city
+- **Knapsack**: "Value/Weight Ratio" - sort items by efficiency and choose the best available
+- **General**: Any local decision heuristic that suggests the "best next choice"
+
+### 2. k-Deviations
+Instead of always following the heuristic, the algorithm allows up to **k "sub-optimal" choices** (deviations) during construction:
+- **k=0**: Pure greedy - always follow the best heuristic choice
+- **k=1**: Try the second-best choice once
+- **k=2**: Try alternatives twice, exploring a wider solution space
+- **k=n**: Eventually reaches exhaustive search
+
+### 3. Multi-Start Strategy
+The solver builds solutions from different starting points to avoid local minima:
+- **TSP**: Start tours from different cities
+- **Knapsack**: Force the greedy construction to start with different items
+- This systematic exploration ensures diverse solution coverage
+
+## 🧠 Adaptive Learning: Reinforcement Learning Without Neural Networks
+
+**This is the most innovative aspect of k-Alternatives.**
+
+The algorithm implements **Reinforcement Learning concepts** using simple data structures instead of neural networks or Q-tables. Each decision point maintains a **learned policy** that evolves based on successful solutions.
+
+### How Learning Works
+
+When the algorithm discovers a **better solution**, it **reinforces the decisions** that led to that solution by reordering the heuristic lists:
+
+```javascript
+// When a better route is found, successful edges move to the front
+function updateHeuristics(improvedRoute) {
+    for (let i = 0; i < improvedRoute.length - 1; i++) {
+        const city1 = improvedRoute[i];
+        const city2 = improvedRoute[i + 1];
+        
+        // Move successful connection to front of heuristic list
+        if (heuristics[city1][0] !== city2) {
+            heuristics[city1] = [city2, ...heuristics[city1].filter(c => c !== city2)];
+        }
+        // Same for the reverse edge
+        if (heuristics[city2][0] !== city1) {
+            heuristics[city2] = [city1, ...heuristics[city2].filter(c => c !== city1)];
+        }
+    }
+}
+```
+
+**Result**: Successful decisions become the "first choice" (k=0), allowing future searches to exploit learned knowledge at minimal cost.
+
+### Learning as RL Framework
+
+| RL Concept | k-Alternatives Implementation |
+|------------|------------------------------|
+| **State** | Current partial solution + remaining choices |
+| **Action** | Choose next element (city/item) |
+| **Policy π** | `heuristics[state]` - ordered list of choices |
+| **Reward** | Improvement in global solution quality |
+| **Q-values** | Implicit in the ordering of heuristic list |
+| **Exploration** | `k` parameter - higher k = more deviation |
+| **Exploitation** | `k=0` - follow learned best choices |
+| **Learning** | Reordering heuristic lists based on success |
+
+### Why This Approach is Powerful
+
+1. **No Hyperparameters**: Unlike Q-learning (α, γ) or Neural Networks (learning rate, architecture), k-Alternatives has a single parameter: `k`
+
+2. **Interpretable**: You can inspect `heuristics[city]` to see what the algorithm has "learned" about good connections
+
+3. **Fast Convergence**: Updates only happen on confirmed improvements, unlike gradient descent which may converge slowly
+
+4. **Memory Efficient**: O(n²) storage vs exponential Q-tables
+
+5. **Deterministic Control**: Randomization only affects exploration order, not the learning mechanism
 
 ## 🚀 Features
 
 *   **Generic Framework:** A `KDeviationOptimizer` base class that implements the core search logic, agnostic of the specific problem.
+*   **Adaptive Learning:** Heuristics evolve based on successful solutions, creating a "memory" of good decisions.
 *   **TSP Solver:**
     *   Supports TSPLIB format (EUC_2D, GEO, EXPLICIT matrices).
     *   Visualizer included (`index-legacy.html`).
@@ -36,7 +108,7 @@ The algorithm is based on **Limited Discrepancy Search (LDS)** combined with a *
 Why use **k-Alternatives**? It occupies a "sweet spot" between naive algorithms and complex academic solvers. It offers **80% of the performance of state-of-the-art solvers with only 10% of the implementation complexity.**
 
 | Algorithm | Implementation | Solution Quality | Parameter Tuning | Robustness |
-| :--- | :---: | :---: | :---: | :---: |
+|-----------|----------------|------------------|-------------------|------------|
 | **Greedy (NN)** | ⭐⭐⭐⭐⭐ (Trivial) | ⭐⭐ (Poor) | None | High |
 | **2-Opt (Hill Climbing)** | ⭐⭐⭐⭐ (Easy) | ⭐⭐⭐ (Decent) | Low | Medium |
 | **Simulated Annealing** | ⭐⭐⭐⭐ (Easy) | ⭐⭐⭐⭐ (Good) | **High** (Difficult) | Low (Random) |
@@ -141,7 +213,7 @@ Open `index-legacy.html` in a modern browser to watch the TSP solver in action.
 *   `knapsack-solver.js`: Specific implementation for the 0/1 Knapsack Problem.
 *   `knapsack-loader.js`: Parser for Pisinger/OR-Library benchmark files.
 *   `tsplib-json/`: Directory containing pre-parsed TSPLIB instances in JSON format.
-*   `tsp-spatial-insertion-animated.html`: Interactive demo of the "Ripple Insertion" algorithm.
+*   `ripple-insertion-animated.html`: Interactive demo of the "Ripple Insertion" algorithm.
 
 
 ## 🙌 Acknowledgments
