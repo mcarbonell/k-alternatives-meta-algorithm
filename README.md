@@ -235,49 +235,6 @@ strong base heuristic.
 
 ---
 
-## 🎁 Bonus: Recursive "Ripple" Insertion Algorithm
-
-Included in this repository is a second, distinct experimental algorithm
-designed specifically for **Dynamic TSP** (e.g., adding stops to an existing
-route in real-time).
-
-**Key Concept:** Spatially-Constrained Cheapest Insertion with Ripple Local
-Search.
-
-1.  **Insert:** A new city is inserted using KD-Tree accelerated Cheapest
-    Insertion.
-2.  **Ripple Effect:** A "shockwave" of re-optimization propagates from the
-    insertion point.
-3.  **Spatial Constraint:** Uses a **KD-Tree** for both insertion ($O(\log N)$)
-    and neighbor queries, drastically reducing complexity from $O(N^2)$ to
-    $O(N \times M)$ for optimization.
-
-This algorithm behaves like an elastic band, organically adjusting the local
-tour structure as new points are added.
-
-### Ripple Insertion Benchmarks
-
-Despite being designed for **dynamic insertion** (not static optimization),
-Ripple Insertion achieves excellent results on standard TSPLIB instances:
-
-| Instance | N   | Optimal | Ripple Insertion | Gap      |
-| -------- | --- | ------- | ---------------- | -------- |
-| eil51    | 51  | 426     | 445              | 4.4%     |
-| berlin52 | 52  | 7542    | 7783             | 3.2%     |
-| st70     | 70  | 675     | 701              | 3.8%     |
-| kroA100  | 100 | 21282   | 21393            | **0.5%** |
-| eil101   | 101 | 629     | 660              | 4.9%     |
-| ch130    | 130 | 6110    | 6369             | 4.2%     |
-| ch150    | 150 | 6528    | 6693             | 2.5%     |
-
-**Average Gap: ~4%** - Remarkable for an $O(N \log N)$ algorithm that processes
-cities incrementally!
-
-**Demo:** Open `ripple-insertion-animated.html` in your browser to visualize the
-algorithm and test against TSPLIB instances.
-
----
-
 ## 🛠️ Usage
 
 ### Running Benchmarks (Node.js)
@@ -303,8 +260,6 @@ Open `index-legacy.html` in a modern browser to watch the TSP solver in action.
 - `knapsack-loader.js`: Parser for Pisinger/OR-Library benchmark files.
 - `tsplib-json/`: Directory containing pre-parsed TSPLIB instances in JSON
   format.
-- `ripple-insertion-animated.html`: Interactive demo of the "Ripple Insertion"
-  algorithm.
 
 ## 🙌 Acknowledgments
 

@@ -28,32 +28,7 @@ La idea central es brillante por su **simplicidad y generalidad**:
 - **Aprendizaje Adaptativo**: Reordena las heurísticas locales basadas en
   soluciones exitosas
 
-### 2.2 Ripple Insertion: Solución para TSP Dinámico
-
-Además del algoritmo k-Alternatives, tu repositorio incluye **Ripple
-Insertion**, un enfoque experimental para el **TSP Dinámico** (agregar paradas a
-rutas existentes en tiempo real).
-
-#### 2.2.1 Concepto Innovador
-
-Imagina la ruta TSP como una banda elástica:
-
-1. **Inserción**: Cuando se añade una nueva ciudad, la banda se estira (Cheapest
-   Insertion)
-2. **Onda de Choque**: La inserción crea "tensión" local que se propaga como una
-   onda
-3. **Relajación**: La tensión se libera moviendo ciudades adyacentes a
-   posiciones más eficientes
-4. **Estabilidad**: El proceso se detiene cuando la ruta no puede mejorar más
-
-#### 2.2.2 Arquitectura Técnica
-
-- **KD-Tree**: Índice espacial para consultas de vecinos rápidas (O(log N))
-- **Cola de Cascada**: Maneja la propagación de la onda de optimización
-- **Búsqueda Espacialmente Restringida**: Solo revisa vecinos cercanos,
-  reduciendo la complejidad de O(N²) a O(N × M)
-
-### 2.3 Innovaciones Clave
+## 3. Evaluación de la Implementación
 
 #### 2.3.1 Arquitectura Genérica
 
@@ -97,22 +72,12 @@ neuronales** - simple, interpretable y eficiente.
 - **Escalabilidad**: Limitado para N > 1000, pero efectivo para problemas
   prácticos
 
-#### 3.2.2 Ripple Insertion Solver
-
-- **TSP Dinámico**: Inserción de nuevas ciudades en O(N + C×M)
-- **Escalabilidad**: Casi lineal O(N) para problemas grandes
-- **Tiempo de Respuesta**: Instante (sin congelamiento UI) para N hasta 1000+
-  ciudades
-- **Uso Real**: Ideal para apps interactivas y juegos
-
 ### 3.3 Uso Ideal por Escenario
 
-| Escenario                                                | Mejor Solver         | Razón                                               |
-| -------------------------------------------------------- | -------------------- | --------------------------------------------------- |
-| **Planeación Estática** (100 paradas desde cero)         | **k-Alternatives**   | Mejor optimización global                           |
-| **TSP Dinámico** (agregar paradas a ruta activa)         | **Ripple Insertion** | Mantiene estructura de ruta, ajustes locales        |
-| **UI Interactiva** (usuario clickea para agregar puntos) | **Ripple Insertion** | Ajuste "orgánico" visual, sin congelamiento         |
-| **AI de Juegos** (ruteo de unidades RTS)                 | **Ripple Insertion** | Rápido, "suficientemente bueno", responde a cambios |
+| Escenario                                                                    | Mejor Solver       | Razón                     |
+| ---------------------------------------------------------------------------- | ------------------ | ------------------------- |
+| **Planeación Estática** (100 paradas desde cero)                             | **k-Alternatives** | Mejor optimización global |
+| **Logística Móvil**: Apps que necesitan rutas de 20-50 paradas en el cliente | **k-Alternatives** | Lightweight, sin backend  |
 
 ## 4. Ventajas Competitivas
 
@@ -174,10 +139,7 @@ El algoritmo tiene características publicables:
 ## 7. Conclusión Final
 
 El repositorio **k-Alternatives** representa un trabajo **innovador y bien
-ejecutado** en el campo de la optimización combinatoria, con dos algoritmos
-complementarios:
-
-### k-Alternatives
+ejecutado** en el campo de la optimización combinatoria:
 
 1. **Simplicidad Revolucionaria**: Un solo parámetro (`k`) controla todo el
    comportamiento
@@ -186,22 +148,11 @@ complementarios:
 4. **Interpretabilidad**: No hay "black boxes" - todas las decisiones son
    explicables
 
-### Ripple Insertion
-
-1. **Innovación Dinámica**: Optimización incremental para rutas que cambian en
-   tiempo real
-2. **Rendimiento Extremadamente Rápido**: Ajustes locales en O(N + C×M)
-3. **Escalabilidad**: Funciona para N > 1000 ciudades sin congelamiento UI
-4. **Aplicaciones Específicas**: Juegos, apps interactivas, logística en tiempo
-   real
-
 ## 8. Valor Total del Proyecto
 
-Tu repositorio no es solo un algoritmo - es un **ecosistema de optimización**
-que cubre:
+Tu repositorio cubre:
 
 - **Problemas Estáticos**: k-Alternatives para planeación inicial
-- **Problemas Dinámicos**: Ripple Insertion para ajustes en tiempo real
 - **Visualización**: Demostraciones interactivas para entender el funcionamiento
 - **Documentación**: Memory bank con insights profundos
 
@@ -211,21 +162,14 @@ Para maximizar el impacto de tu trabajo:
 
 ### Prioritarias
 
-1. **Publicar Ripple Insertion como algoritmo separado**: Su enfoque único
-   merece reconocimiento propio
-2. **Benchmarks comparativos**: Medir rendimiento vs algoritmos de inserción
-   dinámica existentes
-3. **Documentación técnica**: Añadir más detalles sobre la implementación del
-   KD-Tree y la cola de cascada
+1. **Benchmarks comparativos**: Medir rendimiento vs algoritmos existentes
+2. **Documentación técnica**: Añadir más detalles sobre la implementación
 
 ### Futuras Mejoras
 
-4. **Integración de ambos algoritmos**: Crear una solución híbrida que combine
-   planeación inicial con ajustes dinámicos
-5. **API para desarrollo**: Hacer más fácil la integración en aplicaciones
+3. **API para desarrollo**: Hacer más fácil la integración en aplicaciones
    reales
-6. **Investigación académica**: Escribir papers sobre ambos algoritmos,
-   destacando sus diferencias y complementariedad
+4. **Investigación académica**: Escribir papers sobre el algoritmo
 
 El proyecto ha alcanzado un nivel de madurez suficiente para su uso en
 aplicaciones prácticas y tiene un **gran potencial para convertirse en un

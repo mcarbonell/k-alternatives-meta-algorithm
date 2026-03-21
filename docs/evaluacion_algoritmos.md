@@ -15,8 +15,7 @@ incluye:
    (LDS) aplicado a TSP, Knapsack y Pathfinding
 2. **Block Merge Segment Sort**: Un algoritmo de ordenamiento adaptativo con
    múltiples variantes
-3. **Ripple Insertion**: Un solver dinámico de TSP con restricciones espaciales
-4. **k-Alternatives Pathfinding**: Adaptación de k-alternatives para búsqueda de
+3. **k-Alternatives Pathfinding**: Adaptación de k-alternatives para búsqueda de
    caminos
 
 **Veredicto General:** ⭐⭐⭐⭐ (4/5) - Trabajo algorítmico sólido con
@@ -328,33 +327,7 @@ presentación y aplicación**:
 
 ---
 
-## 3. Ripple Insertion Algorithm
-
-### 🎯 Evaluación: ⭐⭐⭐⭐ (4/5)
-
-#### Innovación Conceptual
-
-- **Concepto "Elastic Band"**: Metáfora excelente y precisa
-- **KD-Tree + Cascade Queue**: Combinación inteligente
-- **Complejidad O(N + C·M)**: Casi lineal vs. O(N²) de 2-opt
-
-#### Fortalezas
-
-1. ✅ Ideal para **Dynamic TSP** (webcam, añadir puntos en UI)
-2. ✅ Constraint espacial reduce complejidad drásticamente
-3. ✅ Visualización (`tsp-spatial-insertion-animated.html`) ayuda comprensión
-
-#### Oportunidades
-
-- ⚠️ Falta benchmarking cuantitativo (solo demo visual)
-- 💡 Comparar con: Insertion + 2-opt, Nearest Insertion, etc.
-- 💡 Métricas: quality vs. speed tradeoff para diferentes M
-
----
-
-## 4. k-Alternatives Pathfinding
-
-### 🎯 Evaluación: ⭐⭐⭐⭐½ (4.5/5)
+### 🔨 Calidad de Implementación: ⭐⭐⭐⭐½ (4.5/5)
 
 #### Innovación Destacada
 
@@ -524,14 +497,14 @@ O(1) Space"_
 
 ## Calificación Final por Categorías
 
-| Aspecto                | k-Alternatives | Block Merge Sort | Ripple Insert | Pathfinding |
-| ---------------------- | -------------- | ---------------- | ------------- | ----------- |
-| **Originalidad**       | ⭐⭐⭐⭐½      | ⭐⭐⭐⭐         | ⭐⭐⭐⭐      | ⭐⭐⭐⭐½   |
-| **Implementación**     | ⭐⭐⭐⭐       | ⭐⭐⭐⭐½        | ⭐⭐⭐½       | ⭐⭐⭐⭐    |
-| **Documentación**      | ⭐⭐⭐⭐⭐     | ⭐⭐⭐⭐½        | ⭐⭐⭐⭐      | ⭐⭐⭐⭐⭐  |
-| **Benchmarking**       | ⭐⭐⭐½        | ⭐⭐⭐⭐         | ⭐⭐½         | ⭐⭐½       |
-| **Potencial Práctico** | ⭐⭐⭐⭐       | ⭐⭐⭐⭐½        | ⭐⭐⭐⭐      | ⭐⭐⭐⭐⭐  |
-| **Publicabilidad**     | ⭐⭐⭐⭐       | ⭐⭐⭐⭐½        | ⭐⭐⭐        | ⭐⭐⭐⭐    |
+| Aspecto                | k-Alternatives | Pathfinding |
+| ---------------------- | -------------- | ----------- |
+| **Originalidad**       | ⭐⭐⭐⭐½      | ⭐⭐⭐⭐½   |
+| **Implementación**     | ⭐⭐⭐⭐       | ⭐⭐⭐⭐    |
+| **Documentación**      | ⭐⭐⭐⭐⭐     | ⭐⭐⭐⭐⭐  |
+| **Benchmarking**       | ⭐⭐⭐½        | ⭐⭐½       |
+| **Potencial Práctico** | ⭐⭐⭐⭐       | ⭐⭐⭐⭐⭐  |
+| **Publicabilidad**     | ⭐⭐⭐⭐       | ⭐⭐⭐⭐    |
 
 **Promedio Global:** ⭐⭐⭐⭐ (4.1/5)
 
