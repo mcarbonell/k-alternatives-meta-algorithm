@@ -69,6 +69,7 @@ sessions and progress tracking.
 
 ### Core Tests
 
+- [ ] Install `vitest` and add `npm run test` script
 - [ ] Create `k-optimizer.spec.js` - Base class contract tests
 - [ ] Test `systematicSearch()` method behavior
 - [ ] Test `checkSolution()` improvement detection
@@ -80,7 +81,6 @@ sessions and progress tracking.
 
 - [ ] Expand `tsp-solver.spec.js` with more instances
 - [ ] Expand `knapsack-solver.spec.js` with edge cases
-- [ ] Create `ripple-insertion.spec.js`
 - [ ] Test TSPLIB file parsing
 - [ ] Test explicit distance matrix handling
 
@@ -168,7 +168,7 @@ sessions and progress tracking.
 
 - [ ] Research proper candidate list implementation
 - [ ] Implement with fallback for edge cases
-- [ ] Document limitations in OPTIMIZATIONS.md (DONE - see warning section)
+- [ ] Create `OPTIMIZATIONS.md` and document limitations
 - [ ] Test with various problem instances
 - [ ] Benchmark performance improvement
 
@@ -209,7 +209,7 @@ city**. If candidate lists are too restrictive, this can cause:
 ### Required Safeguards
 
 - [ ] Always include fallback to ALL unvisited cities
-- [ ] Document this limitation in `OPTIMIZATIONS.md` ✅ DONE
+- [ ] Document this limitation in `OPTIMIZATIONS.md`
 - [ ] Add tests for edge cases (dense clusters, etc.)
 - [ ] Consider adaptive candidate list sizing
 - [ ] Benchmark impact of different candidate list sizes
@@ -281,7 +281,7 @@ unvisited cities.
 
 ### Package Configuration
 
-- [ ] Update `package.json` with `"type": "module"` ✅ DONE
+- [x] Update `package.json` with `"type": "module"`
 - [ ] Add `"exports"` field for subpath exports
 - [ ] Add `"files"` field for npm publish
 - [ ] Add `"types"` field for TypeScript
@@ -340,7 +340,6 @@ unvisited cities.
 ### Enhanced Existing Visualizers
 
 - [ ] Update `index-legacy.html` with modern UI
-- [ ] Improve `ripple-insertion-animated.html`
 - [ ] Add mobile responsiveness
 - [ ] Add accessibility features
 
@@ -417,8 +416,8 @@ unvisited cities.
 - [ ] Create `examples/` directory
 - [ ] Add basic examples (TSP, Knapsack)
 - [ ] Add performance profiling script
-- [x] Add GitHub Actions CI workflow
-- [ ] Add PR template
+- [ ] Add GitHub Actions CI workflow
+- [ ] Create PR template
 - [ ] Add issue templates (bug report, feature request)
 
 ---
@@ -430,29 +429,28 @@ unvisited cities.
 | Priority         | Total Tasks | Completed | In Progress | Pending | % Complete |
 | ---------------- | ----------- | --------- | ----------- | ------- | ---------- |
 | 1. Code Quality  | 35          | 7         | 0           | 28      | 20%        |
-| 2. Testing       | 30          | 2         | 0           | 28      | 7%         |
+| 2. Testing       | 31          | 0         | 0           | 31      | 0%         |
 | 3. Documentation | 25          | 0         | 0           | 25      | 0%         |
-| 4. Performance   | 15          | 1         | 0           | 14      | 7%         |
+| 4. Performance   | 15          | 0         | 0           | 15      | 0%         |
 | 5. New Problems  | 30          | 0         | 0           | 30      | 0%         |
 | 6. Build System  | 20          | 1         | 0           | 19      | 5%         |
 | 7. Visualization | 15          | 0         | 0           | 15      | 0%         |
 | 8. Publication   | 30          | 0         | 0           | 30      | 0%         |
-| Quick Wins       | 13          | 3         | 0           | 10      | 23%        |
-| **TOTAL**        | **213**     | **14**    | **0**       | **199** | **6.6%**   |
+| Quick Wins       | 13          | 4         | 0           | 9       | 31%        |
+| **TOTAL**        | **214**     | **12**    | **0**       | **202** | **5.6%**   |
 
 ### Recent Activity
 
-| Date       | Task                                                  | Status        |
-| ---------- | ----------------------------------------------------- | ------------- |
-| 2026-03-21 | Created PLAN.md                                       | ✅ Completed  |
-| 2026-03-21 | Identified candidate lists bug                        | ⚠️ Documented |
-| 2026-03-21 | Added ESLint + Prettier configuration                 | ✅ Completed  |
-| 2026-03-21 | Fixed 392 lint errors automatically                   | ✅ Completed  |
-| 2026-03-21 | Fixed remaining 6 errors manually                     | ✅ Completed  |
-| 2026-03-21 | Added .editorconfig and .gitattributes                | ✅ Completed  |
-| 2026-03-21 | Updated OPTIMIZATIONS.md with candidate lists warning | ✅ Completed  |
-| 2026-03-21 | Added npm scripts: lint, format, check                | ✅ Completed  |
-| 2026-03-21 | Final status: 0 errors, 30 warnings (unused vars)     | ✅ Completed  |
+| Date       | Task                                              | Status        |
+| ---------- | ------------------------------------------------- | ------------- |
+| 2026-03-21 | Created PLAN.md                                   | ✅ Completed  |
+| 2026-03-21 | Identified candidate lists bug                    | ⚠️ Documented |
+| 2026-03-21 | Added ESLint + Prettier configuration             | ✅ Completed  |
+| 2026-03-21 | Fixed 392 lint errors automatically               | ✅ Completed  |
+| 2026-03-21 | Fixed remaining 6 errors manually                 | ✅ Completed  |
+| 2026-03-21 | Added .editorconfig and .gitattributes            | ✅ Completed  |
+| 2026-03-21 | Added npm scripts: lint, format, check            | ✅ Completed  |
+| 2026-03-21 | Final status: 0 errors, 30 warnings (unused vars) | ✅ Completed  |
 
 ---
 
