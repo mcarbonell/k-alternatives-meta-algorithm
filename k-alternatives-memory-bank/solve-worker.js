@@ -1,4 +1,4 @@
-// solve-worker.js 
+// solve-worker.js
 // Web worker para resolver una instancia del TSP
 // Autor: Mario Raúl Carbonell Martínez
 // Agosto 2025
@@ -15,8 +15,8 @@ let maxK = 0;
 
 let currentK = 1;
 let distances = [];
-let costContribution = [];
-let minPossible = [];
+const costContribution = [];
+const minPossible = [];
 let initialHeuristics = [];
 let localHeuristics = [];
 
@@ -28,14 +28,11 @@ function shuffle(array) {
     let currentIndex = array.length;
 
     while (currentIndex != 0) {
-        let randomIndex = Math.floor(Math.random() * currentIndex);
+        const randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex], array[currentIndex]];
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
     }
 }
-
-
 
 function distance(city1, city2) {
     return distances[city1][city2];
@@ -61,7 +58,7 @@ function sendStats() {
         improvements,
         bestDistance,
         currentK,
-        bestPossibleDistance
+        bestPossibleDistance,
     });
 }
 
@@ -79,18 +76,18 @@ function updateBestRoute(routeDistance, currentRoute) {
         distance: bestDistance,
         iteration,
         improvements,
-        currentK
+        currentK,
     });
 }
 
 function checkRoute(currentRoute) {
-    let routeDistance = calculateDistance(currentRoute);
+    const routeDistance = calculateDistance(currentRoute);
     if (routeDistance < bestDistance) {
         updateBestRoute(routeDistance, currentRoute);
     }
 
     iteration++;
-    if ((iteration % 100000) == 0) {
+    if (iteration % 100000 == 0) {
         sendStats();
     }
 }
@@ -101,48 +98,50 @@ function systematicAlternativesSearch(remainingCities, currentRoute, alternative
         return;
     }
 
-    let currentCity = currentRoute[currentRoute.length - 1];
-    let heuristic = localHeuristics[currentCity];
+    const currentCity = currentRoute[currentRoute.length - 1];
+    const heuristic = localHeuristics[currentCity];
     let validCitiesFound = 0;
 
     for (let i = 0; i < heuristic.length && validCitiesFound <= alternativesLeft; i++) {
         if (!isRunning) return;
 
-        let nextCity = heuristic[i];
+        const nextCity = heuristic[i];
         if (remainingCities.has(nextCity)) {
             validCitiesFound++;
             currentRoute.push(nextCity);
             remainingCities.delete(nextCity);
-            systematicAlternativesSearch(remainingCities, currentRoute, alternativesLeft - (validCitiesFound - 1));
+            systematicAlternativesSearch(
+                remainingCities,
+                currentRoute,
+                alternativesLeft - (validCitiesFound - 1)
+            );
             remainingCities.add(nextCity);
             currentRoute.pop();
         }
     }
 }
 
-
 function initializeLocalHeuristics() {
-
-    distances = cities.map((_, i) =>
-        cities.map((_, j) => calcDistance(cities[i], cities[j]))
-    );
+    distances = cities.map((_, i) => cities.map((_, j) => calcDistance(cities[i], cities[j])));
 
     initialHeuristics = cities.map((_, i) =>
-        cities.map((_, j) => j).filter(j => j !== i).sort((a, b) =>
-            distances[i][a] - distances[i][b]
-        )
+        cities
+            .map((_, j) => j)
+            .filter((j) => j !== i)
+            .sort((a, b) => distances[i][a] - distances[i][b])
     );
 
     localHeuristics = cities.map((_, i) =>
-        cities.map((_, j) => j).filter(j => j !== i).sort((a, b) =>
-            distances[i][a] - distances[i][b]
-        )
+        cities
+            .map((_, j) => j)
+            .filter((j) => j !== i)
+            .sort((a, b) => distances[i][a] - distances[i][b])
     );
 
     bestPossibleDistance = 0;
     for (let i = 0; i < cities.length; i++) {
-        let a = initialHeuristics[i][0];
-        let b = initialHeuristics[i][1];
+        const a = initialHeuristics[i][0];
+        const b = initialHeuristics[i][1];
         minPossible[i] = distances[i][a] + distances[i][b];
         bestPossibleDistance += minPossible[i];
     }
@@ -151,32 +150,40 @@ function initializeLocalHeuristics() {
 
 function updateLocalHeuristics(improvedRoute) {
     for (let i = 0; i < improvedRoute.length - 1; i++) {
-        let city1 = improvedRoute[i];
-        let city2 = improvedRoute[i + 1];
+        const city1 = improvedRoute[i];
+        const city2 = improvedRoute[i + 1];
 
-        if (localHeuristics[city1][0] !== city2)
-            localHeuristics[city1] = [city2, ...localHeuristics[city1].filter(c => c !== city2)];
-        if (localHeuristics[city2][0] !== city1)
-            localHeuristics[city2] = [city1, ...localHeuristics[city2].filter(c => c !== city1)];
+        if (localHeuristics[city1][0] !== city2) {
+            localHeuristics[city1] = [city2, ...localHeuristics[city1].filter((c) => c !== city2)];
+        }
+        if (localHeuristics[city2][0] !== city1) {
+            localHeuristics[city2] = [city1, ...localHeuristics[city2].filter((c) => c !== city1)];
+        }
     }
 }
 
 function updateLocalHeuristics2(improvedRoute) {
     for (let i = 0; i < improvedRoute.length - 1; i++) {
-        let city1 = improvedRoute[i];
-        let city2 = improvedRoute[i + 1];
+        const city1 = improvedRoute[i];
+        const city2 = improvedRoute[i + 1];
 
-        if (localHeuristics[city1][0] !== city2)
-            localHeuristics[city1] = [city2, ...initialHeuristics[city1].filter(c => c !== city2)];
-        if (localHeuristics[city2][0] !== city1)
-            localHeuristics[city2] = [city1, ...initialHeuristics[city2].filter(c => c !== city1)];
+        if (localHeuristics[city1][0] !== city2) {
+            localHeuristics[city1] = [
+                city2,
+                ...initialHeuristics[city1].filter((c) => c !== city2),
+            ];
+        }
+        if (localHeuristics[city2][0] !== city1) {
+            localHeuristics[city2] = [
+                city1,
+                ...initialHeuristics[city2].filter((c) => c !== city1),
+            ];
+        }
     }
 }
 
-
-
 function generateRandomSolution() {
-    let randomSolution = cities.map((_, index) => index);
+    const randomSolution = cities.map((_, index) => index);
     shuffle(randomSolution);
     randomSolution.push(randomSolution[0]);
 
@@ -184,20 +191,16 @@ function generateRandomSolution() {
 }
 
 function generateNearestSolution() {
-    let remainingCities = new Set(cities.map((_, index) => index).filter(i => i !== 0));
+    const remainingCities = new Set(cities.map((_, index) => index).filter((i) => i !== 0));
     systematicAlternativesSearch(remainingCities, [0], 0);
 }
 
-
-
 function solve() {
-
     if (iteration == 0) {
         // Empezando con una solución aleatoria
         // bestRoute = generateRandomSolution();
         // bestDistance = calculateDistance(bestRoute);
         // updateBestRoute(bestDistance, bestRoute);
-
         // console.log('solve');
         // console.log('random solution:', bestDistance, bestRoute);
     }
@@ -208,13 +211,15 @@ function solve() {
     let round = 0;
     while (improved) {
         improved = false;
-        let order = [...Array(cities.length).keys()];
+        const order = [...Array(cities.length).keys()];
         shuffle(order);
         round++;
         for (let i = 0; i < cities.length; i++) {
-            if (debug) console.log("bucle", currentK, round, i, (improved) ? '+' : ' ');
-            let startCity = order[i];
-            let remainingCities = new Set(cities.map((_, index) => index).filter(j => j !== startCity));
+            if (debug) console.log('bucle', currentK, round, i, improved ? '+' : ' ');
+            const startCity = order[i];
+            const remainingCities = new Set(
+                cities.map((_, index) => index).filter((j) => j !== startCity)
+            );
             systematicAlternativesSearch(remainingCities, [startCity], currentK);
 
             if (!isRunning) return;
@@ -225,7 +230,7 @@ function solve() {
     if (currentK <= maxK) {
         setTimeout(solve, 0);
     } else {
-        if (debug) console.log("END", iteration.toLocaleString('es-ES'), improvements);
+        if (debug) console.log('END', iteration.toLocaleString('es-ES'), improvements);
         sendStats();
         self.postMessage({
             type: 'solution',
@@ -234,11 +239,10 @@ function solve() {
             distance: bestDistance,
             iteration,
             improvements,
-            currentK: currentK - 1
+            currentK: currentK - 1,
         });
     }
 }
-
 
 self.onmessage = function (e) {
     if (e.data.type === 'start') {

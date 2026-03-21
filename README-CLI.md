@@ -1,6 +1,7 @@
 # k-Alternatives TSP CLI
 
-Interfaz de línea de comandos para el algoritmo k-Alternatives de optimización del TSP (Traveling Salesman Problem).
+Interfaz de línea de comandos para el algoritmo k-Alternatives de optimización
+del TSP (Traveling Salesman Problem).
 
 ## 🚀 Instalación
 
@@ -31,7 +32,7 @@ k-alternatives tsplib/berlin52.tsp
 # Benchmark de problemas pequeños
 npm run benchmark:small
 
-# Benchmark de problemas medianos  
+# Benchmark de problemas medianos
 npm run benchmark:medium
 
 # Benchmark rápido (K=3)
@@ -60,7 +61,7 @@ Opciones:
 ### Conjuntos de problemas para benchmarks
 
 - `small` - Problemas pequeños (50-80 ciudades)
-- `medium` - Problemas medianos (100-150 ciudades)  
+- `medium` - Problemas medianos (100-150 ciudades)
 - `large` - Problemas grandes (150-200 ciudades)
 - `xlarge` - Problemas extra grandes (200+ ciudades)
 - `all` - Todos los problemas pequeños y medianos
@@ -80,6 +81,7 @@ node k-alternatives-cli.js tsplib/berlin52.tsp --maxK 5 --debug
 ```
 
 Salida esperada:
+
 ```
 🚀 Resolviendo tsplib/berlin52.tsp con k-alternatives (maxK=5)
 [00:01] Iter: 1,234,567, Improvements: 12, K: 2, Best: 7,542, Optimal: 7542, Dev: 0.00%, OptimalTime: 45s
@@ -109,17 +111,21 @@ node benchmark.js small balanced
 ```
 
 Genera:
-- `benchmark-results-small-balanced-2024-11-06T12-00-000-.json` - Datos detallados
+
+- `benchmark-results-small-balanced-2024-11-06T12-00-000-.json` - Datos
+  detallados
 - `benchmark-results-small-balanced-2224-11-06T12-00o o.md` - Reporte Markdown
 
 ## 📋 Formatos de Salida
 
 ### Salida en consola
+
 - Tiempo real de ejecución
 - Métricas de progreso cada 100,000 iteraciones
 - Resumen final con todas las estadísticas
 
 ### Archivo JSON
+
 ```json
 {
   "problem": "berlin52",
@@ -135,6 +141,7 @@ Genera:
 ```
 
 ### Reporte Markdown
+
 - Tablas con resultados detallados
 - Estadísticas agregadas
 - Métricas de rendimiento
@@ -148,7 +155,7 @@ npm start                    # Muestra ayuda
 npm test                     # Prueba rápida con berlin52
 npm run benchmark            # Benchmark completo
 npm run benchmark:small      # Problemas pequeños
-npm run benchmark:medium     # Problemas medianos  
+npm run benchmark:medium     # Problemas medianos
 npm run benchmark:fast       # Configuración rápida
 npm run benchmark:thorough   # Configuración exhaustiva
 npm run help                 # Muestra ayuda
@@ -190,28 +197,28 @@ k-alternatives/
 
 ## 🏆 Ejemplos de Rendimiento
 
-| Problema | Ciudades | Distancia | Óptimo | Desviación | Tiempo |
-|----------|----------|-----------|--------|------------|--------|
-| berlin52 | 52       | 7,542     | 7,542  | 0.00%      | 3s     |
-| eil51    | 51       | 426       | 426    | 0.00%      | 2s     |
-| pr76     | 76       | 108,159   | 108,159| 0.00%      | 7s     |
-| kroA100  | 100      | 21,282    | 21,282 | 0.00%      | 15s    |
+| Problema | Ciudades | Distancia | Óptimo  | Desviación | Tiempo |
+| -------- | -------- | --------- | ------- | ---------- | ------ |
+| berlin52 | 52       | 7,542     | 7,542   | 0.00%      | 3s     |
+| eil51    | 51       | 426       | 426     | 0.00%      | 2s     |
+| pr76     | 76       | 108,159   | 108,159 | 0.00%      | 7s     |
+| kroA100  | 100      | 21,282    | 21,282  | 0.00%      | 15s    |
 
 ## 🐛 Solución de Problemas
 
 ### Problemas comunes
 
 1. **"Archivo no encontrado"**
-   - Verifica que el archivo .tsp exista en la ruta especificada
-   - Usa rutas relativas desde el directorio del proyecto
+    - Verifica que el archivo .tsp exista en la ruta especificada
+    - Usa rutas relativas desde el directorio del proyecto
 
 2. **"Memoria insuficiente"**
-   - Reduce el valor de `--maxK`
-   - Usa problemas más pequeños
+    - Reduce el valor de `--maxK`
+    - Usa problemas más pequeños
 
 3. **"Tiempo de ejecución excesivo"**
-   - Usa la configuración `fast` (K=3)
-   - Limita el número de problemas en benchmarks
+    - Usa la configuración `fast` (K=3)
+    - Limita el número de problemas en benchmarks
 
 ### Modo debug
 
@@ -220,6 +227,7 @@ node k-alternatives-cli.js tsplib/berlin52.tsp --debug
 ```
 
 Proporciona información detallada sobre:
+
 - Progreso cada 100,000 iteraciones
 - Estado de las heurísticas locales
 - Detalles de convergencia

@@ -1,10 +1,13 @@
 # k-Deviation Search Algorithm - Memory Bank
 
-This directory contains comprehensive documentation for the k-Deviation Search algorithm, designed to preserve knowledge and enable collaboration across AI sessions and human developers.
+This directory contains comprehensive documentation for the k-Deviation Search
+algorithm, designed to preserve knowledge and enable collaboration across AI
+sessions and human developers.
 
 ## Purpose
 
 This memory bank serves as:
+
 - **Context preservation** for AI assistants across sessions
 - **Knowledge base** for new developers joining the project
 - **Foundation** for academic paper
@@ -13,7 +16,9 @@ This memory bank serves as:
 ## Files
 
 ### [algorithm.md](algorithm.md)
+
 Complete technical description of the k-Deviation Search algorithm:
+
 - Core concept and innovation
 - Algorithm structure and pseudocode
 - Complexity analysis
@@ -24,7 +29,9 @@ Complete technical description of the k-Deviation Search algorithm:
 - Performance results
 
 ### [insights.md](insights.md)
+
 Key insights and observations about the algorithm:
+
 - Creator information
 - Core algorithmic insights
 - Performance insights
@@ -35,7 +42,9 @@ Key insights and observations about the algorithm:
 - Future research directions
 
 ### [roadmap.md](roadmap.md)
+
 Project roadmap and development plan:
+
 - Project vision and goals
 - Current status
 - Phase 1: Documentation & Foundation
@@ -67,6 +76,7 @@ When starting a new session on the k-Deviation project:
 ### What is k-Deviation Search?
 
 An optimization algorithm that:
+
 - **Systematically explores** k deviations from local heuristics
 - **Learns adaptively** by updating heuristics from successful solutions
 - **Controls exploration/exploitation** via the k parameter
@@ -181,4 +191,6 @@ To be determined (likely MIT for code, CC-BY for documentation)
 
 ---
 
-**Note**: This memory bank is designed to be copied to the k-deviation-search repository when created. It provides complete context for any AI assistant or developer working on the project.
+**Note**: This memory bank is designed to be copied to the k-deviation-search
+repository when created. It provides complete context for any AI assistant or
+developer working on the project.

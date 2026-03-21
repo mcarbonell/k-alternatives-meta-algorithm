@@ -1,1332 +1,1416 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>k-Alternatives Pathfinding - Versión Mejorada</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                padding: 20px;
+                gap: 20px;
+            }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>k-Alternatives Pathfinding - Versión Mejorada</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e1e1e;
-            color: #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-            gap: 20px;
-        }
+            h1 {
+                margin-bottom: 10px;
+                color: #00ff88;
+                text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            }
 
-        h1 {
-            margin-bottom: 10px;
-            color: #00ff88;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-        }
+            .controls {
+                background: #2d2d2d;
+                padding: 20px;
+                border-radius: 12px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                align-items: center;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+                border: 1px solid #3d3d3d;
+                width: 100%;
+                max-width: 800px;
+            }
 
-        .controls {
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 12px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            align-items: center;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-            border: 1px solid #3d3d3d;
-            width: 100%;
-            max-width: 800px;
-        }
+            .control-group {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
 
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+            label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #b0b0b0;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
 
-        label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #b0b0b0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+            input[type='range'] {
+                width: 100%;
+                height: 6px;
+                border-radius: 3px;
+                background: #404040;
+                outline: none;
+                cursor: pointer;
+            }
 
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #404040;
-            outline: none;
-            cursor: pointer;
-        }
+            input[type='range']::-webkit-slider-thumb {
+                appearance: none;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: #00ff88;
+                cursor: pointer;
+            }
 
-        input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #00ff88;
-            cursor: pointer;
-        }
+            input[type='checkbox'] {
+                transform: scale(1.2);
+                accent-color: #00ff88;
+            }
 
-        input[type="checkbox"] {
-            transform: scale(1.2);
-            accent-color: #00ff88;
-        }
+            button {
+                background: linear-gradient(135deg, #007acc, #005fa3);
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
 
-        button {
-            background: linear-gradient(135deg, #007acc, #005fa3);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+            button:hover {
+                background: linear-gradient(135deg, #005fa3, #004080);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 122, 204, 0.4);
+            }
 
-        button:hover {
-            background: linear-gradient(135deg, #005fa3, #004080);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 122, 204, 0.4);
-        }
+            button:disabled {
+                background: #444;
+                cursor: not-allowed;
+                transform: none;
+                box-shadow: none;
+            }
 
-        button:disabled {
-            background: #444;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+            .btn-secondary {
+                background: linear-gradient(135deg, #555, #444);
+            }
 
-        .btn-secondary {
-            background: linear-gradient(135deg, #555, #444);
-        }
+            .btn-secondary:hover {
+                background: linear-gradient(135deg, #666, #555);
+            }
 
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, #666, #555);
-        }
+            .btn-danger {
+                background: linear-gradient(135deg, #cc5500, #aa4400);
+            }
 
-        .btn-danger {
-            background: linear-gradient(135deg, #cc5500, #aa4400);
-        }
+            .btn-danger:hover {
+                background: linear-gradient(135deg, #aa4400, #884400);
+            }
 
-        .btn-danger:hover {
-            background: linear-gradient(135deg, #aa4400, #884400);
-        }
+            .info-panel {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                font-family: 'Courier New', monospace;
+                font-size: 14px;
+                background: #2d2d2d;
+                padding: 20px;
+                border-radius: 12px;
+                width: 100%;
+                max-width: 800px;
+                border: 1px solid #3d3d3d;
+            }
 
-        .info-panel {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 800px;
-            border: 1px solid #3d3d3d;
-        }
+            .stat-item {
+                background: #1a1a1a;
+                padding: 12px;
+                border-radius: 8px;
+                border-left: 4px solid #00ff88;
+            }
 
-        .stat-item {
-            background: #1a1a1a;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #00ff88;
-        }
+            .stat-label {
+                font-size: 11px;
+                color: #888;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 4px;
+            }
 
-        .stat-label {
-            font-size: 11px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
+            .stat-value {
+                font-size: 18px;
+                font-weight: bold;
+                color: #00ff88;
+            }
 
-        .stat-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #00ff88;
-        }
+            #gridCanvas {
+                border: 2px solid #3d3d3d;
+                border-radius: 8px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+                cursor: crosshair;
+            }
 
-        #gridCanvas {
-            border: 2px solid #3d3d3d;
-            border-radius: 8px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            cursor: crosshair;
-        }
+            .legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+                background: #2d2d2d;
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid #3d3d3d;
+            }
 
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            background: #2d2d2d;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #3d3d3d;
-        }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 12px;
+            }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-        }
+            .legend-color {
+                width: 20px;
+                height: 20px;
+                border-radius: 4px;
+                border: 2px solid transparent;
+            }
 
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 2px solid transparent;
-        }
+            .error-message {
+                background: #cc0000;
+                color: white;
+                padding: 10px;
+                border-radius: 6px;
+                margin: 10px;
+                display: none;
+            }
 
-        .error-message {
-            background: #cc0000;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px;
-            display: none;
-        }
+            .success-message {
+                background: #00cc44;
+                color: white;
+                padding: 10px;
+                border-radius: 6px;
+                margin: 10px;
+                display: none;
+            }
+        </style>
+    </head>
 
-        .success-message {
-            background: #00cc44;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px;
-            display: none;
-        }
-    </style>
-</head>
+    <body>
+        <h1>k-Alternatives Pathfinding Algorithm</h1>
 
-<body>
-    <h1>k-Alternatives Pathfinding Algorithm</h1>
+        <div class="controls">
+            <div class="control-group">
+                <label for="maxK">Presupuesto Máximo (K): <span id="maxK-value">5</span></label>
+                <input type="range" id="maxK" min="0" max="10" value="5" step="1" />
+            </div>
 
-    <div class="controls">
-        <div class="control-group">
-            <label for="maxK">Presupuesto Máximo (K): <span id="maxK-value">5</span></label>
-            <input type="range" id="maxK" min="0" max="10" value="5" step="1">
-        </div>
+            <div class="control-group">
+                <label for="speedRange"
+                    >Velocidad de Animación: <span id="speed-value">Medio</span></label
+                >
+                <input type="range" id="speedRange" min="1" max="50" value="25" />
+            </div>
 
-        <div class="control-group">
-            <label for="speedRange">Velocidad de Animación: <span id="speed-value">Medio</span></label>
-            <input type="range" id="speedRange" min="1" max="50" value="25">
-        </div>
+            <div class="control-group">
+                <label>Modo Heurística</label>
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; font-weight: normal"
+                    >
+                        <input type="radio" name="heuristicMode" value="optimistic" checked />
+                        <span>Optimista (Exploración)</span>
+                    </label>
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; font-weight: normal"
+                    >
+                        <input type="radio" name="heuristicMode" value="pessimistic" />
+                        <span>Pesimista (Explotación)</span>
+                    </label>
+                </div>
+            </div>
 
-        <div class="control-group">
-            <label>Modo Heurística</label>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <label style="display: flex; align-items: center; gap: 8px; font-weight: normal;">
-                    <input type="radio" name="heuristicMode" value="optimistic" checked>
-                    <span>Optimista (Exploración)</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; font-weight: normal;">
-                    <input type="radio" name="heuristicMode" value="pessimistic">
-                    <span>Pesimista (Explotación)</span>
-                </label>
+            <div class="control-group">
+                <button id="startBtn" onclick="app.controller.start()">▶ Iniciar</button>
+                <button id="stepBtn" onclick="app.controller.step()" class="btn-secondary">
+                    ⏭ Paso
+                </button>
+            </div>
+
+            <div class="control-group">
+                <button
+                    id="pauseBtn"
+                    onclick="app.controller.pause()"
+                    class="btn-secondary"
+                    disabled
+                >
+                    ⏸ Pausar
+                </button>
+                <button id="resetBtn" onclick="app.controller.reset()" class="btn-danger">
+                    🔄 Reset
+                </button>
+            </div>
+
+            <div class="control-group">
+                <button id="clearBtn" onclick="app.controller.clearGrid()" class="btn-secondary">
+                    🗑 Limpiar Mapa
+                </button>
+                <button id="loadDemoBtn" onclick="app.controller.loadDemo()" class="btn-secondary">
+                    🎯 Cargar Demo
+                </button>
             </div>
         </div>
 
-        <div class="control-group">
-            <button id="startBtn" onclick="app.controller.start()">▶ Iniciar</button>
-            <button id="stepBtn" onclick="app.controller.step()" class="btn-secondary">⏭ Paso</button>
+        <div class="info-panel">
+            <div class="stat-item">
+                <div class="stat-label">Estado</div>
+                <div class="stat-value" id="status">Listo</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">K Actual</div>
+                <div class="stat-value" id="currK">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Mejor Coste</div>
+                <div class="stat-value" id="bestCost">-</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Mejoras</div>
+                <div class="stat-value" id="improvements">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Nodos Explorados</div>
+                <div class="stat-value" id="nodesExplored">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Tiempo (ms)</div>
+                <div class="stat-value" id="executionTime">0</div>
+            </div>
         </div>
 
-        <div class="control-group">
-            <button id="pauseBtn" onclick="app.controller.pause()" class="btn-secondary" disabled>⏸ Pausar</button>
-            <button id="resetBtn" onclick="app.controller.reset()" class="btn-danger">🔄 Reset</button>
+        <canvas id="gridCanvas" width="600" height="600"></canvas>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #00ff00"></div>
+                <span>Inicio</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff0000"></div>
+                <span>Objetivo</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #666"></div>
+                <span>Muro</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(255, 255, 0, 0.8)"></div>
+                <span>Exploración Actual</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(0, 255, 0, 0.6)"></div>
+                <span>Mejor Ruta Encontrada</span>
+            </div>
+            <div class="legend-item">
+                <div
+                    class="legend-color"
+                    style="background: rgba(0, 100, 255, 0.3); border: 1px solid #0064ff"
+                ></div>
+                <span>Heurística Aprendida</span>
+            </div>
+            <div class="legend-item">
+                <div
+                    class="legend-color"
+                    style="background: rgba(255, 0, 0, 0.3); border: 1px solid #ff0000"
+                ></div>
+                <span>Callejón Sin Salida</span>
+            </div>
         </div>
 
-        <div class="control-group">
-            <button id="clearBtn" onclick="app.controller.clearGrid()" class="btn-secondary">🗑 Limpiar Mapa</button>
-            <button id="loadDemoBtn" onclick="app.controller.loadDemo()" class="btn-secondary">🎯 Cargar Demo</button>
-        </div>
-    </div>
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
 
-    <div class="info-panel">
-        <div class="stat-item">
-            <div class="stat-label">Estado</div>
-            <div class="stat-value" id="status">Listo</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">K Actual</div>
-            <div class="stat-value" id="currK">0</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Mejor Coste</div>
-            <div class="stat-value" id="bestCost">-</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Mejoras</div>
-            <div class="stat-value" id="improvements">0</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Nodos Explorados</div>
-            <div class="stat-value" id="nodesExplored">0</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Tiempo (ms)</div>
-            <div class="stat-value" id="executionTime">0</div>
-        </div>
-    </div>
-
-    <canvas id="gridCanvas" width="600" height="600"></canvas>
-
-    <div class="legend">
-        <div class="legend-item">
-            <div class="legend-color" style="background:#00ff00"></div>
-            <span>Inicio</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background:#ff0000"></div>
-            <span>Objetivo</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background:#666"></div>
-            <span>Muro</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background:rgba(255, 255, 0, 0.8)"></div>
-            <span>Exploración Actual</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background:rgba(0, 255, 0, 0.6)"></div>
-            <span>Mejor Ruta Encontrada</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background:rgba(0, 100, 255, 0.3); border:1px solid #0064ff"></div>
-            <span>Heurística Aprendida</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background:rgba(255, 0, 0, 0.3); border:1px solid #ff0000"></div>
-            <span>Callejón Sin Salida</span>
-        </div>
-    </div>
-
-    <div id="errorMessage" class="error-message"></div>
-    <div id="successMessage" class="success-message"></div>
-
-    <script>
-        /**
-         * Módulo principal de la aplicación k-Alternatives Pathfinding
-         * Versión mejorada con mejor arquitectura, rendimiento y manejo de errores
-         * Autor: Basado en Mario Raúl Carbonell Martínez
-         */
-
-        // ===== CONFIGURACIÓN GLOBAL =====
-        const CONFIG = {
-            GRID_SIZE: 20,
-            CANVAS_WIDTH: 600,
-            CANVAS_HEIGHT: 600,
-            DEFAULT_MAX_K: 5,
-            HEURISTIC_LARGE_PENALTY: 500,
-            VISUAL_UPDATE_DELAY: 100,
-            MAX_NODES_PER_FRAME: 50,
-            MEMORY_LIMIT_CHECK: 50000 // nodes
-        };
-
-        // ===== UTILIDADES =====
-        const utils = {
+        <script>
             /**
-             * Genera una clave única para un nodo
-             * @param {Object} node - Nodo con coordenadas x, y
-             * @returns {string} - Clave única del nodo
+             * Módulo principal de la aplicación k-Alternatives Pathfinding
+             * Versión mejorada con mejor arquitectura, rendimiento y manejo de errores
+             * Autor: Basado en Mario Raúl Carbonell Martínez
              */
-            nodeKey: (node) => `${node.x},${node.y}`,
 
-            /**
-             * Calcula la distancia Manhattan entre dos nodos
-             * @param {Object} nodeA - Primer nodo
-             * @param {Object} nodeB - Segundo nodo  
-             * @returns {number} - Distancia Manhattan
-             */
-            manhattanDistance: (nodeA, nodeB) => Math.abs(nodeA.x - nodeB.x) + Math.abs(nodeA.y - nodeB.y),
+            // ===== CONFIGURACIÓN GLOBAL =====
+            const CONFIG = {
+                GRID_SIZE: 20,
+                CANVAS_WIDTH: 600,
+                CANVAS_HEIGHT: 600,
+                DEFAULT_MAX_K: 5,
+                HEURISTIC_LARGE_PENALTY: 500,
+                VISUAL_UPDATE_DELAY: 100,
+                MAX_NODES_PER_FRAME: 50,
+                MEMORY_LIMIT_CHECK: 50000, // nodes
+            };
 
-            /**
-             * Valida si las coordenadas están dentro de los límites del grid
-             * @param {number} x - Coordenada X
-             * @param {number} y - Coordenada Y
-             * @param {number} width - Ancho del grid
-             * @param {number} height - Alto del grid
-             * @returns {boolean} - True si está dentro de los límites
-             */
-            isValidCoordinate: (x, y, width, height) => x >= 0 && x < width && y >= 0 && y < height,
+            // ===== UTILIDADES =====
+            const utils = {
+                /**
+                 * Genera una clave única para un nodo
+                 * @param {Object} node - Nodo con coordenadas x, y
+                 * @returns {string} - Clave única del nodo
+                 */
+                nodeKey: (node) => `${node.x},${node.y}`,
 
-            /**
-             * Formatea un tiempo en milisegundos para mostrar
-             * @param {number} ms - Tiempo en milisegundos
-             * @returns {string} - Tiempo formateado
-             */
-            formatTime: (ms) => ms < 1000 ? `${ms.toFixed(0)}ms` : `${(ms / 1000).toFixed(1)}s`,
+                /**
+                 * Calcula la distancia Manhattan entre dos nodos
+                 * @param {Object} nodeA - Primer nodo
+                 * @param {Object} nodeB - Segundo nodo
+                 * @returns {number} - Distancia Manhattan
+                 */
+                manhattanDistance: (nodeA, nodeB) =>
+                    Math.abs(nodeA.x - nodeB.x) + Math.abs(nodeA.y - nodeB.y),
 
-            /**
-             * Debounce para evitar llamadas excesivas
-             * @param {Function} func - Función a ejecutar
-             * @param {number} delay - Retraso en ms
-             * @returns {Function} - Función con debounce
-             */
-            debounce: (func, delay) => {
-                let timeoutId;
-                return (...args) => {
-                    clearTimeout(timeoutId);
-                    timeoutId = setTimeout(() => func(...args), delay);
-                };
-            }
-        };
+                /**
+                 * Valida si las coordenadas están dentro de los límites del grid
+                 * @param {number} x - Coordenada X
+                 * @param {number} y - Coordenada Y
+                 * @param {number} width - Ancho del grid
+                 * @param {number} height - Alto del grid
+                 * @returns {boolean} - True si está dentro de los límites
+                 */
+                isValidCoordinate: (x, y, width, height) =>
+                    x >= 0 && x < width && y >= 0 && y < height,
 
-        // ===== ERRORES PERSONALIZADOS =====
-        class PathfindingError extends Error {
-            constructor(message, type = 'GENERAL') {
-                super(message);
-                this.name = 'PathfindingError';
-                this.type = type;
-            }
-        }
+                /**
+                 * Formatea un tiempo en milisegundos para mostrar
+                 * @param {number} ms - Tiempo en milisegundos
+                 * @returns {string} - Tiempo formateado
+                 */
+                formatTime: (ms) =>
+                    ms < 1000 ? `${ms.toFixed(0)}ms` : `${(ms / 1000).toFixed(1)}s`,
 
-        class ValidationError extends PathfindingError {
-            constructor(message) {
-                super(message, 'VALIDATION');
-            }
-        }
+                /**
+                 * Debounce para evitar llamadas excesivas
+                 * @param {Function} func - Función a ejecutar
+                 * @param {number} delay - Retraso en ms
+                 * @returns {Function} - Función con debounce
+                 */
+                debounce: (func, delay) => {
+                    let timeoutId;
+                    return (...args) => {
+                        clearTimeout(timeoutId);
+                        timeoutId = setTimeout(() => func(...args), delay);
+                    };
+                },
+            };
 
-        class AlgorithmError extends PathfindingError {
-            constructor(message) {
-                super(message, 'ALGORITHM');
-            }
-        }
-
-        // ===== CLASE PRINCIPAL DEL ALGORITMO =====
-        class KPathOptimizer {
-            constructor(config) {
-                this.validateConfig(config);
-                this.initializeState(config);
-                this.initializeHeuristics(config);
+            // ===== ERRORES PERSONALIZADOS =====
+            class PathfindingError extends Error {
+                constructor(message, type = 'GENERAL') {
+                    super(message);
+                    this.name = 'PathfindingError';
+                    this.type = type;
+                }
             }
 
-            /**
-             * Valida la configuración del optimizador
-             */
-            validateConfig(config) {
-                const required = ['width', 'height', 'startNode', 'endNode', 'walls'];
-                for (const prop of required) {
-                    if (!config[prop]) {
-                        throw new ValidationError(`Configuración inválida: falta ${prop}`);
+            class ValidationError extends PathfindingError {
+                constructor(message) {
+                    super(message, 'VALIDATION');
+                }
+            }
+
+            class AlgorithmError extends PathfindingError {
+                constructor(message) {
+                    super(message, 'ALGORITHM');
+                }
+            }
+
+            // ===== CLASE PRINCIPAL DEL ALGORITMO =====
+            class KPathOptimizer {
+                constructor(config) {
+                    this.validateConfig(config);
+                    this.initializeState(config);
+                    this.initializeHeuristics(config);
+                }
+
+                /**
+                 * Valida la configuración del optimizador
+                 */
+                validateConfig(config) {
+                    const required = ['width', 'height', 'startNode', 'endNode', 'walls'];
+                    for (const prop of required) {
+                        if (!config[prop]) {
+                            throw new ValidationError(`Configuración inválida: falta ${prop}`);
+                        }
+                    }
+
+                    const { width, height, startNode, endNode } = config;
+                    if (!utils.isValidCoordinate(startNode.x, startNode.y, width, height)) {
+                        throw new ValidationError('Nodo de inicio fuera de los límites');
+                    }
+
+                    if (!utils.isValidCoordinate(endNode.x, endNode.y, width, height)) {
+                        throw new ValidationError('Nodo objetivo fuera de los límites');
+                    }
+
+                    if (utils.nodeKey(startNode) === utils.nodeKey(endNode)) {
+                        throw new ValidationError(
+                            'El nodo de inicio y objetivo no pueden ser el mismo'
+                        );
                     }
                 }
 
-                const { width, height, startNode, endNode } = config;
-                if (!utils.isValidCoordinate(startNode.x, startNode.y, width, height)) {
-                    throw new ValidationError('Nodo de inicio fuera de los límites');
+                /**
+                 * Inicializa el estado del optimizador
+                 */
+                initializeState(config) {
+                    this.width = config.width;
+                    this.height = config.height;
+                    this.startNode = { ...config.startNode };
+                    this.endNode = { ...config.endNode };
+                    this.walls = new Set(config.walls); // Copia del Set de paredes
+
+                    // Estado del algoritmo
+                    this.maxK = config.maxK || CONFIG.DEFAULT_MAX_K;
+                    this.currentK = 0;
+                    this.bestPath = null;
+                    this.bestCost = Infinity;
+
+                    // Callejones sin salida - nodos que no llevan al objetivo
+                    this.deadEnds = new Set();
+
+                    // Métricas de rendimiento
+                    this.nodesExplored = 0;
+                    this.executionStartTime = null;
+
+                    // Estado de ejecución
+                    this.isRunning = false;
+                    this.isFinished = false;
+                    this.improvements = 0;
+                    this.generator = null;
                 }
 
-                if (!utils.isValidCoordinate(endNode.x, endNode.y, width, height)) {
-                    throw new ValidationError('Nodo objetivo fuera de los límites');
+                /**
+                 * Inicializa la matriz de heurísticas
+                 */
+                initializeHeuristics(config) {
+                    this.h = [];
+                    const usePessimistic = config.pessimistic === true;
+
+                    for (let x = 0; x < this.width; x++) {
+                        this.h[x] = [];
+                        for (let y = 0; y < this.height; y++) {
+                            const baseDistance = utils.manhattanDistance({ x, y }, this.endNode);
+
+                            if (usePessimistic) {
+                                // Heurística pesimista: Manhattan + penalización grande
+                                this.h[x][y] = baseDistance + CONFIG.HEURISTIC_LARGE_PENALTY;
+                            } else {
+                                // Heurística optimista: Solo Manhattan
+                                this.h[x][y] = baseDistance;
+                            }
+                        }
+                    }
                 }
 
-                if (utils.nodeKey(startNode) === utils.nodeKey(endNode)) {
-                    throw new ValidationError('El nodo de inicio y objetivo no pueden ser el mismo');
+                /**
+                 * Obtiene los vecinos válidos de un nodo
+                 * @param {Object} node - Nodo actual
+                 * @returns {Array} - Array de nodos vecinos válidos
+                 */
+                getValidNeighbors(node) {
+                    const directions = [
+                        [0, -1],
+                        [1, 0],
+                        [0, 1],
+                        [-1, 0],
+                    ]; // N, E, S, W
+                    const neighbors = [];
+
+                    for (const [dx, dy] of directions) {
+                        const newX = node.x + dx;
+                        const newY = node.y + dy;
+
+                        if (utils.isValidCoordinate(newX, newY, this.width, this.height)) {
+                            const neighborKey = `${newX},${newY}`;
+                            // Filtrar solo muros por ahora
+                            if (!this.walls.has(neighborKey)) {
+                                neighbors.push({ x: newX, y: newY });
+                            }
+                        }
+                    }
+
+                    return neighbors;
                 }
-            }
 
-            /**
-             * Inicializa el estado del optimizador
-             */
-            initializeState(config) {
-                this.width = config.width;
-                this.height = config.height;
-                this.startNode = { ...config.startNode };
-                this.endNode = { ...config.endNode };
-                this.walls = new Set(config.walls); // Copia del Set de paredes
+                /**
+                 * Actualiza las heurísticas basado en un camino encontrado
+                 * @param {Array} path - Array de nodos que representan el camino
+                 */
+                updateHeuristics(path) {
+                    try {
+                        // Aprendizaje: coste real desde el nodo i hasta el final
+                        for (let i = 0; i < path.length; i++) {
+                            const node = path[i];
+                            const costToGoal = path.length - 1 - i;
 
-                // Estado del algoritmo
-                this.maxK = config.maxK || CONFIG.DEFAULT_MAX_K;
-                this.currentK = 0;
-                this.bestPath = null;
-                this.bestCost = Infinity;
+                            // Solo actualizar si encontramos un mejor camino
+                            if (costToGoal < this.h[node.x][node.y]) {
+                                this.h[node.x][node.y] = costToGoal;
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('Error actualizando heurísticas:', error);
+                    }
+                }
 
-                // Callejones sin salida - nodos que no llevan al objetivo
-                this.deadEnds = new Set();
+                /**
+                 * Generador principal del algoritmo para visualización paso a paso
+                 */
+                *solveGenerator() {
+                    this.executionStartTime = performance.now();
+                    this.currentK = 0;
+                    let improvedInThisK = false;
 
-                // Métricas de rendimiento
-                this.nodesExplored = 0;
-                this.executionStartTime = null;
+                    // Bucle principal de K
+                    while (this.currentK <= this.maxK && !this.isFinished) {
+                        improvedInThisK = false;
+                        yield { type: 'k_start', k: this.currentK };
 
-                // Estado de ejecución
-                this.isRunning = false;
-                this.isFinished = false;
-                this.improvements = 0;
-                this.generator = null;
-            }
+                        // Iniciar búsqueda DFS desde el nodo inicial
+                        const searchGenerator = this.depthFirstSearch(
+                            this.startNode,
+                            [this.startNode],
+                            0,
+                            this.currentK,
+                            new Set([utils.nodeKey(this.startNode)])
+                        );
 
-            /**
-             * Inicializa la matriz de heurísticas
-             */
-            initializeHeuristics(config) {
-                this.h = [];
-                const usePessimistic = config.pessimistic === true;
+                        // Procesar cada paso de la búsqueda
+                        for (const step of searchGenerator) {
+                            if (step.type === 'found_better') {
+                                improvedInThisK = true;
+                                this.updateHeuristics(step.path);
+                                yield {
+                                    type: 'improvement',
+                                    path: step.path,
+                                    cost: step.cost,
+                                    executionTime: performance.now() - this.executionStartTime,
+                                };
+                                break; // Reiniciar con el mismo K
+                            }
+                            yield step; // Propagar pasos de visualización
+                        }
 
-                for (let x = 0; x < this.width; x++) {
-                    this.h[x] = [];
-                    for (let y = 0; y < this.height; y++) {
-                        const baseDistance = utils.manhattanDistance({ x, y }, this.endNode);
-
-                        if (usePessimistic) {
-                            // Heurística pesimista: Manhattan + penalización grande
-                            this.h[x][y] = baseDistance + CONFIG.HEURISTIC_LARGE_PENALTY;
+                        if (improvedInThisK) {
+                            yield {
+                                type: 'log',
+                                msg: `Mejora encontrada. Reiniciando búsqueda con K=${this.currentK}`,
+                                executionTime: performance.now() - this.executionStartTime,
+                            };
+                            continue;
                         } else {
-                            // Heurística optimista: Solo Manhattan
-                            this.h[x][y] = baseDistance;
+                            this.currentK++;
                         }
                     }
+
+                    this.isFinished = true;
+                    yield {
+                        type: 'finished',
+                        bestPath: this.bestPath,
+                        bestCost: this.bestCost,
+                        totalNodesExplored: this.nodesExplored,
+                        totalExecutionTime: performance.now() - this.executionStartTime,
+                    };
                 }
-            }
 
-            /**
-             * Obtiene los vecinos válidos de un nodo
-             * @param {Object} node - Nodo actual
-             * @returns {Array} - Array de nodos vecinos válidos
-             */
-            getValidNeighbors(node) {
-                const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // N, E, S, W
-                const neighbors = [];
+                /**
+                 * Búsqueda en profundidad con discrepancia limitada
+                 * @param {Object} node - Nodo actual
+                 * @param {Array} currentPath - Camino actual
+                 * @param {number} currentG - Coste acumulado hasta el nodo actual
+                 * @param {number} kBudget - Presupuesto restante de desviaciones
+                 * @param {Set} visitedSet - Conjunto de nodos visitados
+                 */
+                *depthFirstSearch(node, currentPath, currentG, kBudget, visitedSet) {
+                    this.nodesExplored++;
 
-                for (const [dx, dy] of directions) {
-                    const newX = node.x + dx;
-                    const newY = node.y + dy;
-
-                    if (utils.isValidCoordinate(newX, newY, this.width, this.height)) {
-                        const neighborKey = `${newX},${newY}`;
-                        // Filtrar solo muros por ahora
-                        if (!this.walls.has(neighborKey)) {
-                            neighbors.push({ x: newX, y: newY });
-                        }
+                    // Verificar límites de memoria
+                    if (this.nodesExplored > CONFIG.MEMORY_LIMIT_CHECK) {
+                        throw new AlgorithmError(
+                            'Límite de exploración alcanzado. Posible ciclo detectado.'
+                        );
                     }
-                }
 
-                return neighbors;
-            }
-
-            /**
-             * Actualiza las heurísticas basado en un camino encontrado
-             * @param {Array} path - Array de nodos que representan el camino
-             */
-            updateHeuristics(path) {
-                try {
-                    // Aprendizaje: coste real desde el nodo i hasta el final
-                    for (let i = 0; i < path.length; i++) {
-                        const node = path[i];
-                        const costToGoal = path.length - 1 - i;
-
-                        // Solo actualizar si encontramos un mejor camino
-                        if (costToGoal < this.h[node.x][node.y]) {
-                            this.h[node.x][node.y] = costToGoal;
+                    // 1. Verificar si llegamos al destino
+                    if (utils.nodeKey(node) === utils.nodeKey(this.endNode)) {
+                        if (currentG < this.bestCost) {
+                            this.bestCost = currentG;
+                            this.bestPath = [...currentPath];
+                            this.improvements++;
+                            yield {
+                                type: 'found_better',
+                                path: this.bestPath,
+                                cost: this.bestCost,
+                            };
+                            return true;
                         }
+                        return false;
                     }
-                } catch (error) {
-                    console.warn('Error actualizando heurísticas:', error);
-                }
-            }
 
-            /**
-             * Generador principal del algoritmo para visualización paso a paso
-             */
-            *solveGenerator() {
-                this.executionStartTime = performance.now();
-                this.currentK = 0;
-                let improvedInThisK = false;
+                    // 2. Poda: si el coste actual ya es peor que el mejor conocido
+                    if (currentG >= this.bestCost) return false;
 
-                // Bucle principal de K
-                while (this.currentK <= this.maxK && !this.isFinished) {
-                    improvedInThisK = false;
-                    yield { type: 'k_start', k: this.currentK };
+                    yield { type: 'visiting', node: node, path: currentPath };
 
-                    // Iniciar búsqueda DFS desde el nodo inicial
-                    const searchGenerator = this.depthFirstSearch(
-                        this.startNode,
-                        [this.startNode],
-                        0,
-                        this.currentK,
-                        new Set([utils.nodeKey(this.startNode)])
+                    // 3. Obtener y ordenar vecinos
+                    const validNeighbors = this.getValidNeighbors(node).filter(
+                        (neighbor) => !visitedSet.has(utils.nodeKey(neighbor))
                     );
 
-                    // Procesar cada paso de la búsqueda
-                    for (const step of searchGenerator) {
-                        if (step.type === 'found_better') {
-                            improvedInThisK = true;
-                            this.updateHeuristics(step.path);
-                            yield {
-                                type: 'improvement',
-                                path: step.path,
-                                cost: step.cost,
-                                executionTime: performance.now() - this.executionStartTime
-                            };
-                            break; // Reiniciar con el mismo K
+                    // Funcionalidad de callejones temporalmente deshabilitada
+                    // TODO: Reimplementar correctamente cuando se identifiquen patrones reales de callejones
+
+                    // Ordenar por f(n) = g(n) + h(n)
+                    validNeighbors.sort((a, b) => {
+                        const fA = currentG + 1 + this.h[a.x][a.y];
+                        const fB = currentG + 1 + this.h[b.x][b.y];
+                        return fA - fB;
+                    });
+
+                    // 4. Explorar vecinos con presupuesto K
+                    for (let i = 0; i < validNeighbors.length; i++) {
+                        const costK = i;
+
+                        if (kBudget >= costK) {
+                            const nextNode = validNeighbors[i];
+                            const nodeKey = utils.nodeKey(nextNode);
+
+                            visitedSet.add(nodeKey);
+                            currentPath.push(nextNode);
+
+                            // Llamada recursiva
+                            const found = yield* this.depthFirstSearch(
+                                nextNode,
+                                currentPath,
+                                currentG + 1,
+                                kBudget - costK,
+                                visitedSet
+                            );
+
+                            currentPath.pop();
+                            visitedSet.delete(nodeKey);
+
+                            if (found) return true;
+                        } else {
+                            break;
                         }
-                        yield step; // Propagar pasos de visualización
                     }
 
-                    if (improvedInThisK) {
-                        yield {
-                            type: 'log',
-                            msg: `Mejora encontrada. Reiniciando búsqueda con K=${this.currentK}`,
-                            executionTime: performance.now() - this.executionStartTime
-                        };
-                        continue;
-                    } else {
-                        this.currentK++;
-                    }
-                }
-
-                this.isFinished = true;
-                yield {
-                    type: 'finished',
-                    bestPath: this.bestPath,
-                    bestCost: this.bestCost,
-                    totalNodesExplored: this.nodesExplored,
-                    totalExecutionTime: performance.now() - this.executionStartTime
-                };
-            }
-
-            /**
-             * Búsqueda en profundidad con discrepancia limitada
-             * @param {Object} node - Nodo actual
-             * @param {Array} currentPath - Camino actual
-             * @param {number} currentG - Coste acumulado hasta el nodo actual
-             * @param {number} kBudget - Presupuesto restante de desviaciones
-             * @param {Set} visitedSet - Conjunto de nodos visitados
-             */
-            *depthFirstSearch(node, currentPath, currentG, kBudget, visitedSet) {
-                this.nodesExplored++;
-
-                // Verificar límites de memoria
-                if (this.nodesExplored > CONFIG.MEMORY_LIMIT_CHECK) {
-                    throw new AlgorithmError('Límite de exploración alcanzado. Posible ciclo detectado.');
-                }
-
-                // 1. Verificar si llegamos al destino
-                if (utils.nodeKey(node) === utils.nodeKey(this.endNode)) {
-                    if (currentG < this.bestCost) {
-                        this.bestCost = currentG;
-                        this.bestPath = [...currentPath];
-                        this.improvements++;
-                        yield { type: 'found_better', path: this.bestPath, cost: this.bestCost };
-                        return true;
+                    // Si no encontramos camino desde este nodo, es un callejón sin salida
+                    const nodeKey = utils.nodeKey(node);
+                    if (
+                        nodeKey !== utils.nodeKey(this.startNode) &&
+                        nodeKey !== utils.nodeKey(this.endNode)
+                    ) {
+                        this.deadEnds.add(nodeKey);
                     }
                     return false;
                 }
 
-                // 2. Poda: si el coste actual ya es peor que el mejor conocido
-                if (currentG >= this.bestCost) return false;
+                /**
+                 * Reinicia el estado del optimizador manteniendo las heurísticas aprendidas
+                 */
+                resetState() {
+                    this.currentK = 0;
+                    this.bestPath = null;
+                    this.bestCost = Infinity;
+                    this.isRunning = false;
+                    this.isFinished = false;
+                    this.improvements = 0;
+                    this.nodesExplored = 0;
+                    this.executionStartTime = null;
+                    this.generator = null;
+                }
+            }
 
-                yield { type: 'visiting', node: node, path: currentPath };
+            // ===== CLASE DE RENDERIZADO =====
+            class GridRenderer {
+                constructor(canvas) {
+                    this.canvas = canvas;
+                    this.ctx = canvas.getContext('2d');
+                    this.gridSize = CONFIG.GRID_SIZE;
+                    this.cols = CONFIG.CANVAS_WIDTH / this.gridSize;
+                    this.rows = CONFIG.CANVAS_HEIGHT / this.gridSize;
+                }
 
-                // 3. Obtener y ordenar vecinos
-                const validNeighbors = this.getValidNeighbors(node)
-                    .filter(neighbor => !visitedSet.has(utils.nodeKey(neighbor)));
+                /**
+                 * Limpia y redibuja toda la grid
+                 */
+                drawGrid(state) {
+                    const { walls, optimizer, currentPathVisual, startPos, endPos } = state;
 
-                // Funcionalidad de callejones temporalmente deshabilitada
-                // TODO: Reimplementar correctamente cuando se identifiquen patrones reales de callejones
+                    try {
+                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-                // Ordenar por f(n) = g(n) + h(n)
-                validNeighbors.sort((a, b) => {
-                    const fA = (currentG + 1) + this.h[a.x][a.y];
-                    const fB = (currentG + 1) + this.h[b.x][b.y];
-                    return fA - fB;
-                });
+                        // Dibujar celdas base y paredes
+                        this.drawCells(walls, optimizer, startPos, endPos);
 
-                // 4. Explorar vecinos con presupuesto K
-                for (let i = 0; i < validNeighbors.length; i++) {
-                    const costK = i;
+                        // Dibujar camino de exploración actual
+                        if (currentPathVisual.length > 0) {
+                            this.drawCurrentPath(currentPathVisual);
+                        }
 
-                    if (kBudget >= costK) {
-                        const nextNode = validNeighbors[i];
-                        const nodeKey = utils.nodeKey(nextNode);
+                        // Dibujar mejor ruta encontrada
+                        if (optimizer && optimizer.bestPath) {
+                            this.drawBestPath(optimizer.bestPath);
+                        }
+                    } catch (error) {
+                        console.error('Error renderizando grid:', error);
+                    }
+                }
 
-                        visitedSet.add(nodeKey);
-                        currentPath.push(nextNode);
+                /**
+                 * Dibuja las celdas individuales
+                 */
+                drawCells(walls, optimizer, startPos, endPos) {
+                    for (let x = 0; x < this.cols; x++) {
+                        for (let y = 0; y < this.rows; y++) {
+                            this.drawCell(x, y, walls, optimizer);
+                        }
+                    }
 
-                        // Llamada recursiva
-                        const found = yield* this.depthFirstSearch(
-                            nextNode,
-                            currentPath,
-                            currentG + 1,
-                            kBudget - costK,
-                            visitedSet
+                    // Dibujar nodos de inicio y fin
+                    this.drawSpecialNodes(startPos, endPos);
+                }
+
+                /**
+                 * Dibuja una celda individual
+                 */
+                drawCell(x, y, walls, optimizer) {
+                    const cellX = x * this.gridSize;
+                    const cellY = y * this.gridSize;
+
+                    // Borde de la celda
+                    this.ctx.strokeStyle = '#222';
+                    this.ctx.lineWidth = 1;
+                    this.ctx.strokeRect(cellX, cellY, this.gridSize, this.gridSize);
+
+                    // Pared
+                    if (walls.has(`${x},${y}`)) {
+                        this.ctx.fillStyle = '#666';
+                        this.ctx.fillRect(cellX, cellY, this.gridSize, this.gridSize);
+                        return;
+                    }
+
+                    // Heurística aprendida
+                    if (optimizer && optimizer.h) {
+                        const originalDistance = utils.manhattanDistance(
+                            { x, y },
+                            optimizer.endNode
                         );
+                        if (optimizer.h[x][y] < originalDistance) {
+                            this.ctx.fillStyle = 'rgba(0, 100, 255, 0.2)';
+                            this.ctx.fillRect(
+                                cellX + 1,
+                                cellY + 1,
+                                this.gridSize - 2,
+                                this.gridSize - 2
+                            );
+                        }
+                    }
 
-                        currentPath.pop();
-                        visitedSet.delete(nodeKey);
-
-                        if (found) return true;
-                    } else {
-                        break;
+                    // Callejón sin salida
+                    if (optimizer && optimizer.deadEnds && optimizer.deadEnds.has(`${x},${y}`)) {
+                        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                        this.ctx.fillRect(
+                            cellX + 2,
+                            cellY + 2,
+                            this.gridSize - 4,
+                            this.gridSize - 4
+                        );
+                        // Marcar con una X
+                        this.ctx.strokeStyle = '#ff0000';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(cellX + 4, cellY + 4);
+                        this.ctx.lineTo(cellX + this.gridSize - 4, cellY + this.gridSize - 4);
+                        this.ctx.moveTo(cellX + this.gridSize - 4, cellY + 4);
+                        this.ctx.lineTo(cellX + 4, cellY + this.gridSize - 4);
+                        this.ctx.stroke();
                     }
                 }
 
-                // Si no encontramos camino desde este nodo, es un callejón sin salida
-                const nodeKey = utils.nodeKey(node);
-                if (nodeKey !== utils.nodeKey(this.startNode) && nodeKey !== utils.nodeKey(this.endNode)) {
-                    this.deadEnds.add(nodeKey);
-                }
-                return false;
-            }
+                /**
+                 * Dibuja los nodos especiales (inicio y fin)
+                 */
+                drawSpecialNodes(startPos, endPos) {
+                    // Nodo de inicio
+                    this.ctx.fillStyle = '#00ff00';
+                    this.ctx.fillRect(
+                        startPos.x * this.gridSize,
+                        startPos.y * this.gridSize,
+                        this.gridSize,
+                        this.gridSize
+                    );
 
-            /**
-             * Reinicia el estado del optimizador manteniendo las heurísticas aprendidas
-             */
-            resetState() {
-                this.currentK = 0;
-                this.bestPath = null;
-                this.bestCost = Infinity;
-                this.isRunning = false;
-                this.isFinished = false;
-                this.improvements = 0;
-                this.nodesExplored = 0;
-                this.executionStartTime = null;
-                this.generator = null;
-            }
-        }
-
-        // ===== CLASE DE RENDERIZADO =====
-        class GridRenderer {
-            constructor(canvas) {
-                this.canvas = canvas;
-                this.ctx = canvas.getContext('2d');
-                this.gridSize = CONFIG.GRID_SIZE;
-                this.cols = CONFIG.CANVAS_WIDTH / this.gridSize;
-                this.rows = CONFIG.CANVAS_HEIGHT / this.gridSize;
-            }
-
-            /**
-             * Limpia y redibuja toda la grid
-             */
-            drawGrid(state) {
-                const { walls, optimizer, currentPathVisual, startPos, endPos } = state;
-
-                try {
-                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-                    // Dibujar celdas base y paredes
-                    this.drawCells(walls, optimizer, startPos, endPos);
-
-                    // Dibujar camino de exploración actual
-                    if (currentPathVisual.length > 0) {
-                        this.drawCurrentPath(currentPathVisual);
-                    }
-
-                    // Dibujar mejor ruta encontrada
-                    if (optimizer && optimizer.bestPath) {
-                        this.drawBestPath(optimizer.bestPath);
-                    }
-
-                } catch (error) {
-                    console.error('Error renderizando grid:', error);
-                }
-            }
-
-            /**
-             * Dibuja las celdas individuales
-             */
-            drawCells(walls, optimizer, startPos, endPos) {
-                for (let x = 0; x < this.cols; x++) {
-                    for (let y = 0; y < this.rows; y++) {
-                        this.drawCell(x, y, walls, optimizer);
-                    }
+                    // Nodo objetivo
+                    this.ctx.fillStyle = '#ff0000';
+                    this.ctx.fillRect(
+                        endPos.x * this.gridSize,
+                        endPos.y * this.gridSize,
+                        this.gridSize,
+                        this.gridSize
+                    );
                 }
 
-                // Dibujar nodos de inicio y fin
-                this.drawSpecialNodes(startPos, endPos);
-            }
+                /**
+                 * Dibuja el camino de exploración actual
+                 */
+                drawCurrentPath(currentPathVisual) {
+                    if (currentPathVisual.length < 2) return;
 
-            /**
-             * Dibuja una celda individual
-             */
-            drawCell(x, y, walls, optimizer) {
-                const cellX = x * this.gridSize;
-                const cellY = y * this.gridSize;
+                    this.ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.lineCap = 'round';
+                    this.ctx.lineJoin = 'round';
 
-                // Borde de la celda
-                this.ctx.strokeStyle = '#222';
-                this.ctx.lineWidth = 1;
-                this.ctx.strokeRect(cellX, cellY, this.gridSize, this.gridSize);
-
-                // Pared
-                if (walls.has(`${x},${y}`)) {
-                    this.ctx.fillStyle = '#666';
-                    this.ctx.fillRect(cellX, cellY, this.gridSize, this.gridSize);
-                    return;
-                }
-
-                // Heurística aprendida
-                if (optimizer && optimizer.h) {
-                    const originalDistance = utils.manhattanDistance({ x, y }, optimizer.endNode);
-                    if (optimizer.h[x][y] < originalDistance) {
-                        this.ctx.fillStyle = 'rgba(0, 100, 255, 0.2)';
-                        this.ctx.fillRect(cellX + 1, cellY + 1, this.gridSize - 2, this.gridSize - 2);
-                    }
-                }
-
-                // Callejón sin salida
-                if (optimizer && optimizer.deadEnds && optimizer.deadEnds.has(`${x},${y}`)) {
-                    this.ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-                    this.ctx.fillRect(cellX + 2, cellY + 2, this.gridSize - 4, this.gridSize - 4);
-                    // Marcar con una X
-                    this.ctx.strokeStyle = '#ff0000';
-                    this.ctx.lineWidth = 2;
                     this.ctx.beginPath();
-                    this.ctx.moveTo(cellX + 4, cellY + 4);
-                    this.ctx.lineTo(cellX + this.gridSize - 4, cellY + this.gridSize - 4);
-                    this.ctx.moveTo(cellX + this.gridSize - 4, cellY + 4);
-                    this.ctx.lineTo(cellX + 4, cellY + this.gridSize - 4);
+                    this.ctx.moveTo(
+                        currentPathVisual[0].x * this.gridSize + this.gridSize / 2,
+                        currentPathVisual[0].y * this.gridSize + this.gridSize / 2
+                    );
+
+                    for (let i = 1; i < currentPathVisual.length; i++) {
+                        this.ctx.lineTo(
+                            currentPathVisual[i].x * this.gridSize + this.gridSize / 2,
+                            currentPathVisual[i].y * this.gridSize + this.gridSize / 2
+                        );
+                    }
+                    this.ctx.stroke();
+
+                    // Marcar la cabeza del explorador
+                    const head = currentPathVisual[currentPathVisual.length - 1];
+                    this.ctx.fillStyle = 'rgba(255, 255, 0, 0.9)';
+                    this.ctx.fillRect(
+                        head.x * this.gridSize + 4,
+                        head.y * this.gridSize + 4,
+                        this.gridSize - 8,
+                        this.gridSize - 8
+                    );
+                }
+
+                /**
+                 * Dibuja el mejor camino encontrado
+                 */
+                drawBestPath(bestPath) {
+                    if (bestPath.length < 2) return;
+
+                    this.ctx.strokeStyle = 'rgba(0, 255, 0, 0.8)';
+                    this.ctx.lineWidth = 4;
+                    this.ctx.lineCap = 'round';
+                    this.ctx.lineJoin = 'round';
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(
+                        bestPath[0].x * this.gridSize + this.gridSize / 2,
+                        bestPath[0].y * this.gridSize + this.gridSize / 2
+                    );
+
+                    for (let i = 1; i < bestPath.length; i++) {
+                        this.ctx.lineTo(
+                            bestPath[i].x * this.gridSize + this.gridSize / 2,
+                            bestPath[i].y * this.gridSize + this.gridSize / 2
+                        );
+                    }
                     this.ctx.stroke();
                 }
             }
 
-            /**
-             * Dibuja los nodos especiales (inicio y fin)
-             */
-            drawSpecialNodes(startPos, endPos) {
-                // Nodo de inicio
-                this.ctx.fillStyle = '#00ff00';
-                this.ctx.fillRect(
-                    startPos.x * this.gridSize,
-                    startPos.y * this.gridSize,
-                    this.gridSize,
-                    this.gridSize
-                );
-
-                // Nodo objetivo
-                this.ctx.fillStyle = '#ff0000';
-                this.ctx.fillRect(
-                    endPos.x * this.gridSize,
-                    endPos.y * this.gridSize,
-                    this.gridSize,
-                    this.gridSize
-                );
-            }
-
-            /**
-             * Dibuja el camino de exploración actual
-             */
-            drawCurrentPath(currentPathVisual) {
-                if (currentPathVisual.length < 2) return;
-
-                this.ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)';
-                this.ctx.lineWidth = 3;
-                this.ctx.lineCap = 'round';
-                this.ctx.lineJoin = 'round';
-
-                this.ctx.beginPath();
-                this.ctx.moveTo(
-                    currentPathVisual[0].x * this.gridSize + this.gridSize / 2,
-                    currentPathVisual[0].y * this.gridSize + this.gridSize / 2
-                );
-
-                for (let i = 1; i < currentPathVisual.length; i++) {
-                    this.ctx.lineTo(
-                        currentPathVisual[i].x * this.gridSize + this.gridSize / 2,
-                        currentPathVisual[i].y * this.gridSize + this.gridSize / 2
-                    );
+            // ===== CLASE DE CONTROL DE UI =====
+            class UIController {
+                constructor() {
+                    this.canvas = document.getElementById('gridCanvas');
+                    this.renderer = new GridRenderer(this.canvas);
+                    this.initializeState();
+                    this.setupEventListeners();
+                    this.setupControls();
                 }
-                this.ctx.stroke();
 
-                // Marcar la cabeza del explorador
-                const head = currentPathVisual[currentPathVisual.length - 1];
-                this.ctx.fillStyle = 'rgba(255, 255, 0, 0.9)';
-                this.ctx.fillRect(
-                    head.x * this.gridSize + 4,
-                    head.y * this.gridSize + 4,
-                    this.gridSize - 8,
-                    this.gridSize - 8
-                );
-            }
+                /**
+                 * Inicializa el estado de la aplicación
+                 */
+                initializeState() {
+                    // Usar las constantes directamente para evitar dependencias circulares
+                    this.startPos = {
+                        x: 2,
+                        y: Math.floor(CONFIG.CANVAS_HEIGHT / CONFIG.GRID_SIZE / 2),
+                    };
+                    this.endPos = {
+                        x: Math.floor(CONFIG.CANVAS_WIDTH / CONFIG.GRID_SIZE) - 3,
+                        y: Math.floor(CONFIG.CANVAS_HEIGHT / CONFIG.GRID_SIZE / 2),
+                    };
+                    this.walls = new Set();
+                    this.currentPathVisual = [];
+                    this.optimizer = null;
+                    this.isRunning = false;
+                    this.isPaused = false;
 
-            /**
-             * Dibuja el mejor camino encontrado
-             */
-            drawBestPath(bestPath) {
-                if (bestPath.length < 2) return;
-
-                this.ctx.strokeStyle = 'rgba(0, 255, 0, 0.8)';
-                this.ctx.lineWidth = 4;
-                this.ctx.lineCap = 'round';
-                this.ctx.lineJoin = 'round';
-
-                this.ctx.beginPath();
-                this.ctx.moveTo(
-                    bestPath[0].x * this.gridSize + this.gridSize / 2,
-                    bestPath[0].y * this.gridSize + this.gridSize / 2
-                );
-
-                for (let i = 1; i < bestPath.length; i++) {
-                    this.ctx.lineTo(
-                        bestPath[i].x * this.gridSize + this.gridSize / 2,
-                        bestPath[i].y * this.gridSize + this.gridSize / 2
-                    );
+                    // Referencias a elementos UI
+                    this.elements = {
+                        status: document.getElementById('status'),
+                        currK: document.getElementById('currK'),
+                        bestCost: document.getElementById('bestCost'),
+                        improvements: document.getElementById('improvements'),
+                        nodesExplored: document.getElementById('nodesExplored'),
+                        executionTime: document.getElementById('executionTime'),
+                        maxK: document.getElementById('maxK'),
+                        maxKValue: document.getElementById('maxK-value'),
+                        speedRange: document.getElementById('speedRange'),
+                        speedValue: document.getElementById('speed-value'),
+                        startBtn: document.getElementById('startBtn'),
+                        stepBtn: document.getElementById('stepBtn'),
+                        pauseBtn: document.getElementById('pauseBtn'),
+                        resetBtn: document.getElementById('resetBtn'),
+                        clearBtn: document.getElementById('clearBtn'),
+                        loadDemoBtn: document.getElementById('loadDemoBtn'),
+                        errorMessage: document.getElementById('errorMessage'),
+                        successMessage: document.getElementById('successMessage'),
+                    };
                 }
-                this.ctx.stroke();
-            }
-        }
 
-        // ===== CLASE DE CONTROL DE UI =====
-        class UIController {
-            constructor() {
-                this.canvas = document.getElementById('gridCanvas');
-                this.renderer = new GridRenderer(this.canvas);
-                this.initializeState();
-                this.setupEventListeners();
-                this.setupControls();
-            }
+                /**
+                 * Configura los event listeners del canvas
+                 */
+                setupEventListeners() {
+                    let isDrawing = false;
+                    let drawMode = 'wall';
 
-            /**
-             * Inicializa el estado de la aplicación
-             */
-            initializeState() {
-                // Usar las constantes directamente para evitar dependencias circulares
-                this.startPos = { x: 2, y: Math.floor(CONFIG.CANVAS_HEIGHT / CONFIG.GRID_SIZE / 2) };
-                this.endPos = { x: Math.floor(CONFIG.CANVAS_WIDTH / CONFIG.GRID_SIZE) - 3, y: Math.floor(CONFIG.CANVAS_HEIGHT / CONFIG.GRID_SIZE / 2) };
-                this.walls = new Set();
-                this.currentPathVisual = [];
-                this.optimizer = null;
-                this.isRunning = false;
-                this.isPaused = false;
+                    this.canvas.addEventListener('mousedown', (e) => {
+                        isDrawing = true;
+                        const coords = this.getCanvasCoordinates(e);
 
-                // Referencias a elementos UI
-                this.elements = {
-                    status: document.getElementById('status'),
-                    currK: document.getElementById('currK'),
-                    bestCost: document.getElementById('bestCost'),
-                    improvements: document.getElementById('improvements'),
-                    nodesExplored: document.getElementById('nodesExplored'),
-                    executionTime: document.getElementById('executionTime'),
-                    maxK: document.getElementById('maxK'),
-                    maxKValue: document.getElementById('maxK-value'),
-                    speedRange: document.getElementById('speedRange'),
-                    speedValue: document.getElementById('speed-value'),
-                    startBtn: document.getElementById('startBtn'),
-                    stepBtn: document.getElementById('stepBtn'),
-                    pauseBtn: document.getElementById('pauseBtn'),
-                    resetBtn: document.getElementById('resetBtn'),
-                    clearBtn: document.getElementById('clearBtn'),
-                    loadDemoBtn: document.getElementById('loadDemoBtn'),
-                    errorMessage: document.getElementById('errorMessage'),
-                    successMessage: document.getElementById('successMessage')
-                };
-            }
+                        if (this.isSamePosition(coords, this.startPos)) {
+                            drawMode = 'start';
+                        } else if (this.isSamePosition(coords, this.endPos)) {
+                            drawMode = 'end';
+                        } else {
+                            drawMode = 'wall';
+                            this.toggleWall(coords.x, coords.y);
+                        }
+                    });
 
-            /**
-             * Configura los event listeners del canvas
-             */
-            setupEventListeners() {
-                let isDrawing = false;
-                let drawMode = 'wall';
+                    this.canvas.addEventListener('mousemove', (e) => {
+                        if (!isDrawing) return;
 
-                this.canvas.addEventListener('mousedown', (e) => {
-                    isDrawing = true;
-                    const coords = this.getCanvasCoordinates(e);
+                        const coords = this.getCanvasCoordinates(e);
+                        if (
+                            !utils.isValidCoordinate(
+                                coords.x,
+                                coords.y,
+                                this.renderer.cols,
+                                this.renderer.rows
+                            )
+                        )
+                            return;
 
-                    if (this.isSamePosition(coords, this.startPos)) {
-                        drawMode = 'start';
-                    } else if (this.isSamePosition(coords, this.endPos)) {
-                        drawMode = 'end';
+                        if (drawMode === 'start') {
+                            this.startPos = { ...coords };
+                            this.reset();
+                        } else if (drawMode === 'end') {
+                            this.endPos = { ...coords };
+                            this.reset();
+                        } else if (drawMode === 'wall') {
+                            this.toggleWall(coords.x, coords.y);
+                            this.render();
+                        }
+                    });
+
+                    this.canvas.addEventListener('mouseup', () => {
+                        isDrawing = false;
+                    });
+
+                    // Prevenir menú contextual
+                    this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+                }
+
+                /**
+                 * Configura los controles de la interfaz
+                 */
+                setupControls() {
+                    // Control de K máximo
+                    this.elements.maxK.addEventListener('input', (e) => {
+                        this.elements.maxKValue.textContent = e.target.value;
+                    });
+
+                    // Control de velocidad
+                    this.elements.speedRange.addEventListener('input', (e) => {
+                        const speed = parseInt(e.target.value);
+                        this.elements.speedValue.textContent = this.getSpeedLabel(speed);
+                    });
+                }
+
+                /**
+                 * Obtiene las coordenadas del canvas desde un evento del mouse
+                 */
+                getCanvasCoordinates(e) {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = Math.floor((e.clientX - rect.left) / this.renderer.gridSize);
+                    const y = Math.floor((e.clientY - rect.top) / this.renderer.gridSize);
+                    return { x, y };
+                }
+
+                /**
+                 * Verifica si dos posiciones son iguales
+                 */
+                isSamePosition(pos1, pos2) {
+                    return pos1.x === pos2.x && pos1.y === pos2.y;
+                }
+
+                /**
+                 * Obtiene una etiqueta descriptiva para la velocidad
+                 */
+                getSpeedLabel(speed) {
+                    if (speed <= 10) return 'Muy Lento';
+                    if (speed <= 20) return 'Lento';
+                    if (speed <= 30) return 'Medio';
+                    if (speed <= 40) return 'Rápido';
+                    return 'Muy Rápido';
+                }
+
+                /**
+                 * Alterna la presencia de una pared
+                 */
+                toggleWall(x, y) {
+                    const key = `${x},${y}`;
+                    if (this.walls.has(key)) {
+                        this.walls.delete(key);
                     } else {
-                        drawMode = 'wall';
-                        this.toggleWall(coords.x, coords.y);
+                        this.walls.add(key);
                     }
-                });
+                }
 
-                this.canvas.addEventListener('mousemove', (e) => {
-                    if (!isDrawing) return;
+                /**
+                 * Inicia la búsqueda
+                 */
+                start() {
+                    try {
+                        if (this.isRunning) return;
 
-                    const coords = this.getCanvasCoordinates(e);
-                    if (!utils.isValidCoordinate(coords.x, coords.y, this.renderer.cols, this.renderer.rows)) return;
+                        this.validateStartConditions();
+                        this.initializeOptimizer();
+                        this.updateUIState(true, false);
+                        this.runLoop();
+                    } catch (error) {
+                        this.showError(error.message);
+                    }
+                }
 
-                    if (drawMode === 'start') {
-                        this.startPos = { ...coords };
-                        this.reset();
-                    } else if (drawMode === 'end') {
-                        this.endPos = { ...coords };
-                        this.reset();
-                    } else if (drawMode === 'wall') {
-                        this.toggleWall(coords.x, coords.y);
+                /**
+                 * Valida las condiciones para iniciar la búsqueda
+                 */
+                validateStartConditions() {
+                    if (utils.nodeKey(this.startPos) === utils.nodeKey(this.endPos)) {
+                        throw new ValidationError(
+                            'El punto de inicio y objetivo no pueden ser el mismo'
+                        );
+                    }
+                }
+
+                /**
+                 * Inicializa el optimizador
+                 */
+                initializeOptimizer() {
+                    const config = {
+                        width: this.renderer.cols,
+                        height: this.renderer.rows,
+                        startNode: this.startPos,
+                        endNode: this.endPos,
+                        walls: this.walls,
+                        maxK: parseInt(this.elements.maxK.value),
+                        pessimistic:
+                            document.querySelector('input[name="heuristicMode"]:checked').value ===
+                            'pessimistic',
+                    };
+
+                    this.optimizer = new KPathOptimizer(config);
+                    this.optimizer.generator = this.optimizer.solveGenerator();
+                }
+
+                /**
+                 * Bucle principal de animación
+                 */
+                runLoop() {
+                    if (!this.isRunning) return;
+
+                    const speed = parseInt(this.elements.speedRange.value);
+                    const stepsPerFrame = Math.max(1, Math.floor(speed / 5));
+                    let result;
+
+                    try {
+                        for (let i = 0; i < stepsPerFrame; i++) {
+                            result = this.optimizer.generator.next();
+
+                            if (result.done) {
+                                this.onSearchFinished();
+                                return;
+                            }
+
+                            this.processStep(result.value);
+                        }
+
                         this.render();
+
+                        // Programar siguiente frame
+                        if (speed > 40) {
+                            setTimeout(() => this.runLoop(), (speed - 40) * 5);
+                        } else {
+                            requestAnimationFrame(() => this.runLoop());
+                        }
+                    } catch (error) {
+                        this.onAlgorithmError(error);
                     }
-                });
-
-                this.canvas.addEventListener('mouseup', () => {
-                    isDrawing = false;
-                });
-
-                // Prevenir menú contextual
-                this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-            }
-
-            /**
-             * Configura los controles de la interfaz
-             */
-            setupControls() {
-                // Control de K máximo
-                this.elements.maxK.addEventListener('input', (e) => {
-                    this.elements.maxKValue.textContent = e.target.value;
-                });
-
-                // Control de velocidad
-                this.elements.speedRange.addEventListener('input', (e) => {
-                    const speed = parseInt(e.target.value);
-                    this.elements.speedValue.textContent = this.getSpeedLabel(speed);
-                });
-            }
-
-            /**
-             * Obtiene las coordenadas del canvas desde un evento del mouse
-             */
-            getCanvasCoordinates(e) {
-                const rect = this.canvas.getBoundingClientRect();
-                const x = Math.floor((e.clientX - rect.left) / this.renderer.gridSize);
-                const y = Math.floor((e.clientY - rect.top) / this.renderer.gridSize);
-                return { x, y };
-            }
-
-            /**
-             * Verifica si dos posiciones son iguales
-             */
-            isSamePosition(pos1, pos2) {
-                return pos1.x === pos2.x && pos1.y === pos2.y;
-            }
-
-            /**
-             * Obtiene una etiqueta descriptiva para la velocidad
-             */
-            getSpeedLabel(speed) {
-                if (speed <= 10) return 'Muy Lento';
-                if (speed <= 20) return 'Lento';
-                if (speed <= 30) return 'Medio';
-                if (speed <= 40) return 'Rápido';
-                return 'Muy Rápido';
-            }
-
-            /**
-             * Alterna la presencia de una pared
-             */
-            toggleWall(x, y) {
-                const key = `${x},${y}`;
-                if (this.walls.has(key)) {
-                    this.walls.delete(key);
-                } else {
-                    this.walls.add(key);
                 }
-            }
 
-            /**
-             * Inicia la búsqueda
-             */
-            start() {
-                try {
-                    if (this.isRunning) return;
-
-                    this.validateStartConditions();
-                    this.initializeOptimizer();
-                    this.updateUIState(true, false);
-                    this.runLoop();
-
-                } catch (error) {
-                    this.showError(error.message);
+                /**
+                 * Procesa un paso individual del algoritmo
+                 */
+                processStep(step) {
+                    switch (step.type) {
+                        case 'visiting':
+                            this.currentPathVisual = step.path;
+                            break;
+                        case 'k_start':
+                            this.elements.currK.textContent = step.k;
+                            break;
+                        case 'improvement':
+                            this.elements.bestCost.textContent = step.cost;
+                            this.elements.improvements.textContent = this.optimizer.improvements;
+                            this.elements.executionTime.textContent = utils.formatTime(
+                                step.executionTime
+                            );
+                            break;
+                        case 'log':
+                            console.log(step.msg);
+                            break;
+                    }
                 }
-            }
 
-            /**
-             * Valida las condiciones para iniciar la búsqueda
-             */
-            validateStartConditions() {
-                if (utils.nodeKey(this.startPos) === utils.nodeKey(this.endPos)) {
-                    throw new ValidationError('El punto de inicio y objetivo no pueden ser el mismo');
+                /**
+                 * Maneja el final de la búsqueda
+                 */
+                onSearchFinished() {
+                    const result = this.optimizer.generator.next();
+                    const finalResult = result.value;
+
+                    this.updateUIState(false, false);
+                    this.elements.status.textContent = 'Completado';
+                    this.elements.status.style.color = '#00ff88';
+                    this.elements.nodesExplored.textContent = this.optimizer.nodesExplored;
+                    if (finalResult && finalResult.totalExecutionTime) {
+                        this.elements.executionTime.textContent = utils.formatTime(
+                            finalResult.totalExecutionTime
+                        );
+                    }
+
+                    if (this.optimizer.bestPath) {
+                        this.showSuccess(`¡Ruta óptima encontrada! Coste: ${finalResult.bestCost}`);
+                    } else {
+                        this.showError('No se encontró ruta al objetivo');
+                    }
                 }
-            }
 
-            /**
-             * Inicializa el optimizador
-             */
-            initializeOptimizer() {
-                const config = {
-                    width: this.renderer.cols,
-                    height: this.renderer.rows,
-                    startNode: this.startPos,
-                    endNode: this.endPos,
-                    walls: this.walls,
-                    maxK: parseInt(this.elements.maxK.value),
-                    pessimistic: document.querySelector('input[name="heuristicMode"]:checked').value === 'pessimistic'
-                };
+                /**
+                 * Maneja errores del algoritmo
+                 */
+                onAlgorithmError(error) {
+                    this.updateUIState(false, false);
+                    this.elements.status.textContent = 'Error';
+                    this.elements.status.style.color = '#ff4444';
+                    this.showError(`Error en el algoritmo: ${error.message}`);
+                    console.error('Error en algoritmo:', error);
+                }
 
-                this.optimizer = new KPathOptimizer(config);
-                this.optimizer.generator = this.optimizer.solveGenerator();
-            }
+                /**
+                 * Ejecuta un solo paso
+                 */
+                step() {
+                    try {
+                        if (!this.optimizer) {
+                            this.start();
+                            this.isRunning = false;
+                            return;
+                        }
 
-            /**
-             * Bucle principal de animación
-             */
-            runLoop() {
-                if (!this.isRunning) return;
-
-                const speed = parseInt(this.elements.speedRange.value);
-                const stepsPerFrame = Math.max(1, Math.floor(speed / 5));
-                let result;
-
-                try {
-                    for (let i = 0; i < stepsPerFrame; i++) {
-                        result = this.optimizer.generator.next();
-
+                        const result = this.optimizer.generator.next();
                         if (result.done) {
                             this.onSearchFinished();
                             return;
                         }
 
                         this.processStep(result.value);
+                        this.render();
+                    } catch (error) {
+                        this.onAlgorithmError(error);
                     }
+                }
+
+                /**
+                 * Pausa la ejecución
+                 */
+                pause() {
+                    this.isRunning = false;
+                    this.isPaused = true;
+                    this.updateUIState(false, true);
+                    this.elements.status.textContent = 'Pausado';
+                }
+
+                /**
+                 * Reinicia la búsqueda
+                 */
+                reset() {
+                    this.isRunning = false;
+                    this.isPaused = false;
+                    this.optimizer = null;
+                    this.currentPathVisual = [];
+
+                    // Limpiar callejones sin salida para nueva búsqueda
+                    this.deadEnds = new Set();
+
+                    this.updateUIState(false, false);
+                    this.elements.status.textContent = 'Listo';
+                    this.elements.currK.textContent = '0';
+                    this.elements.bestCost.textContent = '-';
+                    this.elements.improvements.textContent = '0';
+                    this.elements.nodesExplored.textContent = '0';
+                    this.elements.executionTime.textContent = '0';
 
                     this.render();
+                }
 
-                    // Programar siguiente frame
-                    if (speed > 40) {
-                        setTimeout(() => this.runLoop(), (speed - 40) * 5);
-                    } else {
-                        requestAnimationFrame(() => this.runLoop());
+                /**
+                 * Limpia todas las paredes
+                 */
+                clearGrid() {
+                    this.walls.clear();
+                    this.reset();
+                    this.showSuccess('Grid limpiada');
+                }
+
+                /**
+                 * Carga una demostración predefinida
+                 */
+                loadDemo() {
+                    this.walls.clear();
+
+                    // Crear un laberinto simple
+                    for (let x = 10; x < 20; x++) {
+                        this.walls.add(`${x},15`);
                     }
 
-                } catch (error) {
-                    this.onAlgorithmError(error);
-                }
-            }
-
-            /**
-             * Procesa un paso individual del algoritmo
-             */
-            processStep(step) {
-                switch (step.type) {
-                    case 'visiting':
-                        this.currentPathVisual = step.path;
-                        break;
-                    case 'k_start':
-                        this.elements.currK.textContent = step.k;
-                        break;
-                    case 'improvement':
-                        this.elements.bestCost.textContent = step.cost;
-                        this.elements.improvements.textContent = this.optimizer.improvements;
-                        this.elements.executionTime.textContent = utils.formatTime(step.executionTime);
-                        break;
-                    case 'log':
-                        console.log(step.msg);
-                        break;
-                }
-            }
-
-            /**
-             * Maneja el final de la búsqueda
-             */
-            onSearchFinished() {
-                const result = this.optimizer.generator.next();
-                const finalResult = result.value;
-
-                this.updateUIState(false, false);
-                this.elements.status.textContent = 'Completado';
-                this.elements.status.style.color = '#00ff88';
-                this.elements.nodesExplored.textContent = this.optimizer.nodesExplored;
-                if (finalResult && finalResult.totalExecutionTime) {
-                    this.elements.executionTime.textContent = utils.formatTime(finalResult.totalExecutionTime);
-                }
-
-                if (this.optimizer.bestPath) {
-                    this.showSuccess(`¡Ruta óptima encontrada! Coste: ${finalResult.bestCost}`);
-                } else {
-                    this.showError('No se encontró ruta al objetivo');
-                }
-            }
-
-            /**
-             * Maneja errores del algoritmo
-             */
-            onAlgorithmError(error) {
-                this.updateUIState(false, false);
-                this.elements.status.textContent = 'Error';
-                this.elements.status.style.color = '#ff4444';
-                this.showError(`Error en el algoritmo: ${error.message}`);
-                console.error('Error en algoritmo:', error);
-            }
-
-            /**
-             * Ejecuta un solo paso
-             */
-            step() {
-                try {
-                    if (!this.optimizer) {
-                        this.start();
-                        this.isRunning = false;
-                        return;
+                    for (let y = 10; y < 20; y++) {
+                        this.walls.add(`15,${y}`);
                     }
 
-                    const result = this.optimizer.generator.next();
-                    if (result.done) {
-                        this.onSearchFinished();
-                        return;
+                    // Crear algunos obstáculos
+                    this.walls.add(`5,5`);
+                    this.walls.add(`5,6`);
+                    this.walls.add(`6,5`);
+                    this.walls.add(`25,25`);
+                    this.walls.add(`26,25`);
+
+                    this.reset();
+                    this.showSuccess('Demo cargada');
+                }
+
+                /**
+                 * Actualiza el estado de los controles UI
+                 */
+                updateUIState(running, paused) {
+                    this.isRunning = running;
+                    this.isPaused = paused;
+
+                    this.elements.startBtn.disabled = running;
+                    this.elements.stepBtn.disabled = running;
+                    this.elements.pauseBtn.disabled = !running;
+
+                    this.elements.status.textContent = running
+                        ? paused
+                            ? 'Pausado'
+                            : 'Ejecutando'
+                        : 'Listo';
+                    this.elements.status.style.color = running
+                        ? paused
+                            ? '#ffaa00'
+                            : '#00ff88'
+                        : '#e0e0e0';
+                }
+
+                /**
+                 * Renderiza la grid
+                 */
+                render() {
+                    this.renderer.drawGrid({
+                        walls: this.walls,
+                        optimizer: this.optimizer,
+                        currentPathVisual: this.currentPathVisual,
+                        startPos: this.startPos,
+                        endPos: this.endPos,
+                    });
+                }
+
+                /**
+                 * Muestra un mensaje de error
+                 */
+                showError(message) {
+                    this.elements.errorMessage.textContent = message;
+                    this.elements.errorMessage.style.display = 'block';
+                    setTimeout(() => {
+                        this.elements.errorMessage.style.display = 'none';
+                    }, 5000);
+                }
+
+                /**
+                 * Muestra un mensaje de éxito
+                 */
+                showSuccess(message) {
+                    this.elements.successMessage.textContent = message;
+                    this.elements.successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        this.elements.successMessage.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // ===== APLICACIÓN PRINCIPAL =====
+            const app = {
+                controller: null,
+
+                init() {
+                    try {
+                        this.controller = new UIController();
+                        this.controller.render();
+                        console.log('k-Alternatives Pathfinding iniciado correctamente');
+                    } catch (error) {
+                        console.error('Error inicializando aplicación:', error);
+                        alert('Error inicializando la aplicación: ' + error.message);
                     }
+                },
+            };
 
-                    this.processStep(result.value);
-                    this.render();
+            // Inicializar cuando el DOM esté listo
+            document.addEventListener('DOMContentLoaded', () => {
+                app.init();
+            });
 
-                } catch (error) {
-                    this.onAlgorithmError(error);
-                }
-            }
-
-            /**
-             * Pausa la ejecución
-             */
-            pause() {
-                this.isRunning = false;
-                this.isPaused = true;
-                this.updateUIState(false, true);
-                this.elements.status.textContent = 'Pausado';
-            }
-
-            /**
-             * Reinicia la búsqueda
-             */
-            reset() {
-                this.isRunning = false;
-                this.isPaused = false;
-                this.optimizer = null;
-                this.currentPathVisual = [];
-
-                // Limpiar callejones sin salida para nueva búsqueda
-                this.deadEnds = new Set();
-
-                this.updateUIState(false, false);
-                this.elements.status.textContent = 'Listo';
-                this.elements.currK.textContent = '0';
-                this.elements.bestCost.textContent = '-';
-                this.elements.improvements.textContent = '0';
-                this.elements.nodesExplored.textContent = '0';
-                this.elements.executionTime.textContent = '0';
-
-                this.render();
-            }
-
-            /**
-             * Limpia todas las paredes
-             */
-            clearGrid() {
-                this.walls.clear();
-                this.reset();
-                this.showSuccess('Grid limpiada');
-            }
-
-            /**
-             * Carga una demostración predefinida
-             */
-            loadDemo() {
-                this.walls.clear();
-
-                // Crear un laberinto simple
-                for (let x = 10; x < 20; x++) {
-                    this.walls.add(`${x},15`);
-                }
-
-                for (let y = 10; y < 20; y++) {
-                    this.walls.add(`15,${y}`);
-                }
-
-                // Crear algunos obstáculos
-                this.walls.add(`5,5`);
-                this.walls.add(`5,6`);
-                this.walls.add(`6,5`);
-                this.walls.add(`25,25`);
-                this.walls.add(`26,25`);
-
-                this.reset();
-                this.showSuccess('Demo cargada');
-            }
-
-            /**
-             * Actualiza el estado de los controles UI
-             */
-            updateUIState(running, paused) {
-                this.isRunning = running;
-                this.isPaused = paused;
-
-                this.elements.startBtn.disabled = running;
-                this.elements.stepBtn.disabled = running;
-                this.elements.pauseBtn.disabled = !running;
-
-                this.elements.status.textContent = running ? (paused ? 'Pausado' : 'Ejecutando') : 'Listo';
-                this.elements.status.style.color = running ? (paused ? '#ffaa00' : '#00ff88') : '#e0e0e0';
-            }
-
-            /**
-             * Renderiza la grid
-             */
-            render() {
-                this.renderer.drawGrid({
-                    walls: this.walls,
-                    optimizer: this.optimizer,
-                    currentPathVisual: this.currentPathVisual,
-                    startPos: this.startPos,
-                    endPos: this.endPos
-                });
-            }
-
-            /**
-             * Muestra un mensaje de error
-             */
-            showError(message) {
-                this.elements.errorMessage.textContent = message;
-                this.elements.errorMessage.style.display = 'block';
-                setTimeout(() => {
-                    this.elements.errorMessage.style.display = 'none';
-                }, 5000);
-            }
-
-            /**
-             * Muestra un mensaje de éxito
-             */
-            showSuccess(message) {
-                this.elements.successMessage.textContent = message;
-                this.elements.successMessage.style.display = 'block';
-                setTimeout(() => {
-                    this.elements.successMessage.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        // ===== APLICACIÓN PRINCIPAL =====
-        const app = {
-            controller: null,
-
-            init() {
-                try {
-                    this.controller = new UIController();
-                    this.controller.render();
-                    console.log('k-Alternatives Pathfinding iniciado correctamente');
-                } catch (error) {
-                    console.error('Error inicializando aplicación:', error);
-                    alert('Error inicializando la aplicación: ' + error.message);
-                }
-            }
-        };
-
-        // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', () => {
-            app.init();
-        });
-
-        // Hacer disponible globalmente para debugging
-        window.app = app;
-    </script>
-</body>
-
+            // Hacer disponible globalmente para debugging
+            window.app = app;
+        </script>
+    </body>
 </html>

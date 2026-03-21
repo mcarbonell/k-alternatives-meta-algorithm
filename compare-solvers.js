@@ -10,7 +10,7 @@ const MAX_TIME = 5; // seconds
 console.log('--- Comparison: berlin52 (Opt: 7542) ---');
 
 async function runSolver(SolverClass, name) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         console.log(`Starting ${name}...`);
         const solver = new SolverClass({
             maxK: 3,
@@ -18,20 +18,22 @@ async function runSolver(SolverClass, name) {
             stopAtOptimal: true,
             onSolution: (res) => {
                 const time = res.elapsedTime || res.totalTime;
-                console.log(`${name} Finished: Distance ${res.bestDistance || res.distance} | Time: ${time}s | K: ${res.currentK}`);
+                console.log(
+                    `${name} Finished: Distance ${res.bestDistance || res.distance} | Time: ${time}s | K: ${res.currentK}`
+                );
                 resolve(res);
-            }
+            },
         });
-        
+
         // Adapt problem data structure if needed
         const problemData = {
             cities: problem.cities || problem.originalCities,
             metadata: {
                 optimalDistance: problem.optimal,
-                name: 'berlin52'
-            }
+                name: 'berlin52',
+            },
         };
-        
+
         solver.start(problemData);
     });
 }
@@ -39,11 +41,11 @@ async function runSolver(SolverClass, name) {
 async function run() {
     const resLegacy = await runSolver(TSPSolverLegacy, 'LEGACY');
     const resModern = await runSolver(TSPSolver, 'MODERN');
-    
+
     console.log('\n--- Results ---');
     console.log(`LEGACY: ${resLegacy.bestDistance} (Dev: ${resLegacy.deviation?.toFixed(2)}%)`);
     console.log(`MODERN: ${resModern.bestDistance} (Dev: ${resModern.deviation?.toFixed(2)}%)`);
-    
+
     if (resLegacy.bestDistance < resModern.bestDistance) {
         console.log('🏆 LEGACY Wins!');
     } else if (resModern.bestDistance < resLegacy.bestDistance) {

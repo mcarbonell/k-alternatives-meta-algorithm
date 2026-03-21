@@ -11,26 +11,26 @@ const path = require('path');
 
 // Standard TSP benchmark problems with known optima
 const BENCHMARK_PROBLEMS = {
-    'berlin52': { optimal: 7542, category: 'small' },
-    'st70': { optimal: 675, category: 'small' },
-    'eil76': { optimal: 538, category: 'small' },
-    'kroA100': { optimal: 21282, category: 'medium' },
-    'kroB100': { optimal: 22141, category: 'medium' },
-    'kroC100': { optimal: 20749, category: 'medium' },
-    'kroD100': { optimal: 21294, category: 'medium' },
-    'kroE100': { optimal: 22068, category: 'medium' },
-    'rd100': { optimal: 7910, category: 'medium' },
-    'eil101': { optimal: 629, category: 'medium' },
-    'lin105': { optimal: 14379, category: 'medium' },
-    'ch130': { optimal: 6110, category: 'large' },
-    'ch150': { optimal: 6528, category: 'large' }
+    berlin52: { optimal: 7542, category: 'small' },
+    st70: { optimal: 675, category: 'small' },
+    eil76: { optimal: 538, category: 'small' },
+    kroA100: { optimal: 21282, category: 'medium' },
+    kroB100: { optimal: 22141, category: 'medium' },
+    kroC100: { optimal: 20749, category: 'medium' },
+    kroD100: { optimal: 21294, category: 'medium' },
+    kroE100: { optimal: 22068, category: 'medium' },
+    rd100: { optimal: 7910, category: 'medium' },
+    eil101: { optimal: 629, category: 'medium' },
+    lin105: { optimal: 14379, category: 'medium' },
+    ch130: { optimal: 6110, category: 'large' },
+    ch150: { optimal: 6528, category: 'large' },
 };
 
 // Test configurations for different scenarios
 const TEST_CONFIGS = {
     quick: { maxK: 2, runs: 10, timeLimit: 5 },
     standard: { maxK: 3, runs: 25, timeLimit: 10 },
-    thorough: { maxK: 4, runs: 50, timeLimit: 20 }
+    thorough: { maxK: 4, runs: 50, timeLimit: 20 },
 };
 
 class CompetitiveBenchmark {
@@ -62,7 +62,9 @@ class CompetitiveBenchmark {
         const problemData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         const optimal = problemInfo.optimal;
 
-        console.log(`\n🎯 ${problemName} (N=${problemData.cities?.length || problemData.dimension}, Optimal: ${optimal})`);
+        console.log(
+            `\n🎯 ${problemName} (N=${problemData.cities?.length || problemData.dimension}, Optimal: ${optimal})`
+        );
         console.log('─'.repeat(60));
 
         const results = [];
@@ -71,10 +73,14 @@ class CompetitiveBenchmark {
         // Run multiple trials
         for (let run = 0; run < this.config.runs; run++) {
             if (run % 5 === 0) process.stdout.write(`Run ${run + 1}/${this.config.runs}: `);
-            
-            const result = await this.singleRun(problemData, this.config.maxK, this.config.timeLimit);
+
+            const result = await this.singleRun(
+                problemData,
+                this.config.maxK,
+                this.config.timeLimit
+            );
             results.push(result);
-            
+
             if (run % 5 === 4) console.log('✓');
         }
 
@@ -83,35 +89,41 @@ class CompetitiveBenchmark {
 
         console.log(`📊 Results:`);
         console.log(`   Best: ${analysis.best} (${analysis.bestGap.toFixed(3)}% from optimal)`);
-        console.log(`   Avg:  ${analysis.avg.toFixed(1)} (${analysis.avgGap.toFixed(3)}% from optimal)`);
-        console.log(`   Success Rate: ${analysis.successRate.toFixed(1)}% (${analysis.optimalCount}/${this.config.runs})`);
-        console.log(`   Avg Time: ${analysis.avgTime.toFixed(2)}s | Total: ${totalTime.toFixed(1)}s`);
+        console.log(
+            `   Avg:  ${analysis.avg.toFixed(1)} (${analysis.avgGap.toFixed(3)}% from optimal)`
+        );
+        console.log(
+            `   Success Rate: ${analysis.successRate.toFixed(1)}% (${analysis.optimalCount}/${this.config.runs})`
+        );
+        console.log(
+            `   Avg Time: ${analysis.avgTime.toFixed(2)}s | Total: ${totalTime.toFixed(1)}s`
+        );
         console.log(`   Quality Score: ${analysis.qualityScore.toFixed(1)}/100`);
 
         this.results.push({
             problem: problemName,
             category: problemInfo.category,
             optimal,
-            ...analysis
+            ...analysis,
         });
     }
 
     async singleRun(problemData, maxK, timeLimit) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const solver = new TSPSolver({
                 maxK,
                 maxTime: timeLimit,
                 stopAtOptimal: true,
-                onSolution: resolve
+                onSolution: resolve,
             });
             solver.start(JSON.parse(JSON.stringify(problemData)));
         });
     }
 
     analyzeResults(results, optimal, totalTime) {
-        const distances = results.map(r => r.bestDistance || r.distance);
-        const times = results.map(r => r.totalTime);
-        const iterations = results.map(r => r.iterations);
+        const distances = results.map((r) => r.bestDistance || r.distance);
+        const times = results.map((r) => r.totalTime);
+        const iterations = results.map((r) => r.iterations);
 
         const best = Math.min(...distances);
         const worst = Math.max(...distances);
@@ -119,7 +131,7 @@ class CompetitiveBenchmark {
         const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
         const avgIterations = iterations.reduce((a, b) => a + b, 0) / iterations.length;
 
-        const optimalCount = distances.filter(d => Math.abs(d - optimal) < 0.001).length;
+        const optimalCount = distances.filter((d) => Math.abs(d - optimal) < 0.001).length;
         const successRate = (optimalCount / distances.length) * 100;
 
         const bestGap = ((best - optimal) / optimal) * 100;
@@ -130,11 +142,19 @@ class CompetitiveBenchmark {
         const qualityScore = Math.max(0, 100 - avgGap * 10) * (successRate / 100);
 
         return {
-            best, worst, avg, avgTime, avgIterations, totalTime,
-            optimalCount, successRate,
-            bestGap, avgGap, worstGap,
+            best,
+            worst,
+            avg,
+            avgTime,
+            avgIterations,
+            totalTime,
+            optimalCount,
+            successRate,
+            bestGap,
+            avgGap,
+            worstGap,
             qualityScore,
-            rawResults: results
+            rawResults: results,
         };
     }
 
@@ -146,36 +166,53 @@ class CompetitiveBenchmark {
         const categories = ['small', 'medium', 'large'];
         const categorySummary = {};
 
-        categories.forEach(cat => {
-            const catResults = this.results.filter(r => r.category === cat);
+        categories.forEach((cat) => {
+            const catResults = this.results.filter((r) => r.category === cat);
             if (catResults.length === 0) return;
 
             categorySummary[cat] = {
                 problems: catResults.length,
-                avgSuccessRate: catResults.reduce((sum, r) => sum + r.successRate, 0) / catResults.length,
-                avgGap: catResults.reduce((sum, r) => sum + Math.abs(r.avgGap), 0) / catResults.length,
-                avgQualityScore: catResults.reduce((sum, r) => sum + r.qualityScore, 0) / catResults.length,
-                bestProblem: catResults.reduce((best, r) => r.qualityScore > best.qualityScore ? r : best),
-                worstProblem: catResults.reduce((worst, r) => r.qualityScore < worst.qualityScore ? r : worst)
+                avgSuccessRate:
+                    catResults.reduce((sum, r) => sum + r.successRate, 0) / catResults.length,
+                avgGap:
+                    catResults.reduce((sum, r) => sum + Math.abs(r.avgGap), 0) / catResults.length,
+                avgQualityScore:
+                    catResults.reduce((sum, r) => sum + r.qualityScore, 0) / catResults.length,
+                bestProblem: catResults.reduce((best, r) =>
+                    r.qualityScore > best.qualityScore ? r : best
+                ),
+                worstProblem: catResults.reduce((worst, r) =>
+                    r.qualityScore < worst.qualityScore ? r : worst
+                ),
             };
         });
 
         // Overall summary
         this.summary = {
             totalProblems: this.results.length,
-            overallSuccessRate: this.results.reduce((sum, r) => sum + r.successRate, 0) / this.results.length,
-            overallAvgGap: this.results.reduce((sum, r) => sum + Math.abs(r.avgGap), 0) / this.results.length,
-            overallQualityScore: this.results.reduce((sum, r) => sum + r.qualityScore, 0) / this.results.length,
+            overallSuccessRate:
+                this.results.reduce((sum, r) => sum + r.successRate, 0) / this.results.length,
+            overallAvgGap:
+                this.results.reduce((sum, r) => sum + Math.abs(r.avgGap), 0) / this.results.length,
+            overallQualityScore:
+                this.results.reduce((sum, r) => sum + r.qualityScore, 0) / this.results.length,
             categorySummary,
             config: this.config,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         };
 
         // Save detailed results
-        fs.writeFileSync(reportFile, JSON.stringify({
-            summary: this.summary,
-            results: this.results
-        }, null, 2));
+        fs.writeFileSync(
+            reportFile,
+            JSON.stringify(
+                {
+                    summary: this.summary,
+                    results: this.results,
+                },
+                null,
+                2
+            )
+        );
 
         // Generate markdown report
         this.generateMarkdownReport(reportFile);
@@ -185,10 +222,12 @@ class CompetitiveBenchmark {
         console.log(`Overall Success Rate: ${this.summary.overallSuccessRate.toFixed(1)}%`);
         console.log(`Overall Avg Gap: ${this.summary.overallAvgGap.toFixed(3)}%`);
         console.log(`Overall Quality Score: ${this.summary.overallQualityScore.toFixed(1)}/100`);
-        
+
         console.log('\nBy Category:');
         Object.entries(categorySummary).forEach(([cat, data]) => {
-            console.log(`  ${cat.toUpperCase()}: ${data.avgSuccessRate.toFixed(1)}% success, ${data.avgGap.toFixed(3)}% gap, ${data.avgQualityScore.toFixed(1)} quality`);
+            console.log(
+                `  ${cat.toUpperCase()}: ${data.avgSuccessRate.toFixed(1)}% success, ${data.avgGap.toFixed(3)}% gap, ${data.avgQualityScore.toFixed(1)} quality`
+            );
         });
 
         console.log(`\n📄 Detailed report: ${reportFile}`);
@@ -197,7 +236,7 @@ class CompetitiveBenchmark {
 
     generateMarkdownReport(jsonFile) {
         const mdFile = jsonFile.replace('.json', '.md');
-        
+
         const report = `# k-Alternatives Competitive Benchmark Report
 
 ## 🎯 Executive Summary
@@ -217,7 +256,9 @@ class CompetitiveBenchmark {
 
 ## 📊 Performance by Problem Size
 
-${Object.entries(this.summary.categorySummary).map(([cat, data]) => `
+${Object.entries(this.summary.categorySummary)
+    .map(
+        ([cat, data]) => `
 ### ${cat.toUpperCase()} Problems (${data.problems} instances)
 
 - **Success Rate**: ${data.avgSuccessRate.toFixed(1)}%
@@ -225,15 +266,20 @@ ${Object.entries(this.summary.categorySummary).map(([cat, data]) => `
 - **Quality Score**: ${data.avgQualityScore.toFixed(1)}/100
 - **Best Performance**: ${data.bestProblem.problem} (${data.bestProblem.qualityScore.toFixed(1)} quality)
 - **Challenging**: ${data.worstProblem.problem} (${data.worstProblem.qualityScore.toFixed(1)} quality)
-`).join('')}
+`
+    )
+    .join('')}
 
 ## 📋 Detailed Results
 
 | Problem | Size | Optimal | Best Found | Success Rate | Avg Gap | Quality Score |
 |---------|------|---------|------------|--------------|---------|---------------|
-${this.results.map(r => 
-    `| ${r.problem} | ${r.category} | ${r.optimal} | ${r.best} | ${r.successRate.toFixed(1)}% | ${r.avgGap.toFixed(3)}% | ${r.qualityScore.toFixed(1)} |`
-).join('\n')}
+${this.results
+    .map(
+        (r) =>
+            `| ${r.problem} | ${r.category} | ${r.optimal} | ${r.best} | ${r.successRate.toFixed(1)}% | ${r.avgGap.toFixed(3)}% | ${r.qualityScore.toFixed(1)} |`
+    )
+    .join('\n')}
 
 ## 🔬 Algorithm Analysis
 
@@ -264,7 +310,7 @@ Based on standard TSP benchmarks, k-Alternatives demonstrates:
 
 async function main() {
     const config = process.argv[2] || 'standard';
-    
+
     if (!TEST_CONFIGS[config]) {
         console.log(`❌ Invalid config: ${config}`);
         console.log(`Available configs: ${Object.keys(TEST_CONFIGS).join(', ')}`);

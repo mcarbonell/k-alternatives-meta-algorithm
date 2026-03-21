@@ -26,17 +26,23 @@ class KnapsackSolver extends BaseOptimizer {
 
     initializeProblem(problemData) {
         if (!problemData.items || !problemData.maxWeight) {
-            throw new Error('Invalid problem data for Knapsack. Required: { items: [{v, w}], maxWeight } ');
+            throw new Error(
+                'Invalid problem data for Knapsack. Required: { items: [{v, w}], maxWeight } '
+            );
         }
-        this.items = problemData.items.map((item, index) => ({ ...item, ratio: item.v / item.w, index }));
+        this.items = problemData.items.map((item, index) => ({
+            ...item,
+            ratio: item.v / item.w,
+            index,
+        }));
         this.maxWeight = problemData.maxWeight;
         this.problemName = problemData.name || 'KnapsackProblem';
         this.optimalValue = problemData.optimalValue ? -problemData.optimalValue : null; // Store as negative
-        
+
         // Initialize heuristics FIRST to populate globalSortedIndices
         this.initializeGlobalHeuristics();
 
-        // CRITICAL: For shuffle:false to work as a "Greedy" iterator, 
+        // CRITICAL: For shuffle:false to work as a "Greedy" iterator,
         // allItems must be in the preferred heuristic order.
         this.allItems = this.globalSortedIndices.slice();
     }
@@ -50,9 +56,9 @@ class KnapsackSolver extends BaseOptimizer {
         // In Knapsack, the "next best choice" does NOT depend on the "current item".
         // It simply depends on the Global Heuristic (Efficiency Ratio).
         // We iterate through our global sorted list and return valid candidates that are in 'remainingItems'.
-        
+
         const choices = [];
-        // Optimization: We iterate the pre-sorted global list. 
+        // Optimization: We iterate the pre-sorted global list.
         // Since remainingItems is a Set, lookup is O(1). Total complexity O(N).
         for (let i = 0; i < this.globalSortedIndices.length; i++) {
             const idx = this.globalSortedIndices[i];
@@ -76,7 +82,7 @@ class KnapsackSolver extends BaseOptimizer {
                 totalValue += item.v;
             }
         }
-        
+
         // Since the optimizer minimizes, we return the negative value.
         return -totalValue;
     }
@@ -94,11 +100,11 @@ class KnapsackSolver extends BaseOptimizer {
         this.globalSortedIndices = this.items
             .slice()
             .sort((a, b) => b.ratio - a.ratio)
-            .map(item => item.index);
-            
-        this.localHeuristics = null; 
+            .map((item) => item.index);
+
+        this.localHeuristics = null;
     }
-    
+
     // Override getFinalResult to return positive value
     getFinalResult() {
         const result = super.getFinalResult();

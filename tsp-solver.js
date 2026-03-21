@@ -34,7 +34,7 @@ class TSPSolver extends BaseOptimizer {
         this.edgeWeightFormat = problemData.metadata.edgeWeightFormat || '';
         this.problemName = problemData.metadata.name || 'Unknown';
         this.optimalValue = problemData.metadata.optimalDistance || null;
-        
+
         // Explicit weights handling
         const explicitWeights = problemData.edgeWeights;
         const dimension = problemData.metadata.dimension;
@@ -43,10 +43,12 @@ class TSPSolver extends BaseOptimizer {
             // Create dummy cities for logic compatibility (indices)
             this.cities = Array.from({ length: dimension }, (_, i) => ({ x: 0, y: 0 }));
         }
-        
+
         this.allItems = this.cities.map((_, i) => i);
-        
-        console.log(`[TSPSolver] Initializing problem: ${this.problemName} with ${this.cities.length} cities.`);
+
+        console.log(
+            `[TSPSolver] Initializing problem: ${this.problemName} with ${this.cities.length} cities.`
+        );
 
         if (this.edgeWeightType === 'EXPLICIT' && explicitWeights) {
             this.initializeExplicitDistanceMatrix(explicitWeights, dimension);
@@ -97,7 +99,9 @@ class TSPSolver extends BaseOptimizer {
                     }
                 }
             } else {
-                console.warn(`[TSPSolver] Unsupported explicit weight format: ${this.edgeWeightFormat}. Treating as 0.`);
+                console.warn(
+                    `[TSPSolver] Unsupported explicit weight format: ${this.edgeWeightFormat}. Treating as 0.`
+                );
             }
         }
     }
@@ -129,9 +133,12 @@ class TSPSolver extends BaseOptimizer {
                 currentCity = nearestCity;
             } else {
                 // This should not happen for a connected graph
-                console.warn('No nearest city found!', { currentCity, remaining: this.cities.length - visited.size });
+                console.warn('No nearest city found!', {
+                    currentCity,
+                    remaining: this.cities.length - visited.size,
+                });
                 // Fallback: Pick a random unvisited city
-                const unvisited = [...this.allItems].filter(c => !visited.has(c));
+                const unvisited = [...this.allItems].filter((c) => !visited.has(c));
                 if (unvisited.length > 0) {
                     const randomCity = unvisited[Math.floor(Math.random() * unvisited.length)];
                     initialRoute.push(randomCity);
@@ -165,10 +172,16 @@ class TSPSolver extends BaseOptimizer {
 
             // Move successful connection to the front of the heuristic list for both cities
             if (this.localHeuristics[city1][0] !== city2) {
-                this.localHeuristics[city1] = [city2, ...this.localHeuristics[city1].filter(c => c !== city2)];
+                this.localHeuristics[city1] = [
+                    city2,
+                    ...this.localHeuristics[city1].filter((c) => c !== city2),
+                ];
             }
             if (this.localHeuristics[city2][0] !== city1) {
-                this.localHeuristics[city2] = [city1, ...this.localHeuristics[city2].filter(c => c !== city1)];
+                this.localHeuristics[city2] = [
+                    city1,
+                    ...this.localHeuristics[city2].filter((c) => c !== city1),
+                ];
             }
         }
     }
@@ -180,7 +193,8 @@ class TSPSolver extends BaseOptimizer {
         for (let i = 0; i < this.cities.length; i++) {
             this.distances[i] = [];
             for (let j = 0; j < this.cities.length; j++) {
-                this.distances[i][j] = (i === j) ? 0 : this.calcDistance(this.cities[i], this.cities[j]);
+                this.distances[i][j] =
+                    i === j ? 0 : this.calcDistance(this.cities[i], this.cities[j]);
             }
         }
     }
@@ -189,7 +203,7 @@ class TSPSolver extends BaseOptimizer {
         this.localHeuristics = [];
         for (let i = 0; i < this.cities.length; i++) {
             const sortedNeighbors = this.allItems
-                .filter(j => i !== j)
+                .filter((j) => i !== j)
                 .sort((a, b) => this.distance(i, a) - this.distance(i, b));
             this.localHeuristics[i] = sortedNeighbors;
         }
@@ -212,21 +226,27 @@ class TSPSolver extends BaseOptimizer {
     calcDistance(city1, city2) {
         switch (this.edgeWeightType) {
             case 'EUC_2D':
-                return Math.round(Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2)));
+                return Math.round(
+                    Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2))
+                );
             case 'CEIL_2D':
-                return Math.ceil(Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2)));
+                return Math.ceil(
+                    Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2))
+                );
             case 'GEO':
                 return this.geoDistance(city1, city2);
             case 'ATT':
                 return this.attDistance(city1, city2);
             default:
-                return Math.round(Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2)));
+                return Math.round(
+                    Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2))
+                );
         }
     }
 
     geoDistance(c1, c2) {
         const R = 6378.388;
-        const toRad = (deg) => deg * Math.PI / 180.0;
+        const toRad = (deg) => (deg * Math.PI) / 180.0;
         const lat1 = toRad(c1.y);
         const lon1 = toRad(c1.x);
         const lat2 = toRad(c2.y);
@@ -242,7 +262,7 @@ class TSPSolver extends BaseOptimizer {
         const yd = c1.y - c2.y;
         const rij = Math.sqrt((xd * xd + yd * yd) / 10.0);
         const tij = Math.round(rij);
-        return (tij < rij) ? tij + 1 : tij;
+        return tij < rij ? tij + 1 : tij;
     }
 }
 

@@ -17,7 +17,7 @@ class LocalMinimaAnalyzer {
 
     async analyzeLocalMinima(problemName, runs = 200) {
         console.log(`\n🔬 LOCAL MINIMA ANALYSIS: ${problemName}`);
-        console.log('=' .repeat(50));
+        console.log('='.repeat(50));
 
         const filePath = path.join('tsplib-json', `${problemName}.json`);
         if (!fs.existsSync(filePath)) {
@@ -39,13 +39,13 @@ class LocalMinimaAnalyzer {
         for (const k of [0, 1, 2, 3]) {
             console.log(`Testing K=${k}...`);
             const solutions = [];
-            
+
             for (let run = 0; run < runs; run++) {
                 if (run % 20 === 0) process.stdout.write(`  Run ${run}/${runs}: `);
-                
+
                 const result = await this.singleRun(problemData, k, 5); // 5s limit
                 solutions.push(result.bestDistance || result.distance);
-                
+
                 if (run % 20 === 19) console.log('✓');
             }
 
@@ -55,7 +55,7 @@ class LocalMinimaAnalyzer {
         this.results[problemName] = {
             optimal,
             kResults,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         };
 
         this.printAnalysis(problemName, kResults, optimal);
@@ -63,13 +63,13 @@ class LocalMinimaAnalyzer {
     }
 
     async singleRun(problemData, maxK, timeLimit) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const solver = new TSPSolver({
                 maxK,
                 maxTime: timeLimit,
                 stopAtOptimal: false, // Don't stop early
                 onSolution: resolve,
-                onMaxTimeReached: resolve
+                onMaxTimeReached: resolve,
             });
             solver.start(JSON.parse(JSON.stringify(problemData)));
         });
@@ -82,31 +82,38 @@ class LocalMinimaAnalyzer {
         const min = sorted[0];
         const max = sorted[n - 1];
         const mean = solutions.reduce((a, b) => a + b, 0) / n;
-        const median = n % 2 === 0 ? (sorted[n/2 - 1] + sorted[n/2]) / 2 : sorted[Math.floor(n/2)];
+        const median =
+            n % 2 === 0 ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[Math.floor(n / 2)];
 
         // Frequency distribution
         const frequency = {};
-        solutions.forEach(sol => {
+        solutions.forEach((sol) => {
             frequency[sol] = (frequency[sol] || 0) + 1;
         });
 
         // Unique local minima
-        const uniqueMinima = Object.keys(frequency).map(Number).sort((a, b) => a - b);
+        const uniqueMinima = Object.keys(frequency)
+            .map(Number)
+            .sort((a, b) => a - b);
         const minimaCount = uniqueMinima.length;
 
         // Gap analysis
-        const gaps = solutions.map(sol => ((sol - optimal) / optimal) * 100);
+        const gaps = solutions.map((sol) => ((sol - optimal) / optimal) * 100);
         const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
         const minGap = Math.min(...gaps);
         const maxGap = Math.max(...gaps);
 
         // Success rate (optimal found)
-        const optimalCount = solutions.filter(sol => Math.abs(sol - optimal) < 0.001).length;
+        const optimalCount = solutions.filter((sol) => Math.abs(sol - optimal) < 0.001).length;
         const successRate = (optimalCount / n) * 100;
 
         // Most frequent minima
         const sortedByFreq = Object.entries(frequency)
-            .map(([val, freq]) => ({ value: Number(val), frequency: freq, percentage: (freq/n)*100 }))
+            .map(([val, freq]) => ({
+                value: Number(val),
+                frequency: freq,
+                percentage: (freq / n) * 100,
+            }))
             .sort((a, b) => b.frequency - a.frequency);
 
         return {
@@ -116,7 +123,7 @@ class LocalMinimaAnalyzer {
             gaps: { avgGap, minGap, maxGap },
             success: { optimalCount, successRate },
             topMinima: sortedByFreq.slice(0, 10),
-            rawSolutions: solutions
+            rawSolutions: solutions,
         };
     }
 
@@ -128,34 +135,34 @@ class LocalMinimaAnalyzer {
         console.log('\n📈 Summary by K:');
         console.log('K | Unique Minima | Success Rate | Avg Gap | Best Gap | Most Frequent');
         console.log('--|---------------|--------------|---------|----------|---------------');
-        
-        Object.values(kResults).forEach(result => {
+
+        Object.values(kResults).forEach((result) => {
             const topMinima = result.topMinima[0];
             const topValue = topMinima.value;
             const topFreq = topMinima.percentage.toFixed(1);
-            const topGap = ((topValue - optimal) / optimal * 100).toFixed(2);
-            
+            const topGap = (((topValue - optimal) / optimal) * 100).toFixed(2);
+
             console.log(
                 `${result.k} | ${result.distribution.minimaCount.toString().padStart(13)} | ` +
-                `${result.success.successRate.toFixed(1).padStart(11)}% | ` +
-                `${result.gaps.avgGap.toFixed(2).padStart(7)}% | ` +
-                `${result.gaps.minGap.toFixed(2).padStart(8)}% | ` +
-                `${topValue} (${topFreq}%, +${topGap}%)`
+                    `${result.success.successRate.toFixed(1).padStart(11)}% | ` +
+                    `${result.gaps.avgGap.toFixed(2).padStart(7)}% | ` +
+                    `${result.gaps.minGap.toFixed(2).padStart(8)}% | ` +
+                    `${topValue} (${topFreq}%, +${topGap}%)`
             );
         });
 
         // Detailed distribution for each K
-        Object.values(kResults).forEach(result => {
+        Object.values(kResults).forEach((result) => {
             console.log(`\n🎯 K=${result.k} - Top Local Minima:`);
             result.topMinima.slice(0, 5).forEach((minima, i) => {
-                const gap = ((minima.value - optimal) / optimal * 100).toFixed(2);
+                const gap = (((minima.value - optimal) / optimal) * 100).toFixed(2);
                 const isOptimal = Math.abs(minima.value - optimal) < 0.001;
                 const crown = isOptimal ? '👑' : `${i + 1}.`;
-                
+
                 console.log(
                     `  ${crown} ${minima.value} | ` +
-                    `${minima.frequency} times (${minima.percentage.toFixed(1)}%) | ` +
-                    `Gap: ${isOptimal ? '0.00' : '+' + gap}%`
+                        `${minima.frequency} times (${minima.percentage.toFixed(1)}%) | ` +
+                        `Gap: ${isOptimal ? '0.00' : '+' + gap}%`
                 );
             });
         });
@@ -167,24 +174,32 @@ class LocalMinimaAnalyzer {
         const k2Success = kResults[2].success.successRate;
         const k3Success = kResults[3].success.successRate;
 
-        console.log(`  • K=0→K=1: Success rate ${k0Success.toFixed(1)}% → ${k1Success.toFixed(1)}% (${(k1Success - k0Success).toFixed(1)}% improvement)`);
-        console.log(`  • K=1→K=2: Success rate ${k1Success.toFixed(1)}% → ${k2Success.toFixed(1)}% (${(k2Success - k1Success).toFixed(1)}% improvement)`);
-        console.log(`  • K=2→K=3: Success rate ${k2Success.toFixed(1)}% → ${k3Success.toFixed(1)}% (${(k3Success - k2Success).toFixed(1)}% improvement)`);
+        console.log(
+            `  • K=0→K=1: Success rate ${k0Success.toFixed(1)}% → ${k1Success.toFixed(1)}% (${(k1Success - k0Success).toFixed(1)}% improvement)`
+        );
+        console.log(
+            `  • K=1→K=2: Success rate ${k1Success.toFixed(1)}% → ${k2Success.toFixed(1)}% (${(k2Success - k1Success).toFixed(1)}% improvement)`
+        );
+        console.log(
+            `  • K=2→K=3: Success rate ${k2Success.toFixed(1)}% → ${k3Success.toFixed(1)}% (${(k3Success - k2Success).toFixed(1)}% improvement)`
+        );
 
         const k0Minima = kResults[0].distribution.minimaCount;
         const k3Minima = kResults[3].distribution.minimaCount;
         console.log(`  • Exploration: K=0 finds ${k0Minima} minima, K=3 finds ${k3Minima} minima`);
-        
+
         // Convergence pattern
-        const bestAtK = Object.values(kResults).reduce((best, curr) => 
+        const bestAtK = Object.values(kResults).reduce((best, curr) =>
             curr.success.successRate > best.success.successRate ? curr : best
         );
-        console.log(`  • Best K for this problem: K=${bestAtK.k} (${bestAtK.success.successRate.toFixed(1)}% success)`);
+        console.log(
+            `  • Best K for this problem: K=${bestAtK.k} (${bestAtK.success.successRate.toFixed(1)}% success)`
+        );
     }
 
     async runFullAnalysis() {
         const problems = ['berlin52', 'st70', 'kroA100'];
-        
+
         console.log('🔬 k-ALTERNATIVES LOCAL MINIMA ANALYSIS');
         console.log('======================================');
         console.log('Analyzing local minima distribution patterns...\n');
@@ -202,11 +217,11 @@ class LocalMinimaAnalyzer {
 
         // Cross-problem analysis
         const crossAnalysis = this.performCrossAnalysis();
-        
+
         const fullReport = {
             analysis: crossAnalysis,
             problemResults: this.results,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         };
 
         fs.writeFileSync(reportFile, JSON.stringify(fullReport, null, 2));
@@ -217,7 +232,7 @@ class LocalMinimaAnalyzer {
         console.log(`Average K=3 success rate: ${crossAnalysis.avgK3Success.toFixed(1)}%`);
         console.log(`Average improvement K=0→K=3: ${crossAnalysis.avgImprovement.toFixed(1)}%`);
         console.log(`Most effective K overall: K=${crossAnalysis.bestK}`);
-        
+
         console.log(`\n📄 Full analysis: ${reportFile}`);
     }
 
@@ -225,20 +240,20 @@ class LocalMinimaAnalyzer {
         const problems = Object.keys(this.results);
         const kSuccessRates = { 0: [], 1: [], 2: [], 3: [] };
 
-        problems.forEach(problem => {
+        problems.forEach((problem) => {
             const result = this.results[problem];
-            Object.keys(kSuccessRates).forEach(k => {
+            Object.keys(kSuccessRates).forEach((k) => {
                 kSuccessRates[k].push(result.kResults[k].success.successRate);
             });
         });
 
         const avgSuccessRates = {};
-        Object.keys(kSuccessRates).forEach(k => {
+        Object.keys(kSuccessRates).forEach((k) => {
             const rates = kSuccessRates[k];
             avgSuccessRates[k] = rates.reduce((a, b) => a + b, 0) / rates.length;
         });
 
-        const bestK = Object.keys(avgSuccessRates).reduce((best, k) => 
+        const bestK = Object.keys(avgSuccessRates).reduce((best, k) =>
             avgSuccessRates[k] > avgSuccessRates[best] ? k : best
         );
 
@@ -247,7 +262,7 @@ class LocalMinimaAnalyzer {
             avgK3Success: avgSuccessRates[3],
             avgImprovement: avgSuccessRates[3] - avgSuccessRates[0],
             bestK: parseInt(bestK),
-            avgSuccessRates
+            avgSuccessRates,
         };
     }
 }

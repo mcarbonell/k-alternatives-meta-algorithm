@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Test coverage
+coverage/
+
+# Results and logs
+results/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.local
+
+# Project specific
+.zencoder/
+.zenflow/
+temp_kp/
+old-k-search/
+
+# Benchmark outputs (keep configs, ignore generated)
+benchmark-results*.json
+benchmark-results*.md
+competitive-benchmark*.json
+competitive-benchmark*.md
+unified-benchmark*.json
