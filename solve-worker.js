@@ -24,7 +24,7 @@ function startSolving(data) {
                     improvements: stats.improvements,
                     distance: stats.bestValue, // Note: k-optimizer uses bestValue
                     currentK: stats.currentK,
-                    bestPossibleDistance: 0 
+                    bestPossibleDistance: 0,
                 });
             },
             onImprovement: (stats) => {
@@ -35,7 +35,7 @@ function startSolving(data) {
                     improvements: stats.improvements,
                     distance: stats.bestValue,
                     route: solver.bestSolution, // Need to access the solution directly or from stats if available
-                    currentK: stats.currentK
+                    currentK: stats.currentK,
                 });
             },
             onSolution: (result) => {
@@ -46,40 +46,39 @@ function startSolving(data) {
                     distance: result.bestDistance,
                     iteration: result.iterations,
                     improvements: solver.improvements,
-                    currentK: solver.currentK
+                    currentK: solver.currentK,
                 });
             },
             onOptimalFound: (stats) => {
-                 self.postMessage({
+                self.postMessage({
                     type: 'improvement', // Treat as improvement to update UI
                     id: data.id,
                     iteration: stats.iteration,
                     improvements: stats.improvements,
                     distance: stats.bestValue,
                     route: solver.bestSolution,
-                    currentK: stats.currentK
+                    currentK: stats.currentK,
                 });
-            }
+            },
         });
-        
+
         // Structure problem data for TSPSolver.initializeProblem
         const problemData = {
             cities: data.cities,
             metadata: {
                 edgeWeightType: data.edgeWeightType || 'EUC_2D',
                 name: data.problemName || 'Web Problem',
-                optimalDistance: data.optimalDistance || null
-            }
+                optimalDistance: data.optimalDistance || null,
+            },
         };
-        
+
         solver.start(problemData);
-        
     } catch (error) {
         console.error('Worker error:', error);
         self.postMessage({
             type: 'error',
             id: data.id,
-            error: error.message
+            error: error.message,
         });
     }
 }
@@ -92,8 +91,8 @@ function stopSolving() {
 }
 
 // Message handler
-self.onmessage = function(e) {
-    switch(e.data.type) {
+self.onmessage = function (e) {
+    switch (e.data.type) {
         case 'start':
             startSolving(e.data);
             break;

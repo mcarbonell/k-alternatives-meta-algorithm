@@ -16,7 +16,7 @@ class MasterBenchmark {
             unified: null,
             competitive: null,
             localMinima: null,
-            summary: {}
+            summary: {},
         };
     }
 
@@ -50,7 +50,6 @@ class MasterBenchmark {
 
             const totalTime = (Date.now() - startTime) / 1000;
             this.generateMasterReport(totalTime);
-
         } catch (error) {
             console.error('❌ Master benchmark failed:', error.message);
             console.error(error.stack);
@@ -65,21 +64,21 @@ class MasterBenchmark {
         this.results.summary = {
             executionTime: totalTime,
             timestamp: new Date().toISOString(),
-            
+
             // Key Performance Indicators
             kpi: {
                 tspSuccessRate: this.results.unified?.summary?.tsp?.avgSuccessRate || 0,
                 tspAvgGap: this.results.unified?.summary?.tsp?.avgGap || 0,
                 knapsackBestGap: this.results.unified?.summary?.knapsack?.bestGap || 0,
                 competitiveQuality: this.results.competitive?.overallQualityScore || 0,
-                optimalK: this.results.unified?.summary?.tsp?.bestK || 2
+                optimalK: this.results.unified?.summary?.tsp?.bestK || 2,
             },
 
             // Algorithm Strengths
             strengths: this.identifyStrengths(),
-            
+
             // Recommendations
-            recommendations: this.generateRecommendations()
+            recommendations: this.generateRecommendations(),
         };
 
         // Save comprehensive results
@@ -87,7 +86,7 @@ class MasterBenchmark {
 
         // Generate executive summary
         this.printExecutiveSummary(totalTime);
-        
+
         // Generate publication-ready report
         this.generatePublicationReport(reportFile);
 
@@ -97,19 +96,19 @@ class MasterBenchmark {
 
     identifyStrengths() {
         const strengths = [];
-        
+
         if (this.results.unified?.summary?.tsp?.avgSuccessRate > 50) {
             strengths.push('High TSP success rate (>50%)');
         }
-        
+
         if (this.results.unified?.summary?.tsp?.avgGap < 5) {
             strengths.push('Low average gap from optimal (<5%)');
         }
-        
+
         if (this.results.unified?.summary?.knapsack?.bestGap < 1) {
             strengths.push('Excellent knapsack performance (<1% gap)');
         }
-        
+
         if (this.results.competitive?.overallQualityScore > 70) {
             strengths.push('Competitive with state-of-the-art (>70 quality score)');
         }
@@ -119,17 +118,17 @@ class MasterBenchmark {
 
     generateRecommendations() {
         const recommendations = [];
-        
+
         const bestK = this.results.unified?.summary?.tsp?.bestK || 2;
         recommendations.push(`Optimal K parameter: ${bestK} for most problems`);
-        
+
         if (this.results.unified?.summary?.tsp?.avgGap > 3) {
             recommendations.push('Consider hybrid approach with local search for large instances');
         }
-        
+
         recommendations.push('Algorithm suitable for real-time applications');
         recommendations.push('Excellent for gaming and mobile pathfinding');
-        
+
         return recommendations;
     }
 
@@ -137,7 +136,7 @@ class MasterBenchmark {
         console.log('\n📋 EXECUTIVE SUMMARY');
         console.log('===================');
         console.log(`Total execution time: ${totalTime.toFixed(1)}s`);
-        
+
         console.log('\n🎯 Key Performance Indicators:');
         const kpi = this.results.summary.kpi;
         console.log(`  • TSP Success Rate: ${kpi.tspSuccessRate.toFixed(1)}%`);
@@ -147,19 +146,19 @@ class MasterBenchmark {
         console.log(`  • Optimal K Parameter: ${kpi.optimalK}`);
 
         console.log('\n✅ Algorithm Strengths:');
-        this.results.summary.strengths.forEach(strength => {
+        this.results.summary.strengths.forEach((strength) => {
             console.log(`  • ${strength}`);
         });
 
         console.log('\n💡 Recommendations:');
-        this.results.summary.recommendations.forEach(rec => {
+        this.results.summary.recommendations.forEach((rec) => {
             console.log(`  • ${rec}`);
         });
     }
 
     generatePublicationReport(jsonFile) {
         const mdFile = jsonFile.replace('.json', '.md');
-        
+
         const report = `# k-Alternatives Algorithm: Comprehensive Benchmark Report
 
 ## Abstract
@@ -177,7 +176,7 @@ This report presents a comprehensive evaluation of the k-Alternatives meta-heuri
 
 ### Algorithm Strengths
 
-${this.results.summary.strengths.map(s => `- ${s}`).join('\n')}
+${this.results.summary.strengths.map((s) => `- ${s}`).join('\n')}
 
 ## Methodology
 
@@ -197,14 +196,25 @@ ${this.results.summary.strengths.map(s => `- ${s}`).join('\n')}
 ## Results
 
 ### TSP Results Summary
-${this.results.unified?.tsp ? this.results.unified.tsp.map(r => 
-    `- **${r.problem}**: ${r.successRate.toFixed(1)}% success, ${r.meanGap.toFixed(2)}% gap`
-).join('\n') : 'TSP results not available'}
+${
+    this.results.unified?.tsp
+        ? this.results.unified.tsp
+              .map(
+                  (r) =>
+                      `- **${r.problem}**: ${r.successRate.toFixed(1)}% success, ${r.meanGap.toFixed(2)}% gap`
+              )
+              .join('\n')
+        : 'TSP results not available'
+}
 
 ### Knapsack Results Summary
-${this.results.unified?.knapsack ? this.results.unified.knapsack.map(r => 
-    `- **${r.problem}**: Best value ${r.best}, ${r.meanGap.toFixed(2)}% gap`
-).join('\n') : 'Knapsack results not available'}
+${
+    this.results.unified?.knapsack
+        ? this.results.unified.knapsack
+              .map((r) => `- **${r.problem}**: Best value ${r.best}, ${r.meanGap.toFixed(2)}% gap`)
+              .join('\n')
+        : 'Knapsack results not available'
+}
 
 ## Competitive Analysis
 
@@ -249,7 +259,7 @@ The k-Alternatives algorithm represents a significant contribution to combinator
 
 ### Recommendations for Use
 
-${this.results.summary.recommendations.map(r => `- ${r}`).join('\n')}
+${this.results.summary.recommendations.map((r) => `- ${r}`).join('\n')}
 
 ## Future Work
 

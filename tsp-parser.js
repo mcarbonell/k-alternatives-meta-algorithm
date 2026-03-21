@@ -11,7 +11,7 @@ class TSPLIBParser {
             const response = await fetch('tsplib/Optimal solutions for symmetric TSPs.txt');
             const text = await response.text();
             const lines = text.split('\n');
-            
+
             for (const line of lines) {
                 const match = line.match(/^(\w+)\s*:\s*(\d+)$/);
                 if (match) {
@@ -31,16 +31,16 @@ class TSPLIBParser {
             dimension: 0,
             edgeWeightType: '',
             cities: [],
-            originalCities: [] // Keep original coordinates for distance calculation
+            originalCities: [], // Keep original coordinates for distance calculation
         };
 
         let inCoordsSection = false;
 
         for (const line of lines) {
             const trimmed = line.trim();
-            
+
             if (trimmed === 'EOF') break;
-            
+
             if (trimmed.startsWith('NAME:')) {
                 result.name = trimmed.substring(5).trim();
             } else if (trimmed.startsWith('NAME :')) {
@@ -68,7 +68,7 @@ class TSPLIBParser {
 
         // Scale coordinates for visualization
         result.cities = this.scaleCoordinates(result.originalCities);
-        
+
         return result;
     }
 
@@ -81,10 +81,10 @@ class TSPLIBParser {
     scaleCoordinates(cities, svgWidth = 800, svgHeight = 500, margin = 40) {
         if (cities.length === 0) return [];
 
-        const minX = Math.min(...cities.map(c => c.x));
-        const maxX = Math.max(...cities.map(c => c.x));
-        const minY = Math.min(...cities.map(c => c.y));
-        const maxY = Math.max(...cities.map(c => c.y));
+        const minX = Math.min(...cities.map((c) => c.x));
+        const maxX = Math.max(...cities.map((c) => c.x));
+        const minY = Math.min(...cities.map((c) => c.y));
+        const maxY = Math.max(...cities.map((c) => c.y));
 
         const rangeX = maxX - minX || 1;
         const rangeY = maxY - minY || 1;
@@ -93,9 +93,9 @@ class TSPLIBParser {
         const scaleY = (svgHeight - 2 * margin) / rangeY;
         const scale = Math.min(scaleX, scaleY);
 
-        return cities.map(city => ({
+        return cities.map((city) => ({
             x: margin + (city.x - minX) * scale,
-            y: margin + (city.y - minY) * scale
+            y: margin + (city.y - minY) * scale,
         }));
     }
 
@@ -108,10 +108,10 @@ class TSPLIBParser {
             }
             const content = await response.text();
             const parsed = this.parseTSPContent(content);
-            
+
             // Scale coordinates to fit our canvas
             parsed.cities = this.scaleCoordinates(parsed.cities);
-            
+
             return parsed;
         } catch (error) {
             console.error('Error loading TSP file:', error);
@@ -150,7 +150,7 @@ class TSPLIBParser {
             { name: 'ch130', cities: 130, optimal: 6110 },
             { name: 'ch150', cities: 150, optimal: 6528 },
             { name: 'gr120', cities: 120, optimal: 6942 },
-            { name: 'gr137', cities: 137, optimal: 69853 }
+            { name: 'gr137', cities: 137, optimal: 69853 },
         ];
     }
 }

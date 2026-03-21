@@ -19,23 +19,23 @@ function parseTSPFile(content) {
         edgeWeightType: '',
         edgeWeightFormat: '',
         cities: [],
-        distanceMatrix: []
+        distanceMatrix: [],
     };
 
     let section = '';
-    let displayData = [];
-    let edgeWeights = [];
+    const displayData = [];
+    const edgeWeights = [];
 
     for (const line of lines) {
         const trimmed = line.trim();
         if (trimmed === 'EOF') break;
-        
+
         // Header parsing
         if (trimmed.includes(':')) {
             const [key, ...valueParts] = trimmed.split(':');
             const value = valueParts.join(':').trim();
             const upperKey = key.trim().toUpperCase();
-            
+
             if (upperKey === 'NAME') result.name = value;
             else if (upperKey === 'TYPE') result.type = value;
             else if (upperKey === 'DIMENSION') result.dimension = parseInt(value);
@@ -66,7 +66,7 @@ function parseTSPFile(content) {
                 result.cities.push({ x, y });
             }
         } else if (section === 'DISPLAY' && trimmed && !isNaN(trimmed.split(/\s+/)[0])) {
-             const parts = trimmed.split(/\s+/);
+            const parts = trimmed.split(/\s+/);
             if (parts.length >= 3) {
                 const x = parseFloat(parts[1]);
                 const y = parseFloat(parts[2]);
@@ -74,13 +74,16 @@ function parseTSPFile(content) {
             }
         } else if (section === 'WEIGHTS') {
             // Collect all numbers from the lines
-            const numbers = trimmed.split(/\s+/).filter(n => n !== '').map(Number);
+            const numbers = trimmed
+                .split(/\s+/)
+                .filter((n) => n !== '')
+                .map(Number);
             edgeWeights.push(...numbers);
         }
     }
 
     // Post-processing
-    
+
     // 1. If no cities found in NODE_COORD_SECTION, check DISPLAY_DATA_SECTION
     if (result.cities.length === 0 && displayData.length > 0) {
         result.cities = displayData;
@@ -91,14 +94,14 @@ function parseTSPFile(content) {
         // Determine format logic based on length vs dimension
         // N*N = Full Matrix
         // N*(N+1)/2 = Lower/Upper Triangular (approx)
-        
-        // For fri26 (LOWER_DIAG_ROW), we just store the flat array for now, 
+
+        // For fri26 (LOWER_DIAG_ROW), we just store the flat array for now,
         // or try to expand it if the solver expects a full matrix.
-        // Let's store the flat array in a generic 'edgeWeights' property 
+        // Let's store the flat array in a generic 'edgeWeights' property
         // and let the solver/adapter handle the indexing logic based on FORMAT.
         result.edgeWeights = edgeWeights;
     }
-    
+
     return result;
 }
 
@@ -108,7 +111,7 @@ function loadOptimalSolutions() {
     try {
         const content = fs.readFileSync('tsplib/Optimal solutions for symmetric TSPs.txt', 'utf8');
         const lines = content.split('\n');
-        
+
         for (const line of lines) {
             const match = line.match(/^(\w+)\s*:\s*(\d+)$/);
             if (match) {
@@ -125,11 +128,11 @@ function loadOptimalSolutions() {
 function convertTSPFile(inputFile, outputFile, optimalSolutions) {
     try {
         console.log(`🔄 Convirtiendo ${path.basename(inputFile)}...`);
-        
+
         const content = fs.readFileSync(inputFile, 'utf8');
         const problem = parseTSPFile(content);
         const optimalDistance = optimalSolutions.get(problem.name.toLowerCase());
-        
+
         // Add metadata
         const jsonProblem = {
             metadata: {
@@ -140,23 +143,24 @@ function convertTSPFile(inputFile, outputFile, optimalSolutions) {
                 edgeWeightFormat: problem.edgeWeightFormat,
                 optimalDistance: optimalDistance || null,
                 source: path.basename(inputFile),
-                convertedAt: new Date().toISOString()
+                convertedAt: new Date().toISOString(),
             },
             cities: problem.cities,
-            edgeWeights: problem.edgeWeights // Include explicit weights if present
+            edgeWeights: problem.edgeWeights, // Include explicit weights if present
         };
-        
+
         // Write JSON file
         fs.writeFileSync(outputFile, JSON.stringify(jsonProblem, null, 2));
-        console.log(`✅ Guardado: ${path.basename(outputFile)} (${problem.cities.length} ciudades, óptimo: ${optimalDistance || 'N/A'})`);
-        
+        console.log(
+            `✅ Guardado: ${path.basename(outputFile)} (${problem.cities.length} ciudades, óptimo: ${optimalDistance || 'N/A'})`
+        );
+
         return {
             name: problem.name,
             cities: problem.cities.length,
             optimal: optimalDistance,
-            edgeWeightType: problem.edgeWeightType
+            edgeWeightType: problem.edgeWeightType,
         };
-        
     } catch (error) {
         console.error(`❌ Error convirtiendo ${inputFile}:`, error.message);
         return null;
@@ -167,86 +171,89 @@ function convertTSPFile(inputFile, outputFile, optimalSolutions) {
 function convertTSPLIBDirectory(inputDir = 'tsplib/', outputDir = 'tsplib-json/') {
     console.log('🚀 TSPLIB to JSON Converter');
     console.log('============================');
-    
+
     // Create output directory if it doesn't exist
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
         console.log(`📁 Creado directorio: ${outputDir}`);
     }
-    
+
     // Load optimal solutions
     const optimalSolutions = loadOptimalSolutions();
     console.log(`📊 Cargados ${optimalSolutions.size} óptimos conocidos`);
-    
+
     // Find all .tsp files
-    const tspFiles = fs.readdirSync(inputDir).filter(f => f.endsWith('.tsp'));
+    const tspFiles = fs.readdirSync(inputDir).filter((f) => f.endsWith('.tsp'));
     console.log(`🔍 Encontrados ${tspFiles.length} archivos .tsp\n`);
-    
+
     const results = [];
-    
+
     // Convert each file
     for (const file of tspFiles) {
         const inputFile = path.join(inputDir, file);
         const outputFile = path.join(outputDir, file.replace('.tsp', '.json'));
-        
+
         const result = convertTSPFile(inputFile, outputFile, optimalSolutions);
         if (result) {
             results.push(result);
         }
     }
-    
+
     // Generate summary
     console.log('\n📋 RESUMEN DE CONVERSIÓN:');
     console.log('='.repeat(50));
-    
-    const withOptimal = results.filter(r => r.optimal !== null);
-    const withoutOptimal = results.filter(r => r.optimal === null);
-    
+
+    const withOptimal = results.filter((r) => r.optimal !== null);
+    const withoutOptimal = results.filter((r) => r.optimal === null);
+
     console.log(`Total convertidos: ${results.length}/${tspFiles.length}`);
     console.log(`Con óptimo conocido: ${withOptimal.length}`);
     console.log(`Sin óptimo conocido: ${withoutOptimal.length}`);
-    
+
     // Generate index file
     const index = {
         metadata: {
             totalProblems: results.length,
             withOptimal: withOptimal.length,
             withoutOptimal: withoutOptimal.length,
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
         },
-        problems: results.map(r => ({
+        problems: results.map((r) => ({
             name: r.name,
             cities: r.cities,
             optimal: r.optimal,
             edgeWeightType: r.edgeWeightType,
-            file: `${r.name}.json`
-        }))
+            file: `${r.name}.json`,
+        })),
     };
-    
+
     fs.writeFileSync(path.join(outputDir, 'index.json'), JSON.stringify(index, null, 2));
     console.log(`📚 Índice generado: index.json`);
-    
+
     // Generate problem sets
     const problemSets = {
-        small: results.filter(r => r.cities <= 80).map(r => r.name),
-        medium: results.filter(r => r.cities > 80 && r.cities <= 150).map(r => r.name),
-        large: results.filter(r => r.cities > 150 && r.cities <= 200).map(r => r.name),
-        xlarge: results.filter(r => r.cities > 200).map(r => r.name)
+        small: results.filter((r) => r.cities <= 80).map((r) => r.name),
+        medium: results.filter((r) => r.cities > 80 && r.cities <= 150).map((r) => r.name),
+        large: results.filter((r) => r.cities > 150 && r.cities <= 200).map((r) => r.name),
+        xlarge: results.filter((r) => r.cities > 200).map((r) => r.name),
     };
-    
-    fs.writeFileSync(path.join(outputDir, 'problem-sets.json'), JSON.stringify(problemSets, null, 2));
+
+    fs.writeFileSync(
+        path.join(outputDir, 'problem-sets.json'),
+        JSON.stringify(problemSets, null, 2)
+    );
     console.log(`📦 Conjuntos de problemas generados: problem-sets.json`);
-    
+
     console.log('\n🎯 CONVERSIÓN COMPLETADA');
     console.log(`📂 Archivos guardados en: ${outputDir}`);
-    
+
     return results;
 }
 
 // Command line interface
 function main() {
     const args = process.argv.slice(2);
-    
+
     if (args.length === 0) {
         console.log(`
 🎯 TSPLIB to JSON Converter
@@ -267,18 +274,20 @@ Ejemplos:
         `);
         return;
     }
-    
+
     if (args[0] === '--help') {
         main();
         return;
     }
-    
+
     const inputPath = args[0];
-    const outputDir = args.includes('--output') ? args[args.indexOf('--output') + 1] : 'tsplib-json/';
-    
+    const outputDir = args.includes('--output')
+        ? args[args.indexOf('--output') + 1]
+        : 'tsplib-json/';
+
     if (fs.existsSync(inputPath)) {
         const stats = fs.statSync(inputPath);
-        
+
         if (stats.isDirectory()) {
             // Convert directory
             convertTSPLIBDirectory(inputPath, outputDir);
@@ -287,9 +296,12 @@ Ejemplos:
             if (!fs.existsSync(outputDir)) {
                 fs.mkdirSync(outputDir, { recursive: true });
             }
-            
+
             const optimalSolutions = loadOptimalSolutions();
-            const outputFile = path.join(outputDir, path.basename(inputPath).replace('.tsp', '.json'));
+            const outputFile = path.join(
+                outputDir,
+                path.basename(inputPath).replace('.tsp', '.json')
+            );
             convertTSPFile(inputPath, outputFile, optimalSolutions);
         } else {
             console.error('❌ El archivo debe tener extensión .tsp');
