@@ -19,7 +19,9 @@
     "benchmark:minima": "node local-minima-analysis.js",
     "stats": "node tsp-stats.js",
     "test:tsp": "node benchmark.js small balanced",
-    "test:knapsack": "node knapsack-benchmark-real.js"
+    "test:knapsack": "node knapsack-benchmark-real.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "optimization",
@@ -36,6 +38,7 @@
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.4.0",
-    "prettier": "^3.8.1"
+    "prettier": "^3.8.1",
+    "vitest": "^4.1.0"
   }
 }
