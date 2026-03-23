@@ -1,21 +1,32 @@
 /**
  * k-Alternatives Knapsack Solver - Specific Implementation
- * Author: Mario Raúl Carbonell Martínez (Implemented by Gemini)
+ *
+ * Implements the k-Alternatives meta-heuristic for the 0/1 Knapsack Problem.
+ * Uses Value/Weight ratio heuristic as the base heuristic.
+ *
+ * @author Mario Raúl Carbonell Martínez
+ * @extends KDeviationOptimizer
  */
-
 import { KDeviationOptimizer } from './k-optimizer.js';
 
 class KnapsackSolver extends KDeviationOptimizer {
+    /**
+     * Creates a new Knapsack Solver instance.
+     * Note: Forces shuffle:false for deterministic behavior.
+     * @param {Object} options - Configuration options
+     */
     constructor(options = {}) {
-        // Force deterministic order for Knapsack
         super({ ...options, shuffle: false });
-        // The base optimizer is a minimizer. By returning negative value from evaluateSolution,
-        // we are effectively maximizing. The base this.bestValue starts at Infinity, which is correct.
         this.bestValue = Infinity;
     }
 
     // --- Implementation of abstract methods ---
 
+    /**
+     * Initializes the Knapsack problem from problem data.
+     * @param {Object} problemData - Problem data with items and maxWeight
+     * @throws {Error} If items or maxWeight is missing
+     */
     initializeProblem(problemData) {
         if (!problemData.items || !problemData.maxWeight) {
             throw new Error(
@@ -39,11 +50,20 @@ class KnapsackSolver extends KDeviationOptimizer {
         this.allItems = this.globalSortedIndices.slice();
     }
 
+    /**
+     * Returns initial solution in greedy order (by value/weight ratio).
+     * @returns {Array<number>} Initial solution as array of item indices
+     */
     getInitialSolution() {
-        // The initial "solution" is the strict Greedy order
         return this.globalSortedIndices.slice();
     }
 
+    /**
+     * Returns available items sorted by global heuristic (efficiency ratio).
+     * @param {number} currentItem - Current item (unused for Knapsack)
+     * @param {Set} remainingItems - Set of remaining item indices
+     * @returns {Array<number>} Available items sorted by ratio
+     */
     getHeuristicChoices(currentItem, remainingItems) {
         // In Knapsack, the "next best choice" does NOT depend on the "current item".
         // It simply depends on the Global Heuristic (Efficiency Ratio).
@@ -61,9 +81,12 @@ class KnapsackSolver extends KDeviationOptimizer {
         return choices;
     }
 
+    /**
+     * Evaluates a solution by running greedy algorithm on the permutation.
+     * @param {Array<number>} solution - Permutation of item indices
+     * @returns {number} Negative total value (for minimization)
+     */
     evaluateSolution(solution) {
-        // The "solution" from the optimizer is a PERMUTATION of items to consider.
-        // We evaluate it by running a greedy algorithm based on that permutation.
         let totalValue = 0;
         let totalWeight = 0;
 
@@ -75,10 +98,13 @@ class KnapsackSolver extends KDeviationOptimizer {
             }
         }
 
-        // Since the optimizer minimizes, we return the negative value.
         return -totalValue;
     }
 
+    /**
+     * Updates heuristics - disabled for Knapsack (uses global ratio).
+     * @param {Array<number>} improvedSolution - The improved solution
+     */
     updateHeuristics(improvedSolution) {
         // Disable dynamic learning for strict K-deviation behavior from global ratio.
         // This adheres to the "Single Global Heuristic" requirement.
@@ -86,9 +112,10 @@ class KnapsackSolver extends KDeviationOptimizer {
 
     // --- Knapsack-specific methods ---
 
+    /**
+     * Initializes global heuristic (single sorted list by value/weight ratio).
+     */
     initializeGlobalHeuristics() {
-        // SINGLE GLOBAL HEURISTIC
-        // Sort all items by ratio (Value / Weight) descending.
         this.globalSortedIndices = this.items
             .slice()
             .sort((a, b) => b.ratio - a.ratio)
@@ -97,7 +124,10 @@ class KnapsackSolver extends KDeviationOptimizer {
         this.localHeuristics = null;
     }
 
-    // Override getFinalResult to return positive value
+    /**
+     * Returns final result with positive values.
+     * @returns {Object} Final result with value instead of distance
+     */
     getFinalResult() {
         const result = super.getFinalResult();
         result.distance = -result.distance; // Convert back to positive value
