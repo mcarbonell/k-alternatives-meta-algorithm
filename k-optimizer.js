@@ -1,14 +1,36 @@
 /**
  * k-Deviation Optimizer - Generic Base Class
- * Author: Mario Raúl Carbonell Martínez (Refactored by Gemini)
+ *
+ * Abstract base class implementing the k-Alternatives meta-heuristic algorithm.
+ * This algorithm combines:
+ * - Limited Discrepancy Search (LDS) - Allows k "sub-optimal" heuristic choices
+ * - Multi-Start Strategy - Builds solutions from different starting points
+ * - Adaptive Learning - Reinforces successful decisions by reordering heuristic lists
+ *
+ * @author Mario Raúl Carbonell Martínez
+ * @version 1.0.0
  */
-
 class KDeviationOptimizer {
+    /**
+     * Creates a new K-Deviation Optimizer instance.
+     * @param {Object} options - Configuration options
+     * @param {number} [options.maxK=5] - Maximum number of alternative heuristic choices allowed
+     * @param {number|null} [options.maxIterations=null] - Maximum number of iterations before stopping
+     * @param {number|null} [options.maxTime=null] - Maximum time in seconds before stopping
+     * @param {boolean} [options.stopAtOptimal=true] - Stop when optimal solution is found
+     * @param {Function|null} [options.onProgress=null] - Callback fired periodically during search
+     * @param {Function|null} [options.onImprovement=null] - Callback fired when a better solution is found
+     * @param {Function|null} [options.onSolution=null] - Callback fired when search completes
+     * @param {Function|null} [options.onOptimalFound=null] - Callback fired when optimal is found
+     * @param {Function|null} [options.onMaxIterationsReached=null] - Callback when max iterations reached
+     * @param {Function|null} [options.onMaxTimeReached=null] - Callback when time limit reached
+     * @param {boolean} [options.shuffle=true] - Whether to randomize starting points
+     */
     constructor(options = {}) {
         this.options = {
             maxK: options.maxK || 5,
             maxIterations: options.maxIterations || null,
-            maxTime: options.maxTime || null, // in seconds
+            maxTime: options.maxTime || null,
             stopAtOptimal: options.stopAtOptimal !== false,
             onProgress: options.onProgress || null,
             onImprovement: options.onImprovement || null,
@@ -16,7 +38,7 @@ class KDeviationOptimizer {
             onOptimalFound: options.onOptimalFound || null,
             onMaxIterationsReached: options.onMaxIterationsReached || null,
             onMaxTimeReached: options.onMaxTimeReached || null,
-            shuffle: options.shuffle !== false, // Default to true
+            shuffle: options.shuffle !== false,
         };
 
         // Generic state
@@ -38,28 +60,68 @@ class KDeviationOptimizer {
 
     // --- Methods to be implemented by subclasses ---
 
+    /**
+     * Initializes the problem-specific data.
+     * Must be implemented by subclasses.
+     * @abstract
+     * @param {Object} problemData - The problem data structure
+     * @throws {Error} If not implemented by subclass
+     */
     initializeProblem(problemData) {
         throw new Error('initializeProblem() must be implemented by subclass');
     }
 
+    /**
+     * Returns the initial solution to start the search.
+     * Must be implemented by subclasses.
+     * @abstract
+     * @returns {Array} Initial solution array
+     * @throws {Error} If not implemented by subclass
+     */
     getInitialSolution() {
         throw new Error('getInitialSolution() must be implemented by subclass');
     }
 
+    /**
+     * Returns the heuristic choices for the current item.
+     * Must be implemented by subclasses.
+     * @abstract
+     * @param {*} currentItem - The current item being processed
+     * @param {Set} remainingItems - Set of remaining items to choose from
+     * @returns {Array} Ordered list of choices (best first)
+     * @throws {Error} If not implemented by subclass
+     */
     getHeuristicChoices(currentItem, remainingItems) {
         throw new Error('getHeuristicChoices() must be implemented by subclass');
     }
 
+    /**
+     * Evaluates a solution and returns its value.
+     * Must be implemented by subclasses.
+     * @abstract
+     * @param {Array} solution - The solution to evaluate
+     * @returns {number} The solution value (lower is better for minimization)
+     * @throws {Error} If not implemented by subclass
+     */
     evaluateSolution(solution) {
         throw new Error('evaluateSolution() must be implemented by subclass');
     }
 
+    /**
+     * Updates heuristics based on the improved solution.
+     * Optional for subclasses to implement.
+     * @param {Array} improvedSolution - The improved solution found
+     */
     updateHeuristics(improvedSolution) {
         // This method is optional for subclasses to implement
     }
 
     // --- Generic Algorithm Core ---
 
+    /**
+     * Checks and evaluates a solution, updating best if improved.
+     * @param {Array} solution - The solution to check
+     */
     checkSolution(solution) {
         this.iteration++;
 
@@ -119,6 +181,13 @@ class KDeviationOptimizer {
         }
     }
 
+    /**
+     * Performs systematic search with limited discrepancies.
+     * Implements depth-first search allowing up to k alternative choices.
+     * @param {Set} remainingItems - Set of unvisited items
+     * @param {Array} currentSolution - Current partial solution
+     * @param {number} alternativesLeft - Number of alternative choices remaining
+     */
     systematicSearch(remainingItems, currentSolution, alternativesLeft) {
         if (!this.isRunning) return;
 
@@ -148,6 +217,10 @@ class KDeviationOptimizer {
         }
     }
 
+    /**
+     * Main solving loop - iterates through starting points and k values.
+     * @private
+     */
     solve() {
         if (!this.isRunning) {
             this.finishSolving();
@@ -193,6 +266,10 @@ class KDeviationOptimizer {
         }
     }
 
+    /**
+     * Handles cleanup when solving finishes.
+     * @private
+     */
     finishSolving() {
         if (this.options.onSolution && !this.isFinished) {
             this.isFinished = true;
@@ -202,6 +279,11 @@ class KDeviationOptimizer {
 
     // --- Control & Utility Methods ---
 
+    /**
+     * Starts the optimization process.
+     * @param {Object} problemData - The problem data to solve
+     * @throws {Error} If solver is already running
+     */
     start(problemData) {
         if (this.isRunning) throw new Error('Solver is already running.');
 
@@ -235,10 +317,17 @@ class KDeviationOptimizer {
         }
     }
 
+    /**
+     * Stops the optimization process.
+     */
     stop() {
         this.isRunning = false;
     }
 
+    /**
+     * Fisher-Yates shuffle algorithm.
+     * @param {Array} array - Array to shuffle in place
+     */
     shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -246,6 +335,10 @@ class KDeviationOptimizer {
         }
     }
 
+    /**
+     * Returns current statistics about the search.
+     * @returns {Object} Current stats including iteration, improvements, bestValue, etc.
+     */
     getStats() {
         const deviation = this.optimalValue
             ? (this.bestValue / this.optimalValue - 1) * 100
@@ -262,6 +355,10 @@ class KDeviationOptimizer {
         };
     }
 
+    /**
+     * Returns the final result object with all solution details.
+     * @returns {Object} Final result including distance, iterations, time, etc.
+     */
     getFinalResult() {
         const totalTime = Math.floor((Date.now() - this.startTime) / 1000);
         const deviation = this.optimalValue ? (this.bestValue / this.optimalValue - 1) * 100 : null;
@@ -282,6 +379,10 @@ class KDeviationOptimizer {
         };
     }
 
+    /**
+     * Reports progress to the onProgress callback if configured.
+     * @private
+     */
     reportProgress() {
         if (this.options.onProgress) {
             this.options.onProgress(this.getStats());
