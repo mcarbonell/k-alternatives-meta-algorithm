@@ -26,7 +26,7 @@ sessions and progress tracking.
 - [x] Add npm scripts: `npm run lint`, `npm run format`, `npm run format:check`,
       `npm run check`
 - [x] Run initial lint pass and fix all issues (reduced from 422 to 30 warnings)
-- [ ] Add linting to CI workflow
+- [x] Add linting to CI workflow
 
 ### Module System Standardization
 
@@ -114,7 +114,7 @@ sessions and progress tracking.
 
 ### Getting Started
 
-- [ ] Create `QUICKSTART.md` with 5-minute examples
+- [x] Create `QUICKSTART.md` with 5-minute examples
 - [ ] Add installation instructions
 - [ ] Add basic usage examples (TSP, Knapsack)
 - [ ] Add troubleshooting section
