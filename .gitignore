@@ -35,3 +35,16 @@ results/
 .zencoder/
 .zenflow/
 
+# Legacy code (local only)
+legacy/
+
+# Benchmark results
+benchmark-results-*.json
+benchmark-results-*.md
+competitive-benchmark-2026-*.json
+competitive-benchmark-2026-*.md
+unified-benchmark-2025-*.json
+
+# Temporary directories
+temp_kp/
+
