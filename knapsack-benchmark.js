@@ -1,4 +1,4 @@
-const { KnapsackSolver } = require('./knapsack-solver');
+import { KnapsackSolver } from './knapsack-solver.js';
 
 // --- Helper: Problem Generator ---
 

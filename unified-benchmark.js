@@ -5,11 +5,11 @@
  * Tests TSP, Knapsack, and Pathfinding implementations
  */
 
-const { TSPSolver } = require('./tsp-solver.js');
-const { KnapsackSolver } = require('./knapsack-solver.js');
-const { parsePisingerFile } = require('./knapsack-loader.js');
-const fs = require('fs');
-const path = require('path');
+import { TSPSolver } from './tsp-solver.js';
+import { KnapsackSolver } from './knapsack-solver.js';
+import { parsePisingerFile } from './knapsack-loader.js';
+import fs from 'fs';
+import path from 'path';
 
 // Configuration
 const CONFIG = {
@@ -255,8 +255,8 @@ async function main() {
     }
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }
 
-module.exports = { BenchmarkRunner };
+export { BenchmarkRunner };

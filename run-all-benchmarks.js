@@ -5,10 +5,10 @@
  * Executes all benchmark suites for comprehensive analysis
  */
 
-const { BenchmarkRunner } = require('./unified-benchmark.js');
-const { CompetitiveBenchmark } = require('./competitive-benchmark.js');
-const { LocalMinimaAnalyzer } = require('./local-minima-analysis.js');
-const fs = require('fs');
+import { BenchmarkRunner } from './unified-benchmark.js';
+import { CompetitiveBenchmark } from './competitive-benchmark.js';
+import { LocalMinimaAnalyzer } from './local-minima-analysis.js';
+import fs from 'fs';
 
 class MasterBenchmark {
     constructor() {
@@ -286,8 +286,8 @@ async function main() {
     await masterBenchmark.runAllBenchmarks();
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }
 
-module.exports = { MasterBenchmark };
+export { MasterBenchmark };

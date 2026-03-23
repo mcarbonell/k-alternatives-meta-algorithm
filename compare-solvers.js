@@ -1,6 +1,6 @@
-const { TSPSolver } = require('./tsp-solver.js');
-const { TSPSolverLegacy } = require('./tsp-solver-legacy.js');
-const fs = require('fs');
+import { TSPSolver } from './tsp-solver.js';
+import { TSPSolverLegacy } from './tsp-solver-legacy.js';
+import fs from 'fs';
 
 const problemPath = 'tsplib-json/berlin52.json';
 const problem = JSON.parse(fs.readFileSync(problemPath, 'utf8'));

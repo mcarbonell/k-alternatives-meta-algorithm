@@ -5,10 +5,10 @@
  * Author: Mario Raúl Carbonell Martínez
  */
 
-const { TSPSolver } = require('./tsp-solver.js');
-const { loadTSPJSON, loadMultipleProblems, loadProblemSets } = require('./tsp-json-parser.js');
-const fs = require('fs');
-const path = require('path');
+import { TSPSolver } from './tsp-solver.js';
+import { loadTSPJSON, loadMultipleProblems, loadProblemSets } from './tsp-json-parser.js';
+import fs from 'fs';
+import path from 'path';
 
 // Legacy TSPLIB Parser (for .tsp files)
 function parseTSPFile(content) {
@@ -415,9 +415,9 @@ Ejemplos:
 }
 
 // Export for programmatic use
-module.exports = { solveTSP, runBenchmark };
+export { solveTSP, runBenchmark };
 
 // Run CLI if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }

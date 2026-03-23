@@ -1,21 +1,11 @@
 /**
  * k-Alternatives TSP Solver - Specific Implementation
  * Author: Mario Raúl Carbonell Martínez (Refactored by Gemini)
- * Updated: ${new Date().toISOString()} - Force Cache Bust
  */
 
-// Universal import for KDeviationOptimizer
-let BaseOptimizer;
-if (typeof require !== 'undefined') {
-    // Node.js environment
-    BaseOptimizer = require('./k-optimizer.js').KDeviationOptimizer;
-} else {
-    // Browser/Worker environment (loaded via importScripts)
-    // KDeviationOptimizer is already defined globally by k-optimizer.js
-    BaseOptimizer = self.KDeviationOptimizer;
-}
+import { KDeviationOptimizer } from './k-optimizer.js';
 
-class TSPSolver extends BaseOptimizer {
+class TSPSolver extends KDeviationOptimizer {
     constructor(options = {}) {
         super(options);
 
@@ -266,9 +256,4 @@ class TSPSolver extends BaseOptimizer {
     }
 }
 
-// Export for different environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { TSPSolver };
-} else {
-    self.TSPSolver = TSPSolver;
-}
+export { TSPSolver };

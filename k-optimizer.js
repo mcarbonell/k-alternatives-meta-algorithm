@@ -289,9 +289,4 @@ class KDeviationOptimizer {
     }
 }
 
-// Export for different environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { KDeviationOptimizer };
-} else {
-    self.KDeviationOptimizer = KDeviationOptimizer;
-}
+export { KDeviationOptimizer };

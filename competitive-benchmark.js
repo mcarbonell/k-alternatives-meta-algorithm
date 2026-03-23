@@ -5,9 +5,9 @@
  * Compares against known optimal solutions and standard algorithms
  */
 
-const { TSPSolver } = require('./tsp-solver.js');
-const fs = require('fs');
-const path = require('path');
+import { TSPSolver } from './tsp-solver.js';
+import fs from 'fs';
+import path from 'path';
 
 // Standard TSP benchmark problems with known optima
 const BENCHMARK_PROBLEMS = {
@@ -321,8 +321,8 @@ async function main() {
     await benchmark.runBenchmark();
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }
 
-module.exports = { CompetitiveBenchmark };
+export { CompetitiveBenchmark };

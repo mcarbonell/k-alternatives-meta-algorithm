@@ -5,8 +5,8 @@
  * Runs comprehensive tests on TSPLIB problems
  */
 
-const { runBenchmark } = require('./k-alternatives-cli.js');
-const fs = require('fs');
+import { runBenchmark } from './k-alternatives-cli.js';
+import fs from 'fs';
 
 // Define problem sets for different test scenarios
 const PROBLEM_SETS = {
@@ -240,8 +240,8 @@ Ejemplos:
     runBenchmarkSuite(setName, config);
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }
 
-module.exports = { runBenchmarkSuite, PROBLEM_SETS, CONFIGURATIONS };
+export { runBenchmarkSuite, PROBLEM_SETS, CONFIGURATIONS };

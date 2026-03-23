@@ -298,8 +298,4 @@ class TSPSolverLegacy {
     }
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { TSPSolverLegacy };
-} else {
-    self.TSPSolverLegacy = TSPSolverLegacy;
-}
+export { TSPSolverLegacy };
