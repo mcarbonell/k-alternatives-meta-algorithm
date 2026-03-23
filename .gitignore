@@ -48,3 +48,5 @@ unified-benchmark-2025-*.json
 # Temporary directories
 temp_kp/
 
+# Not for github
+continuation.md
