@@ -6,8 +6,8 @@
  * Author: Mario Raúl Carbonell Martínez
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Parse TSPLIB file
 function parseTSPFile(content) {
@@ -312,9 +312,8 @@ Ejemplos:
 }
 
 // Export for programmatic use
-module.exports = { convertTSPFile, convertTSPLIBDirectory, parseTSPFile };
+export { convertTSPFile, convertTSPLIBDirectory, parseTSPFile };
 
-// Run CLI if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }

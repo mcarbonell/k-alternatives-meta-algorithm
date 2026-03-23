@@ -1,6 +1,6 @@
-const { TSPSolver } = require('./tsp-solver.js');
-const fs = require('fs');
-const path = require('path');
+import { TSPSolver } from './tsp-solver.js';
+import fs from 'fs';
+import path from 'path';
 
 // --- CONFIGURATION ---
 const REPETITIONS = 50;

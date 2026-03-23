@@ -5,9 +5,9 @@
  * Analyzes the distribution and characteristics of local minima
  */
 
-const { TSPSolver } = require('./tsp-solver.js');
-const fs = require('fs');
-const path = require('path');
+import { TSPSolver } from './tsp-solver.js';
+import fs from 'fs';
+import path from 'path';
 
 class LocalMinimaAnalyzer {
     constructor() {
@@ -272,8 +272,8 @@ async function main() {
     await analyzer.runFullAnalysis();
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }
 
-module.exports = { LocalMinimaAnalyzer };
+export { LocalMinimaAnalyzer };

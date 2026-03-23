@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 function parsePisingerFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf-8');
@@ -60,4 +60,4 @@ function parsePisingerFile(filePath) {
     };
 }
 
-module.exports = { parsePisingerFile };
+export { parsePisingerFile };

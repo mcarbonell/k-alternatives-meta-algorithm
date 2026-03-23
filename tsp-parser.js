@@ -155,5 +155,4 @@ class TSPLIBParser {
     }
 }
 
-// Export for use in main app
-window.TSPLIBParser = TSPLIBParser;
+export { TSPLIBParser };

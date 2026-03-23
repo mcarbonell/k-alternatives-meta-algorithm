@@ -3,17 +3,9 @@
  * Author: Mario Raúl Carbonell Martínez (Implemented by Gemini)
  */
 
-// Universal import for KDeviationOptimizer
-let BaseOptimizer;
-if (typeof require !== 'undefined') {
-    // Node.js environment
-    BaseOptimizer = require('./k-optimizer.js').KDeviationOptimizer;
-} else {
-    // Browser/Worker environment (loaded via importScripts)
-    BaseOptimizer = self.KDeviationOptimizer;
-}
+import { KDeviationOptimizer } from './k-optimizer.js';
 
-class KnapsackSolver extends BaseOptimizer {
+class KnapsackSolver extends KDeviationOptimizer {
     constructor(options = {}) {
         // Force deterministic order for Knapsack
         super({ ...options, shuffle: false });
@@ -116,9 +108,4 @@ class KnapsackSolver extends BaseOptimizer {
     }
 }
 
-// Export for different environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { KnapsackSolver };
-} else {
-    self.KnapsackSolver = KnapsackSolver;
-}
+export { KnapsackSolver };

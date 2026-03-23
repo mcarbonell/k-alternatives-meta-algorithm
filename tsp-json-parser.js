@@ -4,8 +4,8 @@
  * Author: Mario Raúl Carbonell Martínez
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Load TSP problem from JSON file
 function loadTSPJSON(jsonFile) {
@@ -184,12 +184,4 @@ function getStatistics(jsonDir) {
     };
 }
 
-// Export functions
-module.exports = {
-    loadTSPJSON,
-    loadMultipleProblems,
-    loadProblemSets,
-    getProblemIndex,
-    searchProblems,
-    getStatistics,
-};
+export { loadTSPJSON, loadMultipleProblems, loadProblemSets, getProblemIndex, searchProblems, getStatistics };

@@ -1,7 +1,7 @@
-const { KnapsackSolver } = require('./knapsack-solver');
-const { parsePisingerFile } = require('./knapsack-loader');
-const fs = require('fs');
-const path = require('path');
+import { KnapsackSolver } from './knapsack-solver.js';
+import { parsePisingerFile } from './knapsack-loader.js';
+import fs from 'fs';
+import path from 'path';
 
 const INSTANCES_DIR = 'temp_kp/pisinger_instances_01_KP/large_scale';
 // We focus on Strongly Correlated (Type 3) as they are the hardest
