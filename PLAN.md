@@ -33,14 +33,13 @@ sessions and progress tracking.
 - [x] Migrate all files to ES Modules (`import`/`export`)
 - [x] Update `package.json` with `"type": "module"`
 - [x] Fix all CommonJS references (`require`, `module.exports`)
-- [ ] Update imports in HTML files to use ES modules
-- [ ] Test all scripts after migration
+- [x] Test all scripts after migration
 
 ### JSDoc Documentation
 
-- [ ] Add complete JSDoc to `k-optimizer.js`
-- [ ] Add complete JSDoc to `tsp-solver.js`
-- [ ] Add complete JSDoc to `knapsack-solver.js`
+- [x] Add complete JSDoc to `k-optimizer.js`
+- [x] Add complete JSDoc to `tsp-solver.js`
+- [x] Add complete JSDoc to `knapsack-solver.js`
 - [ ] Add JSDoc to all benchmark files
 - [ ] Add JSDoc to utility functions
 - [ ] Generate HTML documentation with `jsdoc` tool
@@ -57,11 +56,11 @@ sessions and progress tracking.
 
 ### Code Cleanup
 
-- [ ] Archive or remove `tsp-solver-legacy.js`
-- [ ] Clean up `old-k-search/` directory (archive or delete)
-- [ ] Remove unused files in root directory
-- [ ] Organize files into logical folder structure
-- [ ] Update all imports after reorganization
+- [x] Archive or remove `tsp-solver-legacy.js` (moved to legacy/)
+- [x] Clean up `old-k-search/` directory (archived to legacy/)
+- [x] Organize files into logical folder structure
+- [x] Update all imports after reorganization
+- [x] Add legacy/ to .gitignore
 
 ---
 
@@ -70,17 +69,17 @@ sessions and progress tracking.
 ### Core Tests
 
 - [x] Install `vitest` and add `npm run test` script
+- [x] Test callback handlers (onImprovement, onSolution, etc.)
 - [ ] Create `k-optimizer.spec.js` - Base class contract tests
 - [ ] Test `systematicSearch()` method behavior
 - [ ] Test `checkSolution()` improvement detection
 - [ ] Test `start()` initialization flow
-- [ ] Test callback handlers (onImprovement, onSolution, etc.)
 - [ ] Test limit enforcement (maxIterations, maxTime)
 
 ### Solver Tests
 
-- [ ] Expand `tsp-solver.spec.js` with more instances
-- [ ] Expand `knapsack-solver.spec.js` with edge cases
+- [x] Expand `tsp-solver.spec.js` with more instances
+- [x] Expand `knapsack-solver.spec.js` with edge cases
 - [ ] Test TSPLIB file parsing
 - [ ] Test explicit distance matrix handling
 
@@ -101,10 +100,10 @@ sessions and progress tracking.
 
 ### CI/CD Integration
 
-- [ ] Create `.github/workflows/ci.yml`
-- [ ] Add test job running on push/PR
-- [ ] Add benchmark job (quick mode) on PR
-- [ ] Add lint job to CI
+- [x] Create `.github/workflows/ci.yml`
+- [x] Add test job running on push/PR
+- [x] Add benchmark job (quick mode) on PR
+- [x] Add lint job to CI
 - [ ] Add test coverage reporting
 - [ ] Add status badges to README
 
@@ -115,8 +114,8 @@ sessions and progress tracking.
 ### Getting Started
 
 - [x] Create `QUICKSTART.md` with 5-minute examples
-- [ ] Add installation instructions
-- [ ] Add basic usage examples (TSP, Knapsack)
+- [x] Add installation instructions
+- [x] Add basic usage examples (TSP, Knapsack)
 - [ ] Add troubleshooting section
 - [ ] Add FAQ section
 
@@ -409,14 +408,14 @@ unvisited cities.
 - [x] Create `PLAN.md` for tracking
 - [x] Add ESLint + Prettier configuration
 - [x] Add npm scripts for linting/formatting
+- [x] Run initial lint pass (422 → 30 warnings)
+- [x] Add GitHub Actions CI workflow
 - [ ] Create `CONTRIBUTING.md`
 - [ ] Create `CHANGELOG.md`
 - [ ] Add GitHub Issues templates
-- [x] Run initial lint pass (422 → 30 warnings)
 - [ ] Create `examples/` directory
 - [ ] Add basic examples (TSP, Knapsack)
 - [ ] Add performance profiling script
-- [ ] Add GitHub Actions CI workflow
 - [ ] Create PR template
 - [ ] Add issue templates (bug report, feature request)
 
@@ -428,35 +427,40 @@ unvisited cities.
 
 | Priority         | Total Tasks | Completed | In Progress | Pending | % Complete |
 | ---------------- | ----------- | --------- | ----------- | ------- | ---------- |
-| 1. Code Quality  | 35          | 10        | 0           | 25      | 29%        |
-| 2. Testing       | 31          | 2         | 0           | 29      | 6%         |
-| 3. Documentation | 25          | 0         | 0           | 25      | 0%         |
+| 1. Code Quality  | 35          | 21        | 0           | 14      | 60%        |
+| 2. Testing       | 31          | 6         | 0           | 25      | 19%        |
+| 3. Documentation | 25          | 5         | 0           | 20      | 20%        |
 | 4. Performance   | 15          | 0         | 0           | 15      | 0%         |
 | 5. New Problems  | 30          | 0         | 0           | 30      | 0%         |
 | 6. Build System  | 20          | 1         | 0           | 19      | 5%         |
 | 7. Visualization | 15          | 0         | 0           | 15      | 0%         |
 | 8. Publication   | 30          | 0         | 0           | 30      | 0%         |
-| Quick Wins       | 13          | 4         | 0           | 9       | 31%        |
-| **TOTAL**        | **214**     | **15**    | **0**       | **199** | **7.0%**   |
+| Quick Wins       | 13          | 8         | 0           | 5       | 62%        |
+| **TOTAL**        | **214**     | **41**    | **0**       | **173** | **19.2%**  |
 
 ### Recent Activity
 
-| Date       | Task                                              | Status        |
-| ---------- | ------------------------------------------------- | ------------- |
-| 2026-03-21 | Created PLAN.md                                   | ✅ Completed  |
-| 2026-03-21 | Identified candidate lists bug                    | ⚠️ Documented |
-| 2026-03-21 | Added ESLint + Prettier configuration             | ✅ Completed  |
-| 2026-03-21 | Fixed 392 lint errors automatically               | ✅ Completed  |
-| 2026-03-21 | Fixed remaining 6 errors manually                 | ✅ Completed  |
-| 2026-03-21 | Added .editorconfig and .gitattributes            | ✅ Completed  |
-| 2026-03-21 | Added npm scripts: lint, format, check            | ✅ Completed  |
-| 2026-03-21 | Final status: 0 errors, 30 warnings (unused vars) | ✅ Completed  |
-| 2026-03-23 | Migrated all files to ES Modules                  | ✅ Completed  |
-| 2026-03-23 | Verified benchmarks work                          | ✅ Completed  |
-| 2026-03-23 | Installed Vitest and configured test script       | ✅ Completed  |
-| 2026-03-23 | Tests pass (2/2: TSP + Knapsack)                  | ✅ Completed  |
-| 2026-03-23 | Created benchmark integration tests               | ✅ Completed  |
-| 2026-03-23 | Tests pass: 9/9 (unit + integration)              | ✅ Completed  |
+| Date       | Task                                        | Status        |
+| ---------- | ------------------------------------------- | ------------- |
+| 2026-03-21 | Created PLAN.md                             | ✅ Completed  |
+| 2026-03-21 | Identified candidate lists bug              | ⚠️ Documented |
+| 2026-03-21 | Added ESLint + Prettier configuration       | ✅ Completed  |
+| 2026-03-21 | Fixed 392 lint errors automatically         | ✅ Completed  |
+| 2026-03-21 | Fixed remaining 6 errors manually           | ✅ Completed  |
+| 2026-03-21 | Added .editorconfig and .gitattributes      | ✅ Completed  |
+| 2026-03-21 | Added npm scripts: lint, format, check      | ✅ Completed  |
+| 2026-03-23 | Migrated all files to ES Modules            | ✅ Completed  |
+| 2026-03-23 | Verified benchmarks work                    | ✅ Completed  |
+| 2026-03-23 | Installed Vitest and configured test script | ✅ Completed  |
+| 2026-03-23 | Created benchmark integration tests         | ✅ Completed  |
+| 2026-03-23 | Added JSDoc to k-optimizer.js               | ✅ Completed  |
+| 2026-03-23 | Added JSDoc to tsp-solver.js                | ✅ Completed  |
+| 2026-03-23 | Added JSDoc to knapsack-solver.js           | ✅ Completed  |
+| 2026-03-23 | Added GitHub Actions CI workflow            | ✅ Completed  |
+| 2026-03-23 | Created QUICKSTART.md                       | ✅ Completed  |
+| 2026-03-23 | Reorganized project structure               | ✅ Completed  |
+| 2026-03-23 | Added legacy/ to .gitignore                 | ✅ Completed  |
+| 2026-03-23 | Moved core to src/, scripts/, tests/, etc.  | ✅ Completed  |
 
 ---
 
@@ -466,15 +470,15 @@ unvisited cities.
 
 - [x] ESLint + Prettier configured
 - [x] All code passes linting (0 errors, 30 warnings)
-- [ ] ES Modules migration complete
-- [ ] Basic JSDoc added to core files
+- [x] ES Modules migration complete
+- [x] Basic JSDoc added to core files
 
 ### Milestone 2: Testing Infrastructure (Week 2)
 
-- [ ] CI/CD pipeline working
+- [x] CI/CD pipeline working
 - [ ] Test coverage > 50%
 - [ ] Performance tests running
-- [ ] All tests passing on CI
+- [x] All tests passing on CI
 
 ### Milestone 3: Documentation Complete (Week 3)
 
@@ -510,6 +514,6 @@ unvisited cities.
 ---
 
 **Last Updated:** 2026-03-23  
-**Current Focus:** Priority 2 - Add more tests to k-optimizer  
+**Current Focus:** Testing (more tests) + Performance optimizations  
 **Next Steps:** Continue with ES Modules migration or start Testing
 Infrastructure
