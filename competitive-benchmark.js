@@ -28,7 +28,13 @@ const BENCHMARK_PROBLEMS = {
 
 // Test configurations for different scenarios
 const TEST_CONFIGS = {
-    quick: { maxK: 2, runs: 10, timeLimit: 5 },
+    tiny: { maxK: 2, runs: 5, timeLimit: 3, problems: ['berlin52', 'eil51', 'st70'] },
+    quick: {
+        maxK: 2,
+        runs: 10,
+        timeLimit: 5,
+        problems: ['berlin52', 'st70', 'eil76', 'kroA100', 'kroB100', 'kroC100'],
+    },
     standard: { maxK: 3, runs: 25, timeLimit: 10 },
     thorough: { maxK: 4, runs: 50, timeLimit: 20 },
 };
@@ -45,7 +51,12 @@ class CompetitiveBenchmark {
         console.log('============================================================');
         console.log(`Config: ${JSON.stringify(this.config)}\n`);
 
-        for (const [problemName, problemInfo] of Object.entries(BENCHMARK_PROBLEMS)) {
+        let problemsToRun = Object.entries(BENCHMARK_PROBLEMS);
+        if (this.config.problems) {
+            problemsToRun = problemsToRun.filter(([name]) => this.config.problems.includes(name));
+        }
+
+        for (const [problemName, problemInfo] of problemsToRun) {
             await this.testProblem(problemName, problemInfo);
         }
 

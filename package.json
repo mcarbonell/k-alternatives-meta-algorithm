@@ -12,6 +12,7 @@
     "check": "npm run lint && npm run format:check",
     "benchmark": "node run-all-benchmarks.js",
     "benchmark:quick": "node competitive-benchmark.js quick",
+    "benchmark:tiny": "node competitive-benchmark.js tiny",
     "benchmark:standard": "node competitive-benchmark.js standard",
     "benchmark:thorough": "node competitive-benchmark.js thorough",
     "benchmark:unified": "node unified-benchmark.js",
