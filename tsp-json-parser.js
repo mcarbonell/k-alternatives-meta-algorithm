@@ -184,4 +184,11 @@ function getStatistics(jsonDir) {
     };
 }
 
-export { loadTSPJSON, loadMultipleProblems, loadProblemSets, getProblemIndex, searchProblems, getStatistics };
+export {
+    loadTSPJSON,
+    loadMultipleProblems,
+    loadProblemSets,
+    getProblemIndex,
+    searchProblems,
+    getStatistics,
+};
