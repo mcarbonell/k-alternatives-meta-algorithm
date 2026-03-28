@@ -20,8 +20,10 @@ class TSPSolver extends KDeviationOptimizer {
 
         // TSP-specific state
         this.cities = [];
-        this.distances = [];
+        this._distances = null; // Float64Array (flat, row-major: i * n + j)
+        this._n = 0; // number of cities
         this.localHeuristics = [];
+        this.candidateListSize = options.candidateListSize ?? 20;
         this.edgeWeightType = 'EUC_2D';
     }
 
@@ -68,38 +70,33 @@ class TSPSolver extends KDeviationOptimizer {
      * @param {number} dimension - Number of cities
      */
     initializeExplicitDistanceMatrix(weights, dimension) {
-        this.distances = [];
-        for (let i = 0; i < dimension; i++) {
-            this.distances[i] = new Array(dimension).fill(0);
-        }
+        this._n = dimension;
+        this._distances = new Float64Array(dimension * dimension);
 
         if (this.edgeWeightFormat === 'LOWER_DIAG_ROW') {
             let k = 0;
             for (let i = 0; i < dimension; i++) {
                 for (let j = 0; j < i; j++) {
                     const dist = weights[k++];
-                    this.distances[i][j] = dist;
-                    this.distances[j][i] = dist;
+                    this._distances[i * dimension + j] = dist;
+                    this._distances[j * dimension + i] = dist;
                 }
-                this.distances[i][i] = 0;
             }
         } else if (this.edgeWeightFormat === 'FULL_MATRIX') {
             let k = 0;
             for (let i = 0; i < dimension; i++) {
                 for (let j = 0; j < dimension; j++) {
-                    this.distances[i][j] = weights[k++];
+                    this._distances[i * dimension + j] = weights[k++];
                 }
             }
         } else {
-            // Fallback: Try to infer or assume LOWER_DIAG_ROW if length matches
             if (weights.length === (dimension * (dimension - 1)) / 2) {
-                // Is lower diag row
                 let k = 0;
                 for (let i = 0; i < dimension; i++) {
                     for (let j = 0; j < i; j++) {
                         const dist = weights[k++];
-                        this.distances[i][j] = dist;
-                        this.distances[j][i] = dist;
+                        this._distances[i * dimension + j] = dist;
+                        this._distances[j * dimension + i] = dist;
                     }
                 }
             } else {
@@ -163,13 +160,21 @@ class TSPSolver extends KDeviationOptimizer {
 
     /**
      * Returns nearest neighbor list for the current city.
+     * Uses candidate list (top N nearest) with fallback to all remaining cities.
      * @param {number} currentItem - Current city index
      * @param {Set} remainingItems - Set of unvisited city indices
-     * @returns {Array<number>} Ordered list of nearest cities
+     * @returns {Array<number>} Ordered list of candidate cities
      */
-    getHeuristicChoices(currentItem, _remainingItems) {
-        // For TSP, the heuristic is the list of nearest cities
-        return this.localHeuristics[currentItem];
+    getHeuristicChoices(currentItem, remainingItems) {
+        const candidates = this.localHeuristics[currentItem];
+        // Check if any candidates are still remaining
+        for (let i = 0; i < candidates.length; i++) {
+            if (remainingItems.has(candidates[i])) {
+                return candidates; // At least one candidate is valid, use the list
+            }
+        }
+        // Fallback: no candidates remaining, return all remaining items
+        return [...remainingItems];
     }
 
     /**
@@ -183,57 +188,72 @@ class TSPSolver extends KDeviationOptimizer {
 
     /**
      * Updates local heuristics by reinforcing successful edges.
+     * Moves successful connections to the front of neighbor lists.
      * @param {Array<number>} improvedRoute - The improved route found
      */
     updateHeuristics(improvedRoute) {
-        // When a better route is found, reinforce the connections (edges)
-        // Match original behavior: do NOT wrap around, treat as open path for heuristic update
         for (let i = 0; i < improvedRoute.length - 1; i++) {
             const city1 = improvedRoute[i];
             const city2 = improvedRoute[i + 1];
+            this._moveToFront(city1, city2);
+            this._moveToFront(city2, city1);
+        }
+    }
 
-            // Move successful connection to the front of the heuristic list for both cities
-            if (this.localHeuristics[city1][0] !== city2) {
-                this.localHeuristics[city1] = [
-                    city2,
-                    ...this.localHeuristics[city1].filter((c) => c !== city2),
-                ];
+    /**
+     * Moves target to front of city's neighbor list (swap-based, no allocation).
+     * @param {number} city - The city whose list to reorder
+     * @param {number} target - The neighbor to promote
+     * @private
+     */
+    _moveToFront(city, target) {
+        const list = this.localHeuristics[city];
+        if (list[0] === target) return;
+        const idx = list.indexOf(target);
+        if (idx > 0) {
+            // Swap down to front
+            for (let k = idx; k > 0; k--) {
+                list[k] = list[k - 1];
             }
-            if (this.localHeuristics[city2][0] !== city1) {
-                this.localHeuristics[city2] = [
-                    city1,
-                    ...this.localHeuristics[city2].filter((c) => c !== city1),
-                ];
-            }
+            list[0] = target;
         }
     }
 
     // --- TSP-specific methods ---
 
     /**
-     * Initializes the distance matrix from city coordinates.
+     * Initializes the distance matrix from city coordinates as a flat Float64Array.
      */
     initializeDistanceMatrix() {
-        this.distances = [];
-        for (let i = 0; i < this.cities.length; i++) {
-            this.distances[i] = [];
-            for (let j = 0; j < this.cities.length; j++) {
-                this.distances[i][j] =
-                    i === j ? 0 : this.calcDistance(this.cities[i], this.cities[j]);
+        const n = this.cities.length;
+        this._n = n;
+        this._distances = new Float64Array(n * n);
+        for (let i = 0; i < n; i++) {
+            for (let j = i + 1; j < n; j++) {
+                const d = this.calcDistance(this.cities[i], this.cities[j]);
+                this._distances[i * n + j] = d;
+                this._distances[j * n + i] = d;
             }
         }
     }
 
     /**
      * Initializes local heuristic lists (nearest neighbors for each city).
+     * Uses candidate lists (top N nearest) with fallback to all cities.
      */
     initializeLocalHeuristics() {
+        const n = this._n;
+        const candidateSize = Math.min(this.candidateListSize, n - 1);
         this.localHeuristics = [];
-        for (let i = 0; i < this.cities.length; i++) {
-            const sortedNeighbors = this.allItems
-                .filter((j) => i !== j)
-                .sort((a, b) => this.distance(i, a) - this.distance(i, b));
-            this.localHeuristics[i] = sortedNeighbors;
+
+        for (let i = 0; i < n; i++) {
+            const neighbors = [];
+            for (let j = 0; j < n; j++) {
+                if (j !== i) neighbors.push(j);
+            }
+            neighbors.sort((a, b) => this.distance(i, a) - this.distance(i, b));
+            this.localHeuristics[i] =
+                candidateSize < n - 1 ? neighbors.slice(0, candidateSize) : neighbors;
         }
     }
 
@@ -244,7 +264,7 @@ class TSPSolver extends KDeviationOptimizer {
      * @returns {number} Distance between cities
      */
     distance(city1, city2) {
-        return this.distances[city1][city2];
+        return this._distances[city1 * this._n + city2];
     }
 
     /**
@@ -253,9 +273,12 @@ class TSPSolver extends KDeviationOptimizer {
      * @returns {number} Total route distance
      */
     calculateRouteDistance(route) {
+        const dist = this._distances;
+        const n = this._n;
+        const len = route.length;
         let totalDistance = 0;
-        for (let i = 0; i < route.length; i++) {
-            totalDistance += this.distance(route[i], route[(i + 1) % route.length]);
+        for (let i = 0; i < len; i++) {
+            totalDistance += dist[route[i] * n + route[(i + 1) % len]];
         }
         return Math.round(totalDistance);
     }
