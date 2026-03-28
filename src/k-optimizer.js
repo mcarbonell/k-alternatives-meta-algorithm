@@ -165,7 +165,8 @@ class KDeviationOptimizer {
             }
 
             if (
-                this.optimalValue &&
+                this.optimalValue !== null &&
+                this.optimalValue !== undefined &&
                 this.bestValue <= this.optimalValue &&
                 !this.optimalFoundTime
             ) {
@@ -301,7 +302,7 @@ class KDeviationOptimizer {
         this.improvements = 0;
         this.currentK = 0;
         this.optimalFoundTime = null;
-        this.limitReached = false;
+        this.limitReached = null;
         this.isRunning = true;
         this.startTime = Date.now();
 
