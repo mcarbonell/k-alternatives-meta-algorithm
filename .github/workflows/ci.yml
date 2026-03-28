@@ -69,7 +69,7 @@ jobs:
               run: npm ci
 
             - name: Generate TSP JSON files
-              run: node convert-tsplib-to-json.js tsplib
+              run: node scripts/convert-tsplib-to-json.js tsplib
 
             - name: Run quick benchmark
               run: npm run benchmark:tiny
