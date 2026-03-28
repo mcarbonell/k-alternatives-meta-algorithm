@@ -1,8 +1,8 @@
 # k-Alternatives Improvement Plan
 
 **Created:** 2026-03-21 **Last Updated:** 2026-03-28 **Author:** Mario Raúl
-Carbonell Martínez + AI Assistant **Current Status:** ~19% complete (foundation
-done, now hardening)
+Carbonell Martínez + AI Assistant **Current Status:** Phase 1 complete, starting
+Phase 2
 
 ---
 
@@ -23,22 +23,24 @@ prep.
 
 ---
 
-## Phase 1: Fix Broken Things (NOW)
+## Phase 1: Fix Broken Things (DONE)
 
 ### Bug Fixes
 
-- [ ] Fix `benchmark.integration.spec.js` — "should solve berlin52 within
+- [x] Fix `benchmark.integration.spec.js` — "should solve berlin52 within
       acceptable gap" times out at 5s. Increase timeout or add `maxTime` limit.
-- [ ] Fix `getFinalResult()` in `k-optimizer.js:375-378` — when `maxTime` is set
+- [x] Fix `getFinalResult()` in `k-optimizer.js:375-378` — when `maxTime` is set
       but `maxIterations` is null, `limitReached` reports `null` instead of
-      `'maxTime'`.
-- [ ] Remove `console.log` from `tsp-solver.js:52` (`initializeProblem`). Use a
+      `'maxTime'`. Changed `limitReached` from boolean to string
+      (`'maxIterations'`, `'maxTime'`, `'optimal'`, or `null`).
+- [x] Remove `console.log` from `tsp-solver.js:52` (`initializeProblem`). Use a
       logger or remove entirely — library code shouldn't log to stdout.
 
 ### Recursion Safety
 
-- [ ] Add depth guard or convert `systematicSearch()` to iterative approach to
-      prevent stack overflow on large N + high K.
+- [x] Add depth guard or convert `systematicSearch()` to iterative approach to
+      prevent stack overflow on large N + high K. Added `depth` parameter with
+      `MAX_DEPTH = 10000` safeguard.
 
 ---
 
@@ -157,17 +159,17 @@ codebase is solid.
 
 ## Progress
 
-| Phase                  | Tasks  | Completed | %      |
-| ---------------------- | ------ | --------- | ------ |
-| 1. Bug Fixes           | 4      | 0         | 0%     |
-| 2. Testing             | 22     | 0         | 0%     |
-| 3. Code Quality        | 3      | 0         | 0%     |
-| 4. Performance         | 4      | 0         | 0%     |
-| **Total (actionable)** | **33** | **0**     | **0%** |
+| Phase                  | Tasks  | Completed | %       |
+| ---------------------- | ------ | --------- | ------- |
+| 1. Bug Fixes           | 4      | 4         | 100%    |
+| 2. Testing             | 22     | 0         | 0%      |
+| 3. Code Quality        | 3      | 0         | 0%      |
+| 4. Performance         | 4      | 0         | 0%      |
+| **Total (actionable)** | **33** | **4**     | **12%** |
 
-Plus 41 tasks already completed in prior sessions.
+Plus 45 tasks already completed in prior sessions.
 
 ---
 
-**Current Focus:** Phase 1 — fix the broken test and known bugs **Next:** Phase
-2 — unit tests for KDeviationOptimizer
+**Current Focus:** Phase 2 — unit tests for KDeviationOptimizer **Next:** Phase
+3 — code quality (knapsack sign convention, JSDoc, lint warnings)

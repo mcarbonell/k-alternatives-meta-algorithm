@@ -54,7 +54,7 @@ class KDeviationOptimizer {
         this.isRunning = false;
         this.startTime = null;
         this.optimalFoundTime = null;
-        this.limitReached = false;
+        this.limitReached = null; // null or reason string: 'maxIterations', 'maxTime', 'optimal'
         this.isFinished = false; // Flag to prevent duplicate final callbacks
     }
 
@@ -129,7 +129,7 @@ class KDeviationOptimizer {
 
         // Check limits
         if (this.options.maxIterations && this.iteration >= this.options.maxIterations) {
-            this.limitReached = true;
+            this.limitReached = 'maxIterations';
             this.isRunning = false;
             if (this.options.onMaxIterationsReached && !this.isFinished) {
                 this.isFinished = true;
@@ -140,7 +140,7 @@ class KDeviationOptimizer {
         if (this.options.maxTime) {
             const elapsedTime = (Date.now() - this.startTime) / 1000;
             if (elapsedTime >= this.options.maxTime) {
-                this.limitReached = true;
+                this.limitReached = 'maxTime';
                 this.isRunning = false;
                 if (this.options.onMaxTimeReached && !this.isFinished) {
                     this.isFinished = true;
@@ -175,7 +175,7 @@ class KDeviationOptimizer {
                 }
                 if (this.options.stopAtOptimal) {
                     this.isRunning = false;
-                    this.limitReached = true;
+                    this.limitReached = 'optimal';
                 }
             }
         }
@@ -187,9 +187,13 @@ class KDeviationOptimizer {
      * @param {Set} remainingItems - Set of unvisited items
      * @param {Array} currentSolution - Current partial solution
      * @param {number} alternativesLeft - Number of alternative choices remaining
+     * @param {number} [depth=0] - Current recursion depth (safety guard)
      */
-    systematicSearch(remainingItems, currentSolution, alternativesLeft) {
+    systematicSearch(remainingItems, currentSolution, alternativesLeft, depth = 0) {
         if (!this.isRunning) return;
+
+        const MAX_DEPTH = 10000;
+        if (depth > MAX_DEPTH) return;
 
         if (remainingItems.size === 0) {
             this.checkSolution(currentSolution);
@@ -209,7 +213,8 @@ class KDeviationOptimizer {
                 this.systematicSearch(
                     remainingItems,
                     currentSolution,
-                    alternativesLeft - (validChoicesFound - 1)
+                    alternativesLeft - (validChoicesFound - 1),
+                    depth + 1
                 );
                 remainingItems.add(nextItem);
                 currentSolution.pop();
@@ -371,11 +376,7 @@ class KDeviationOptimizer {
             totalTime: totalTime,
             iterations: this.iteration,
             route: this.bestSolution,
-            limitReached: this.limitReached
-                ? this.options.maxIterations
-                    ? 'maxIterations'
-                    : 'maxTime'
-                : null,
+            limitReached: this.limitReached,
         };
     }
 

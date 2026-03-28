@@ -49,10 +49,6 @@ class TSPSolver extends KDeviationOptimizer {
 
         this.allItems = this.cities.map((_, i) => i);
 
-        console.log(
-            `[TSPSolver] Initializing problem: ${this.problemName} with ${this.cities.length} cities.`
-        );
-
         if (this.edgeWeightType === 'EXPLICIT' && explicitWeights) {
             this.initializeExplicitDistanceMatrix(explicitWeights, dimension);
         } else {
