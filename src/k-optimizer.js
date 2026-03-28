@@ -25,6 +25,7 @@ class KDeviationOptimizer {
      * @param {Function|null} [options.onMaxIterationsReached=null] - Callback when max iterations reached
      * @param {Function|null} [options.onMaxTimeReached=null] - Callback when time limit reached
      * @param {boolean} [options.shuffle=true] - Whether to randomize starting points
+     * @param {boolean} [options.maximize=false] - If true, maximize value (e.g. Knapsack). Default minimizes (e.g. TSP).
      */
     constructor(options = {}) {
         this.options = {
@@ -39,11 +40,12 @@ class KDeviationOptimizer {
             onMaxIterationsReached: options.onMaxIterationsReached || null,
             onMaxTimeReached: options.onMaxTimeReached || null,
             shuffle: options.shuffle !== false,
+            maximize: options.maximize || false,
         };
 
         // Generic state
         this.bestSolution = null;
-        this.bestValue = Infinity;
+        this.bestValue = this.options.maximize ? -Infinity : Infinity;
         this.optimalValue = null;
         this.problemName = 'Unknown';
 
@@ -67,7 +69,7 @@ class KDeviationOptimizer {
      * @param {Object} problemData - The problem data structure
      * @throws {Error} If not implemented by subclass
      */
-    initializeProblem(problemData) {
+    initializeProblem(_problemData) {
         throw new Error('initializeProblem() must be implemented by subclass');
     }
 
@@ -91,7 +93,7 @@ class KDeviationOptimizer {
      * @returns {Array} Ordered list of choices (best first)
      * @throws {Error} If not implemented by subclass
      */
-    getHeuristicChoices(currentItem, remainingItems) {
+    getHeuristicChoices(_currentItem, _remainingItems) {
         throw new Error('getHeuristicChoices() must be implemented by subclass');
     }
 
@@ -103,7 +105,7 @@ class KDeviationOptimizer {
      * @returns {number} The solution value (lower is better for minimization)
      * @throws {Error} If not implemented by subclass
      */
-    evaluateSolution(solution) {
+    evaluateSolution(_solution) {
         throw new Error('evaluateSolution() must be implemented by subclass');
     }
 
@@ -112,7 +114,7 @@ class KDeviationOptimizer {
      * Optional for subclasses to implement.
      * @param {Array} improvedSolution - The improved solution found
      */
-    updateHeuristics(improvedSolution) {
+    updateHeuristics(_improvedSolution) {
         // This method is optional for subclasses to implement
     }
 
@@ -153,8 +155,10 @@ class KDeviationOptimizer {
         if (this.iteration % 100000 === 0) this.reportProgress();
 
         const solutionValue = this.evaluateSolution(solution);
-        if (solutionValue < this.bestValue) {
-            // Assuming lower is better for now
+        const isBetter = this.options.maximize
+            ? solutionValue > this.bestValue
+            : solutionValue < this.bestValue;
+        if (isBetter) {
             this.improvements++;
             this.bestValue = solutionValue;
             this.bestSolution = [...solution];
@@ -167,7 +171,9 @@ class KDeviationOptimizer {
             if (
                 this.optimalValue !== null &&
                 this.optimalValue !== undefined &&
-                this.bestValue <= this.optimalValue &&
+                (this.options.maximize
+                    ? this.bestValue >= this.optimalValue
+                    : this.bestValue <= this.optimalValue) &&
                 !this.optimalFoundTime
             ) {
                 this.optimalFoundTime = Date.now() - this.startTime;
@@ -297,7 +303,7 @@ class KDeviationOptimizer {
         this.initializeProblem(problemData);
 
         // 2. Reset state
-        this.bestValue = Infinity;
+        this.bestValue = this.options.maximize ? -Infinity : Infinity;
         this.iteration = 0;
         this.improvements = 0;
         this.currentK = 0;
@@ -346,9 +352,12 @@ class KDeviationOptimizer {
      * @returns {Object} Current stats including iteration, improvements, bestValue, etc.
      */
     getStats() {
-        const deviation = this.optimalValue
-            ? (this.bestValue / this.optimalValue - 1) * 100
-            : 'N/A';
+        let deviation = 'N/A';
+        if (this.optimalValue !== null && this.optimalValue !== undefined) {
+            deviation = this.options.maximize
+                ? ((this.optimalValue - this.bestValue) / this.optimalValue) * 100
+                : ((this.bestValue - this.optimalValue) / this.optimalValue) * 100;
+        }
         return {
             iteration: this.iteration,
             improvements: this.improvements,
@@ -367,7 +376,13 @@ class KDeviationOptimizer {
      */
     getFinalResult() {
         const totalTime = Math.floor((Date.now() - this.startTime) / 1000);
-        const deviation = this.optimalValue ? (this.bestValue / this.optimalValue - 1) * 100 : null;
+        let deviation = null;
+        if (this.optimalValue !== null && this.optimalValue !== undefined) {
+            deviation = this.options.maximize
+                ? ((this.optimalValue - this.bestValue) / this.optimalValue) * 100
+                : ((this.bestValue - this.optimalValue) / this.optimalValue) * 100;
+            deviation = parseFloat(deviation.toFixed(2));
+        }
         return {
             problem: this.problemName,
             distance: this.bestValue, // Using 'distance' for compatibility with test

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TSPSolver } from '../src/tsp-solver.js';
 import { KnapsackSolver } from '../src/knapsack-solver.js';
-import { parsePisingerFile } from '../src/parsers/knapsack-loader.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -122,7 +121,7 @@ describe('Knapsack Benchmark Integration', () => {
             solver.start(problem);
         });
 
-        const value = Math.abs(result.value);
+        const value = result.value;
         const gap = ((problem.optimalValue - value) / problem.optimalValue) * 100;
 
         expect(value).toBeGreaterThan(0);
@@ -157,7 +156,7 @@ describe('Knapsack Benchmark Integration', () => {
             solver.start(problem);
         });
 
-        const value = Math.abs(result.value);
+        const value = result.value;
         expect(value).toBeGreaterThan(0);
     });
 });

@@ -12,12 +12,12 @@ import { KDeviationOptimizer } from './k-optimizer.js';
 class KnapsackSolver extends KDeviationOptimizer {
     /**
      * Creates a new Knapsack Solver instance.
-     * Note: Forces shuffle:false for deterministic behavior.
+     * Uses maximize:true since Knapsack maximizes total value.
+     * Forces shuffle:false for deterministic multi-start behavior.
      * @param {Object} options - Configuration options
      */
     constructor(options = {}) {
-        super({ ...options, shuffle: false });
-        this.bestValue = Infinity;
+        super({ ...options, shuffle: false, maximize: true });
     }
 
     // --- Implementation of abstract methods ---
@@ -40,7 +40,7 @@ class KnapsackSolver extends KDeviationOptimizer {
         }));
         this.maxWeight = problemData.maxWeight;
         this.problemName = problemData.name || 'KnapsackProblem';
-        this.optimalValue = problemData.optimalValue ? -problemData.optimalValue : null; // Store as negative
+        this.optimalValue = problemData.optimalValue || null;
 
         // Initialize heuristics FIRST to populate globalSortedIndices
         this.initializeGlobalHeuristics();
@@ -84,7 +84,7 @@ class KnapsackSolver extends KDeviationOptimizer {
     /**
      * Evaluates a solution by running greedy algorithm on the permutation.
      * @param {Array<number>} solution - Permutation of item indices
-     * @returns {number} Negative total value (for minimization)
+     * @returns {number} Total value (higher is better, maximize mode)
      */
     evaluateSolution(solution) {
         let totalValue = 0;
@@ -98,14 +98,14 @@ class KnapsackSolver extends KDeviationOptimizer {
             }
         }
 
-        return -totalValue;
+        return totalValue;
     }
 
     /**
      * Updates heuristics - disabled for Knapsack (uses global ratio).
      * @param {Array<number>} improvedSolution - The improved solution
      */
-    updateHeuristics(improvedSolution) {
+    updateHeuristics(_improvedSolution) {
         // Disable dynamic learning for strict K-deviation behavior from global ratio.
         // This adheres to the "Single Global Heuristic" requirement.
     }
@@ -125,15 +125,12 @@ class KnapsackSolver extends KDeviationOptimizer {
     }
 
     /**
-     * Returns final result with positive values.
-     * @returns {Object} Final result with value instead of distance
+     * Returns final result with value field for Knapsack.
+     * @returns {Object} Final result with value (same as bestDistance)
      */
     getFinalResult() {
         const result = super.getFinalResult();
-        result.distance = -result.distance; // Convert back to positive value
-        result.bestDistance = -result.bestDistance;
-        result.optimal = this.optimalValue ? -this.optimalValue : null;
-        result.value = result.distance;
+        result.value = result.bestDistance;
         return result;
     }
 }
