@@ -105,7 +105,7 @@ describe('KnapsackSolver', () => {
     // --- evaluateSolution / getFinalResult ---
 
     describe('evaluateSolution', () => {
-        it('should return negative value (minimization convention)', () => {
+        it('should return positive value (maximize mode)', () => {
             const solver = new KnapsackSolver();
             solver.items = [
                 { v: 10, w: 5, ratio: 2, index: 0 },
@@ -114,8 +114,8 @@ describe('KnapsackSolver', () => {
             solver.maxWeight = 10;
 
             const val = solver.evaluateSolution([0, 1]);
-            // Both items fit: value = 30, returns -30
-            expect(val).toBe(-30);
+            // Both items fit: value = 10+20 = 30
+            expect(val).toBe(30);
         });
 
         it('should skip items exceeding capacity', () => {
@@ -128,12 +128,12 @@ describe('KnapsackSolver', () => {
 
             const val = solver.evaluateSolution([0, 1]);
             // Only item 0 fits (w=5 ≤ 5). Item 1 (w=10) exceeds.
-            expect(val).toBe(-10);
+            expect(val).toBe(10);
         });
     });
 
     describe('getFinalResult', () => {
-        it('should return positive values (negation of internal)', async () => {
+        it('should return positive value field', async () => {
             const problem = {
                 name: 'final-result',
                 items: [

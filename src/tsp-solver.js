@@ -44,7 +44,7 @@ class TSPSolver extends KDeviationOptimizer {
 
         if (this.cities.length === 0 && dimension > 0) {
             // Create dummy cities for logic compatibility (indices)
-            this.cities = Array.from({ length: dimension }, (_, i) => ({ x: 0, y: 0 }));
+            this.cities = Array.from({ length: dimension }, () => ({ x: 0, y: 0 }));
         }
 
         this.allItems = this.cities.map((_, i) => i);
@@ -167,7 +167,7 @@ class TSPSolver extends KDeviationOptimizer {
      * @param {Set} remainingItems - Set of unvisited city indices
      * @returns {Array<number>} Ordered list of nearest cities
      */
-    getHeuristicChoices(currentItem, remainingItems) {
+    getHeuristicChoices(currentItem, _remainingItems) {
         // For TSP, the heuristic is the list of nearest cities
         return this.localHeuristics[currentItem];
     }
