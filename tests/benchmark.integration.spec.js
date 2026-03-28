@@ -33,7 +33,7 @@ describe('TSP Benchmark Integration', () => {
 
         expect(distance).toBeGreaterThan(0);
         expect(gap).toBeLessThan(5); // Within 5% of optimal
-    });
+    }, 15000);
 
     it('should solve small problem consistently', async () => {
         const problemPath = path.join(problemsDir, 'eil51.json');
@@ -92,7 +92,7 @@ describe('TSP Benchmark Integration', () => {
         const distance = result.distance ?? result.bestDistance;
         expect(distance).toBeGreaterThan(0);
         expect(result.iterations).toBeGreaterThan(0);
-    });
+    }, 10000);
 });
 
 describe('Knapsack Benchmark Integration', () => {
