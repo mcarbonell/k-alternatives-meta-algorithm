@@ -4,7 +4,6 @@ import fs from 'fs';
 
 const problemPath = 'tsplib-json/berlin52.json';
 const problem = JSON.parse(fs.readFileSync(problemPath, 'utf8'));
-const ITERATIONS = 200000;
 const MAX_TIME = 5; // seconds
 
 console.log('--- Comparison: berlin52 (Opt: 7542) ---');

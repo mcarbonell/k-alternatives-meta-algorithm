@@ -1,3 +1,6 @@
+/* eslint-env browser */
+/* global TSPLIBParser */
+/* exported toggleCityNumbers, loadPreset, startSolving, stopSolving, updateCitiesCount, updateMaxK, loadTSPLIBProblem, toggleInfo */
 // Global variables
 let cities = [];
 let worker = null;
@@ -238,7 +241,7 @@ function loadPreset(preset) {
     visualizationCities = [];
 
     switch (preset) {
-        case 'circle':
+        case 'circle': {
             const centerX = SVG_WIDTH / 2;
             const centerY = SVG_HEIGHT / 2;
             const radius = Math.min(SVG_WIDTH, SVG_HEIGHT) / 2 - MARGIN - 20;
@@ -253,8 +256,9 @@ function loadPreset(preset) {
                 visualizationCities.push(city);
             }
             break;
+        }
 
-        case 'grid':
+        case 'grid': {
             const cols = Math.ceil(Math.sqrt(count));
             const rows = Math.ceil(count / cols);
             const cellWidth = (SVG_WIDTH - 2 * MARGIN) / cols;
@@ -271,8 +275,9 @@ function loadPreset(preset) {
                 visualizationCities.push(city);
             }
             break;
+        }
 
-        case 'clusters':
+        case 'clusters': {
             const numClusters = Math.min(4, Math.floor(count / 5));
             const citiesPerCluster = Math.floor(count / numClusters);
 
@@ -296,6 +301,7 @@ function loadPreset(preset) {
                 }
             }
             break;
+        }
     }
 
     drawCities();

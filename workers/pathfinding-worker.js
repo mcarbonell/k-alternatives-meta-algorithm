@@ -44,10 +44,12 @@ class KPathOptimizer {
                 new Set([`${this.startNode.x},${this.startNode.y}`])
             );
 
+            let improvedInThisK = false;
             for (const step of searchGen) {
                 if (step.type === 'found_better') {
                     this.updateHeuristics(step.path);
                     yield step;
+                    improvedInThisK = true;
                     break;
                 }
                 yield step;
