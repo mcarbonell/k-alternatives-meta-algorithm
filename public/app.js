@@ -1,6 +1,4 @@
-/* eslint-env browser */
 /* global TSPLIBParser */
-/* exported toggleCityNumbers, loadPreset, startSolving, stopSolving, updateCitiesCount, updateMaxK, loadTSPLIBProblem, toggleInfo */
 // Global variables
 let cities = [];
 let worker = null;
@@ -617,3 +615,11 @@ document.getElementById('infoModal').addEventListener('click', function (e) {
         toggleInfo();
     }
 });
+window.toggleCityNumbers = toggleCityNumbers;
+window.loadPreset = loadPreset;
+window.startSolving = startSolving;
+window.stopSolving = stopSolving;
+window.updateCitiesCount = updateCitiesCount;
+window.updateMaxK = updateMaxK;
+window.loadTSPLIBProblem = loadTSPLIBProblem;
+window.toggleInfo = toggleInfo;

@@ -66,7 +66,7 @@ function loadOptimalSolutions() {
                 optimalSolutions.set(match[1].toLowerCase(), parseInt(match[2]));
             }
         }
-    } catch (_error) {
+    } catch {
         console.warn('Warning: Could not load optimal solutions file');
     }
     return optimalSolutions;
