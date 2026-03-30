@@ -1,5 +1,7 @@
 # k-Alternatives: A General-Purpose Meta-Heuristic
 
+![k-Alternatives Hero](hero.svg)
+
 **Repository:**
 [https://github.com/mcarbonell/k-alternatives-meta-algorithm](https://github.com/mcarbonell/k-alternatives-meta-algorithm)
 
