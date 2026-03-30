@@ -6,11 +6,7 @@
  */
 
 import { TSPSolver } from '../src/tsp-solver.js';
-import {
-    loadTSPJSON,
-    loadMultipleProblems,
-    loadProblemSets,
-} from '../src/parsers/tsp-json-parser.js';
+import { loadTSPJSON } from '../src/parsers/tsp-json-parser.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -70,7 +66,7 @@ function loadOptimalSolutions() {
                 optimalSolutions.set(match[1].toLowerCase(), parseInt(match[2]));
             }
         }
-    } catch (error) {
+    } catch (_error) {
         console.warn('Warning: Could not load optimal solutions file');
     }
     return optimalSolutions;
@@ -131,7 +127,6 @@ function solveTSP(problemFile, options = {}) {
                 maxTime: options.maxTime,
                 stopAtOptimal: options.stopAtOptimal !== false,
                 onProgress: (stats) => {
-                    const limitStr = stats.limitInfo || '';
                     console.log(
                         `[${stats.time}] Iter: ${stats.iteration.toLocaleString()}, Improvements: ${stats.improvements}, K: ${stats.currentK}, Best: ${stats.bestValue.toLocaleString()}, Optimal: ${stats.optimalValue || 'N/A'}, Dev: ${stats.deviation.toFixed(2)}%`
                     );
@@ -170,7 +165,6 @@ function solveTSP(problemFile, options = {}) {
 // Batch benchmark function
 async function runBenchmark(files, options = {}) {
     const results = [];
-    const startTime = Date.now();
 
     console.log(`🏁 Iniciando benchmark de ${files.length} problemas...`);
 

@@ -2,6 +2,8 @@
  * k-Alternatives Web Worker
  * Uses the TSPSolver class
  */
+/* eslint-env worker */
+/* global importScripts, TSPSolver */
 
 // Import core (in worker context, this will be loaded via importScripts)
 const timestamp = Date.now();
