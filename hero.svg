@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="path0" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#0099ff;stop-opacity:0.8" />
+    </linearGradient>
+    <linearGradient id="path1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7b2ff7;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#b24bf3;stop-opacity:0.6" />
+    </linearGradient>
+    <linearGradient id="path2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f72585;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#ff6b9d;stop-opacity:0.4" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="400" fill="url(#bg)"/>
+  
+  <!-- Grid pattern -->
+  <g opacity="0.1">
+    <path d="M0,100 L1200,100 M0,200 L1200,200 M0,300 L1200,300" stroke="#00d4ff" stroke-width="1"/>
+    <path d="M200,0 L200,400 M400,0 L400,400 M600,0 L600,400 M800,0 L800,400 M1000,0 L1000,400" stroke="#00d4ff" stroke-width="1"/>
+  </g>
+  
+  <!-- Paths representing k-alternatives -->
+  <!-- k=0 (optimal greedy) -->
+  <path d="M100,200 Q300,120 500,200 T900,200" stroke="url(#path0)" stroke-width="4" fill="none" opacity="0.9" filter="url(#glow)"/>
+  
+  <!-- k=1 (first alternative) -->
+  <path d="M100,200 Q300,200 500,240 T900,200" stroke="url(#path1)" stroke-width="3" fill="none" opacity="0.7"/>
+  
+  <!-- k=2 (second alternative) -->
+  <path d="M100,200 Q300,280 500,260 T900,200" stroke="url(#path2)" stroke-width="2" fill="none" opacity="0.5"/>
+  
+  <!-- Decision nodes -->
+  <circle cx="100" cy="200" r="8" fill="#00d4ff" filter="url(#glow)"/>
+  <circle cx="300" cy="200" r="6" fill="#7b2ff7" opacity="0.8"/>
+  <circle cx="500" cy="200" r="6" fill="#7b2ff7" opacity="0.8"/>
+  <circle cx="700" cy="200" r="6" fill="#7b2ff7" opacity="0.8"/>
+  <circle cx="900" cy="200" r="8" fill="#00ff88" filter="url(#glow)"/>
+  
+  <!-- Title -->
+  <text x="600" y="80" font-family="'Segoe UI', Arial, sans-serif" font-size="48" font-weight="700" fill="#ffffff" text-anchor="middle">
+    k-Alternatives
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="115" font-family="'Segoe UI', Arial, sans-serif" font-size="18" fill="#00d4ff" text-anchor="middle" opacity="0.9">
+    Meta-Heuristic for Combinatorial Optimization
+  </text>
+  
+  <!-- Labels -->
+  <g font-family="'Segoe UI', Arial, sans-serif" font-size="14" fill="#ffffff">
+    <text x="100" y="170" text-anchor="middle" opacity="0.7">Start</text>
+    <text x="900" y="170" text-anchor="middle" opacity="0.7">Goal</text>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(950, 320)">
+    <line x1="0" y1="0" x2="30" y2="0" stroke="url(#path0)" stroke-width="3"/>
+    <text x="40" y="5" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#00d4ff">k=0</text>
+    
+    <line x1="0" y1="20" x2="30" y2="20" stroke="url(#path1)" stroke-width="3"/>
+    <text x="40" y="25" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#b24bf3">k=1</text>
+    
+    <line x1="0" y1="40" x2="30" y2="40" stroke="url(#path2)" stroke-width="3"/>
+    <text x="40" y="45" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#ff6b9d">k=2</text>
+  </g>
+  
+  <!-- Decorative elements -->
+  <circle cx="500" cy="120" r="2" fill="#00d4ff" opacity="0.5">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="700" cy="280" r="2" fill="#7b2ff7" opacity="0.5">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="400" cy="320" r="2" fill="#f72585" opacity="0.5">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+</svg>
