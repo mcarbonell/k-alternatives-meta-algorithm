@@ -23,9 +23,9 @@ class TestSolver extends KDeviationOptimizer {
         return this.sorted.slice();
     }
 
-    getHeuristicChoices(_currentItem, remainingItems) {
+    getHeuristicChoices(_currentItem, unvisited, _unvisitedCount) {
         // Return remaining items in sorted order
-        return this.sorted.filter((item) => remainingItems.has(item));
+        return this.sorted.filter((item) => unvisited[item] === 1);
     }
 
     evaluateSolution(solution) {

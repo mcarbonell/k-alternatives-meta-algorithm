@@ -29,7 +29,7 @@ class KDeviationOptimizer {
      */
     constructor(options = {}) {
         this.options = {
-            maxK: options.maxK || 5,
+            maxK: options.maxK ?? 5,
             maxIterations: options.maxIterations || null,
             maxTime: options.maxTime || null,
             stopAtOptimal: options.stopAtOptimal !== false,
@@ -89,11 +89,12 @@ class KDeviationOptimizer {
      * Must be implemented by subclasses.
      * @abstract
      * @param {*} currentItem - The current item being processed
-     * @param {Set} remainingItems - Set of remaining items to choose from
+     * @param {Uint8Array} unvisited - Array of size N where unvisited[i] === 1 if item i is available
+     * @param {number} unvisitedCount - Number of remaining unvisited items
      * @returns {Array} Ordered list of choices (best first)
      * @throws {Error} If not implemented by subclass
      */
-    getHeuristicChoices(_currentItem, _remainingItems) {
+    getHeuristicChoices(_currentItem, _unvisited, _unvisitedCount) {
         throw new Error('getHeuristicChoices() must be implemented by subclass');
     }
 
@@ -116,6 +117,28 @@ class KDeviationOptimizer {
      */
     updateHeuristics(_improvedSolution) {
         // This method is optional for subclasses to implement
+    }
+
+    /**
+     * Determines if the current partial solution can be pruned.
+     * Optional for subclasses to implement.
+     * @param {Array} partialSolution - The current partial solution
+     * @param {number} currentCost - The incremental cost calculated so far
+     * @returns {boolean} True if the branch can be pruned
+     */
+    canPrune(partialSolution, currentCost) {
+        return false;
+    }
+
+    /**
+     * Calculates the incremental cost of adding nextItem to the partialSolution.
+     * Optional for subclasses to implement. Defaults to 0.
+     * @param {Array} partialSolution - The current partial solution (before adding)
+     * @param {*} nextItem - The item being added
+     * @returns {number} The incremental cost
+     */
+    getIncrementalCost(partialSolution, nextItem) {
+        return 0;
     }
 
     // --- Generic Algorithm Core ---
@@ -191,39 +214,57 @@ class KDeviationOptimizer {
     /**
      * Performs systematic search with limited discrepancies.
      * Implements depth-first search allowing up to k alternative choices.
-     * @param {Set} remainingItems - Set of unvisited items
+     * @param {Uint8Array} unvisited - Array indicating unvisited items (1 = unvisited)
+     * @param {number} unvisitedCount - Number of remaining items
      * @param {Array} currentSolution - Current partial solution
      * @param {number} alternativesLeft - Number of alternative choices remaining
+     * @param {number} [currentCost=0] - Accumulated cost/value of the partial solution
      * @param {number} [depth=0] - Current recursion depth (safety guard)
      */
-    systematicSearch(remainingItems, currentSolution, alternativesLeft, depth = 0) {
+    systematicSearch(
+        unvisited,
+        unvisitedCount,
+        currentSolution,
+        alternativesLeft,
+        currentCost = 0,
+        depth = 0
+    ) {
         if (!this.isRunning) return;
 
         const MAX_DEPTH = 10000;
         if (depth > MAX_DEPTH) return;
 
-        if (remainingItems.size === 0) {
+        if (this.canPrune(currentSolution, currentCost)) return;
+
+        if (unvisitedCount === 0) {
             this.checkSolution(currentSolution);
             return;
         }
 
         const currentItem = currentSolution[currentSolution.length - 1];
-        const choices = this.getHeuristicChoices(currentItem, remainingItems);
+        const choices = this.getHeuristicChoices(currentItem, unvisited, unvisitedCount);
         let validChoicesFound = 0;
 
         for (let i = 0; i < choices.length && validChoicesFound <= alternativesLeft; i++) {
             const nextItem = choices[i];
-            if (remainingItems.has(nextItem)) {
+            if (unvisited[nextItem] === 1) {
                 validChoicesFound++;
+
+                const incCost = this.getIncrementalCost(currentSolution, nextItem);
+
                 currentSolution.push(nextItem);
-                remainingItems.delete(nextItem);
+                unvisited[nextItem] = 0;
+
                 this.systematicSearch(
-                    remainingItems,
+                    unvisited,
+                    unvisitedCount - 1,
                     currentSolution,
                     alternativesLeft - (validChoicesFound - 1),
+                    currentCost + incCost,
                     depth + 1
                 );
-                remainingItems.add(nextItem);
+
+                unvisited[nextItem] = 1;
                 currentSolution.pop();
             }
         }
@@ -249,17 +290,24 @@ class KDeviationOptimizer {
             this.shuffle(order);
         }
 
-        const allItemsSet = new Set(this.allItems);
+        const unvisited = new Uint8Array(this.allItems.length);
 
         for (let i = 0; i < order.length && this.isRunning; i++) {
             // order[i] is the index in this.allItems array
             // We need the actual item ID from this.allItems
             const startItem = this.allItems[order[i]];
 
-            // Optimized: Reuse the Set instead of creating a new one every time
-            allItemsSet.delete(startItem);
-            this.systematicSearch(allItemsSet, [startItem], this.currentK);
-            allItemsSet.add(startItem);
+            unvisited.fill(1);
+            unvisited[startItem] = 0;
+            const initialCost = this.getIncrementalCost([], startItem);
+
+            this.systematicSearch(
+                unvisited,
+                this.allItems.length - 1,
+                [startItem],
+                this.currentK,
+                initialCost
+            );
         }
 
         // If improvements were made at this K level, repeat the search for the same K
@@ -313,7 +361,7 @@ class KDeviationOptimizer {
         this.startTime = Date.now();
 
         // 3. Auto-determine maxK if not set
-        if (!this.options.maxK) {
+        if (this.options.maxK === undefined || this.options.maxK === null) {
             this.options.maxK = Math.floor(Math.log(this.allItems.length));
         }
 

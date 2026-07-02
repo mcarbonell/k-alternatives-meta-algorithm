@@ -61,20 +61,20 @@ class KnapsackSolver extends KDeviationOptimizer {
     /**
      * Returns available items sorted by global heuristic (efficiency ratio).
      * @param {number} currentItem - Current item (unused for Knapsack)
-     * @param {Set} remainingItems - Set of remaining item indices
+     * @param {Uint8Array} unvisited - Array indicating unvisited items
+     * @param {number} unvisitedCount - Number of remaining items
      * @returns {Array<number>} Available items sorted by ratio
      */
-    getHeuristicChoices(currentItem, remainingItems) {
+    getHeuristicChoices(currentItem, unvisited, unvisitedCount) {
         // In Knapsack, the "next best choice" does NOT depend on the "current item".
         // It simply depends on the Global Heuristic (Efficiency Ratio).
-        // We iterate through our global sorted list and return valid candidates that are in 'remainingItems'.
+        // We iterate through our global sorted list and return valid candidates that are in 'unvisited'.
 
         const choices = [];
         // Optimization: We iterate the pre-sorted global list.
-        // Since remainingItems is a Set, lookup is O(1). Total complexity O(N).
         for (let i = 0; i < this.globalSortedIndices.length; i++) {
             const idx = this.globalSortedIndices[i];
-            if (remainingItems.has(idx)) {
+            if (unvisited[idx] === 1) {
                 choices.push(idx);
             }
         }
