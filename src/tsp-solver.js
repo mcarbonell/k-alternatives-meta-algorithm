@@ -75,11 +75,15 @@ class TSPSolver extends KDeviationOptimizer {
 
         if (this.edgeWeightFormat === 'LOWER_DIAG_ROW') {
             let k = 0;
+            const includesDiagonal = weights.length === (dimension * (dimension + 1)) / 2;
             for (let i = 0; i < dimension; i++) {
                 for (let j = 0; j < i; j++) {
                     const dist = weights[k++];
                     this._distances[i * dimension + j] = dist;
                     this._distances[j * dimension + i] = dist;
+                }
+                if (includesDiagonal) {
+                    k++; // Skip the diagonal element
                 }
             }
         } else if (this.edgeWeightFormat === 'FULL_MATRIX') {
@@ -162,19 +166,27 @@ class TSPSolver extends KDeviationOptimizer {
      * Returns nearest neighbor list for the current city.
      * Uses candidate list (top N nearest) with fallback to all remaining cities.
      * @param {number} currentItem - Current city index
-     * @param {Set} remainingItems - Set of unvisited city indices
+     * @param {Uint8Array} unvisited - Array indicating unvisited cities (1 = unvisited)
+     * @param {number} unvisitedCount - Number of remaining unvisited cities
      * @returns {Array<number>} Ordered list of candidate cities
      */
-    getHeuristicChoices(currentItem, remainingItems) {
+    getHeuristicChoices(currentItem, unvisited, unvisitedCount) {
         const candidates = this.localHeuristics[currentItem];
         // Check if any candidates are still remaining
         for (let i = 0; i < candidates.length; i++) {
-            if (remainingItems.has(candidates[i])) {
+            if (unvisited[candidates[i]] === 1) {
                 return candidates; // At least one candidate is valid, use the list
             }
         }
         // Fallback: no candidates remaining, return all remaining items
-        return [...remainingItems];
+        const remaining = new Array(unvisitedCount);
+        let idx = 0;
+        for (let i = 0; i < unvisited.length; i++) {
+            if (unvisited[i] === 1) {
+                remaining[idx++] = i;
+            }
+        }
+        return remaining;
     }
 
     /**
@@ -184,6 +196,29 @@ class TSPSolver extends KDeviationOptimizer {
      */
     evaluateSolution(solution) {
         return this.calculateRouteDistance(solution);
+    }
+
+    /**
+     * Calculates the incremental cost of adding nextItem to the partialSolution.
+     * @param {Array<number>} partialSolution - The current partial solution
+     * @param {number} nextItem - The item being added
+     * @returns {number} The distance between the last item and the next item
+     */
+    getIncrementalCost(partialSolution, nextItem) {
+        if (partialSolution.length === 0) return 0;
+        const lastItem = partialSolution[partialSolution.length - 1];
+        return this.distance(lastItem, nextItem);
+    }
+
+    /**
+     * Determines if the current partial solution can be pruned.
+     * @param {Array<number>} partialSolution - The current partial solution
+     * @param {number} currentCost - The distance accumulated so far (not including return to start)
+     * @returns {boolean} True if branch should be pruned
+     */
+    canPrune(partialSolution, currentCost) {
+        // Prune if current partial distance already exceeds or equals the best total distance
+        return currentCost >= this.bestValue;
     }
 
     /**
@@ -285,63 +320,60 @@ class TSPSolver extends KDeviationOptimizer {
 
     // --- Distance Calculation Functions (TSP-specific) ---
 
-    /**
-     * Calculates distance between two cities based on edge weight type.
-     * @param {Object} city1 - First city {x, y}
-     * @param {Object} city2 - Second city {x, y}
-     * @returns {number} Calculated distance
-     */
     calcDistance(city1, city2) {
         switch (this.edgeWeightType) {
             case 'EUC_2D':
-                return Math.round(
-                    Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2))
-                );
+                return this.euc2dDistance(city1, city2);
             case 'CEIL_2D':
-                return Math.ceil(
-                    Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2))
-                );
+                return this.ceil2dDistance(city1, city2);
             case 'GEO':
                 return this.geoDistance(city1, city2);
             case 'ATT':
                 return this.attDistance(city1, city2);
             default:
-                return Math.round(
-                    Math.sqrt(Math.pow(city2.x - city1.x, 2) + Math.pow(city2.y - city1.y, 2))
-                );
+                return this.euc2dDistance(city1, city2);
         }
     }
 
-    /**
-     * Calculates geographical (great circle) distance between cities.
-     * @param {Object} c1 - First city {x, y}
-     * @param {Object} c2 - Second city {x, y}
-     * @returns {number} Geographical distance
-     */
+    nint(x) {
+        return Math.floor(x + 0.5);
+    }
+
+    euc2dDistance(c1, c2) {
+        const xd = c1.x - c2.x;
+        const yd = c1.y - c2.y;
+        return this.nint(Math.sqrt(xd * xd + yd * yd));
+    }
+
+    ceil2dDistance(c1, c2) {
+        const xd = c1.x - c2.x;
+        const yd = c1.y - c2.y;
+        return Math.ceil(Math.sqrt(xd * xd + yd * yd));
+    }
+
     geoDistance(c1, c2) {
-        const R = 6378.388;
-        const toRad = (deg) => (deg * Math.PI) / 180.0;
-        const lat1 = toRad(c1.y);
-        const lon1 = toRad(c1.x);
-        const lat2 = toRad(c2.y);
-        const lon2 = toRad(c2.x);
+        const RRR = 6378.388;
+        const toRad = (coordinate) => {
+            const PI = 3.141592;
+            const deg = Math.trunc(coordinate);
+            const min = coordinate - deg;
+            return (PI * (deg + (5.0 * min) / 3.0)) / 180.0;
+        };
+        const lat1 = toRad(c1.x);
+        const lon1 = toRad(c1.y);
+        const lat2 = toRad(c2.x);
+        const lon2 = toRad(c2.y);
         const q1 = Math.cos(lon1 - lon2);
         const q2 = Math.cos(lat1 - lat2);
         const q3 = Math.cos(lat1 + lat2);
-        return Math.floor(R * Math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1.0);
+        return Math.floor(RRR * Math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1.0);
     }
 
-    /**
-     * Calculates ATT (Airport Tank Truck) distance between cities.
-     * @param {Object} c1 - First city {x, y}
-     * @param {Object} c2 - Second city {x, y}
-     * @returns {number} ATT distance
-     */
     attDistance(c1, c2) {
         const xd = c1.x - c2.x;
         const yd = c1.y - c2.y;
         const rij = Math.sqrt((xd * xd + yd * yd) / 10.0);
-        const tij = Math.round(rij);
+        const tij = this.nint(rij);
         return tij < rij ? tij + 1 : tij;
     }
 }

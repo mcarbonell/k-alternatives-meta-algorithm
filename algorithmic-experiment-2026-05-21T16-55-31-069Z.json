@@ -1,0 +1,306 @@
+{
+  "phase1": {
+    "burma14": {
+      "optimal": 3323,
+      "kData": {
+        "0": {
+          "avgTime": 0,
+          "avgImprovements": 3.2,
+          "probability": 0,
+          "avgGap": 13.810412278061996,
+          "bestGap": 3.490821546795065,
+          "uniqueMinima": 13
+        },
+        "1": {
+          "avgTime": 0,
+          "avgImprovements": 7.94,
+          "probability": 32,
+          "avgGap": 2.0246764971411433,
+          "bestGap": 0,
+          "uniqueMinima": 16
+        },
+        "2": {
+          "avgTime": 0,
+          "avgImprovements": 8.7,
+          "probability": 76,
+          "avgGap": 0.2383388504363549,
+          "bestGap": 0,
+          "uniqueMinima": 5
+        },
+        "3": {
+          "avgTime": 0,
+          "avgImprovements": 9.46,
+          "probability": 100,
+          "avgGap": 0,
+          "bestGap": 0,
+          "uniqueMinima": 1
+        },
+        "4": {
+          "avgTime": 0,
+          "avgImprovements": 9.92,
+          "probability": 98,
+          "avgGap": 0.007824255191098955,
+          "bestGap": 0,
+          "uniqueMinima": 2
+        },
+        "5": {
+          "avgTime": 0,
+          "avgImprovements": 9.7,
+          "probability": 100,
+          "avgGap": 0,
+          "bestGap": 0,
+          "uniqueMinima": 1
+        }
+      }
+    },
+    "ulysses22": {
+      "optimal": 7013,
+      "kData": {
+        "0": {
+          "avgTime": 0,
+          "avgImprovements": 6.9,
+          "probability": 0,
+          "avgGap": 20.485384286325388,
+          "bestGap": 1.440182518180522,
+          "uniqueMinima": 49
+        },
+        "1": {
+          "avgTime": 0,
+          "avgImprovements": 16.88,
+          "probability": 4,
+          "avgGap": 3.0469128760872706,
+          "bestGap": 0,
+          "uniqueMinima": 42
+        },
+        "2": {
+          "avgTime": 0,
+          "avgImprovements": 20.06,
+          "probability": 32,
+          "avgGap": 0.8521317553115674,
+          "bestGap": 0,
+          "uniqueMinima": 18
+        },
+        "3": {
+          "avgTime": 0,
+          "avgImprovements": 20.88,
+          "probability": 80,
+          "avgGap": 0.27719948666761157,
+          "bestGap": 0,
+          "uniqueMinima": 5
+        },
+        "4": {
+          "avgTime": 0,
+          "avgImprovements": 21.58,
+          "probability": 88,
+          "avgGap": 0.16398117781263366,
+          "bestGap": 0,
+          "uniqueMinima": 4
+        },
+        "5": {
+          "avgTime": 0,
+          "avgImprovements": 21.36,
+          "probability": 100,
+          "avgGap": 0,
+          "bestGap": 0,
+          "uniqueMinima": 1
+        }
+      }
+    },
+    "bays29": {
+      "optimal": 2020,
+      "kData": {
+        "0": {
+          "avgTime": 0,
+          "avgImprovements": 1,
+          "probability": 0,
+          "avgGap": 11.782178217821782,
+          "bestGap": 11.782178217821782,
+          "uniqueMinima": 1
+        },
+        "1": {
+          "avgTime": 0,
+          "avgImprovements": 8.2,
+          "probability": 6,
+          "avgGap": 1.1653465346534637,
+          "bestGap": 0,
+          "uniqueMinima": 16
+        },
+        "2": {
+          "avgTime": 0,
+          "avgImprovements": 9.64,
+          "probability": 24,
+          "avgGap": 0.3376237623762345,
+          "bestGap": 0,
+          "uniqueMinima": 8
+        },
+        "3": {
+          "avgTime": 0,
+          "avgImprovements": 10.28,
+          "probability": 62,
+          "avgGap": 0.15445544554454907,
+          "bestGap": 0,
+          "uniqueMinima": 3
+        },
+        "4": {
+          "avgTime": 0,
+          "avgImprovements": 10.64,
+          "probability": 86,
+          "avgGap": 0.06930693069307381,
+          "bestGap": 0,
+          "uniqueMinima": 3
+        },
+        "5": {
+          "avgTime": 0.06,
+          "avgImprovements": 11,
+          "probability": 98,
+          "avgGap": 0.005940594059400538,
+          "bestGap": 0,
+          "uniqueMinima": 2
+        }
+      }
+    },
+    "dantzig42": {
+      "optimal": 699,
+      "kData": {
+        "0": {
+          "avgTime": 0,
+          "avgImprovements": 5.62,
+          "probability": 0,
+          "avgGap": 26.832618025751064,
+          "bestGap": 10.44349070100143,
+          "uniqueMinima": 26
+        },
+        "1": {
+          "avgTime": 0,
+          "avgImprovements": 20.3,
+          "probability": 0,
+          "avgGap": 7.630901287553653,
+          "bestGap": 1.144492131616595,
+          "uniqueMinima": 33
+        },
+        "2": {
+          "avgTime": 0,
+          "avgImprovements": 27.48,
+          "probability": 6,
+          "avgGap": 2.6952789699570863,
+          "bestGap": 0,
+          "uniqueMinima": 23
+        },
+        "3": {
+          "avgTime": 0,
+          "avgImprovements": 30.98,
+          "probability": 16,
+          "avgGap": 1.2503576537911316,
+          "bestGap": 0,
+          "uniqueMinima": 9
+        },
+        "4": {
+          "avgTime": 1.34,
+          "avgImprovements": 30.12,
+          "probability": 20,
+          "avgGap": 0.6981402002861223,
+          "bestGap": 0,
+          "uniqueMinima": 5
+        },
+        "5": {
+          "avgTime": 7.42,
+          "avgImprovements": 30.94,
+          "probability": 26,
+          "avgGap": 0.5665236051502198,
+          "bestGap": 0,
+          "uniqueMinima": 4
+        }
+      }
+    },
+    "berlin52": {
+      "optimal": 7542,
+      "kData": {
+        "0": {
+          "avgTime": 0,
+          "avgImprovements": 3.52,
+          "probability": 0,
+          "avgGap": 14.503314770617875,
+          "bestGap": 7.451604348979051,
+          "uniqueMinima": 19
+        },
+        "1": {
+          "avgTime": 0,
+          "avgImprovements": 18.66,
+          "probability": 2,
+          "avgGap": 3.999204455051709,
+          "bestGap": 0,
+          "uniqueMinima": 44
+        },
+        "2": {
+          "avgTime": 0,
+          "avgImprovements": 22.9,
+          "probability": 24,
+          "avgGap": 2.5229382126756796,
+          "bestGap": 0,
+          "uniqueMinima": 22
+        },
+        "3": {
+          "avgTime": 0.28,
+          "avgImprovements": 26.7,
+          "probability": 50,
+          "avgGap": 1.3961813842482125,
+          "bestGap": 0,
+          "uniqueMinima": 7
+        },
+        "4": {
+          "avgTime": 4.16,
+          "avgImprovements": 26.94,
+          "probability": 52,
+          "avgGap": 1.3935295677539161,
+          "bestGap": 0,
+          "uniqueMinima": 7
+        },
+        "5": {
+          "avgTime": 4.16,
+          "avgImprovements": 27.38,
+          "probability": 64,
+          "avgGap": 1.0498541500928174,
+          "bestGap": 0,
+          "uniqueMinima": 7
+        }
+      }
+    }
+  },
+  "phase2": {
+    "burma14": {
+      "optimalKFound": 1,
+      "reachedOptimal": true,
+      "finalDistance": 3323,
+      "totalTime": 0,
+      "limitReached": "optimal"
+    },
+    "ulysses22": {
+      "optimalKFound": 2,
+      "reachedOptimal": true,
+      "finalDistance": 7013,
+      "totalTime": 0,
+      "limitReached": "optimal"
+    },
+    "bays29": {
+      "optimalKFound": 4,
+      "reachedOptimal": true,
+      "finalDistance": 2020,
+      "totalTime": 0,
+      "limitReached": "optimal"
+    },
+    "dantzig42": {
+      "optimalKFound": null,
+      "reachedOptimal": false,
+      "finalDistance": 704,
+      "totalTime": 60,
+      "limitReached": "maxTime"
+    },
+    "berlin52": {
+      "optimalKFound": 3,
+      "reachedOptimal": true,
+      "finalDistance": 7542,
+      "totalTime": 0,
+      "limitReached": "optimal"
+    }
+  }
+}

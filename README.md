@@ -237,6 +237,28 @@ strong base heuristic.
 
 ---
 
+## 📊 Detailed Algorithmic Analysis
+
+We have performed an extensive mathematical and empirical analysis of the
+**k-Alternatives** algorithm across various TSPLIB benchmark instances
+(`burma14`, `ulysses22`, `bays29`, `dantzig42`, `berlin52`).
+
+The study derives:
+
+1. **Success Probability Model $P(N, k)$**: A sigmoidal logistic regression
+   explaining how search budget and metric structures dictate convergence.
+2. **Error Gap Reduction Model $\text{AvgGap}(N, k)$**: An exponential decay
+   formula predicting how rapidly discrepancy escapes greedy limitations.
+3. **Unique Local Minima Dynamics $\text{UniqueMin}(N, k)$**: A unimodal
+   path-dependent explanation of diversity peak at $k=1$ and subsequent
+   convergence collapse.
+
+For the full detailed equations, empirical data tables, and diagrams, read the
+full report: 👉
+**[Algorithmic Analysis & Modeling Report (docs/analisis-algoritmico-alternativas.md)](docs/analisis-algoritmico-alternativas.md)**
+
+---
+
 ## 🛠️ Usage
 
 ### Running Benchmarks (Node.js)
@@ -262,6 +284,9 @@ Open `index-legacy.html` in a modern browser to watch the TSP solver in action.
 - `knapsack-loader.js`: Parser for Pisinger/OR-Library benchmark files.
 - `tsplib-json/`: Directory containing pre-parsed TSPLIB instances in JSON
   format.
+- `docs/analisis-algoritmico-alternativas.md`: Detailed mathematical analysis,
+  experimental results, and sigmoidal/exponential modeling of the k-Alternatives
+  algorithm.
 
 ## 🙌 Acknowledgments
 
