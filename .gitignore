@@ -38,12 +38,17 @@ results/
 # Legacy code (local only)
 legacy/
 
-# Benchmark results
+# Benchmark results (generated into benchmarks/; see benchmarks/README.md)
 benchmark-results-*.json
 benchmark-results-*.md
-competitive-benchmark-2026-*.json
-competitive-benchmark-2026-*.md
-unified-benchmark-2025-*.json
+competitive-benchmark-*.json
+competitive-benchmark-*.md
+unified-benchmark-*.json
+master-benchmark-*.json
+master-benchmark-*.md
+algorithmic-experiment-*.json
+local-minima-*.json
+local-minima-*.md
 
 # Temporary directories
 temp_kp/

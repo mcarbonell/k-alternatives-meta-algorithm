@@ -9,6 +9,7 @@ import { BenchmarkRunner } from './unified-benchmark.js';
 import { CompetitiveBenchmark } from './competitive-benchmark.js';
 import { LocalMinimaAnalyzer } from './local-minima-analysis.js';
 import fs from 'fs';
+import path from 'path';
 
 class MasterBenchmark {
     constructor() {
@@ -58,7 +59,9 @@ class MasterBenchmark {
 
     generateMasterReport(totalTime) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const reportFile = `master-benchmark-${timestamp}.json`;
+        const outputDir = 'benchmarks';
+        fs.mkdirSync(outputDir, { recursive: true });
+        const reportFile = path.join(outputDir, `master-benchmark-${timestamp}.json`);
 
         // Compile master summary
         this.results.summary = {
@@ -272,7 +275,7 @@ ${this.results.summary.recommendations.map((r) => `- ${r}`).join('\n')}
 
 **Report Generated**: ${new Date().toLocaleDateString()}  
 **Total Execution Time**: ${this.results.summary.executionTime.toFixed(1)} seconds  
-**Data File**: [${jsonFile}](${jsonFile})
+**Data File**: [${path.basename(jsonFile)}](${path.basename(jsonFile)})
 
 *This report provides comprehensive evidence for the effectiveness of the k-Alternatives meta-heuristic algorithm across multiple combinatorial optimization domains.*
 `;

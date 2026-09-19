@@ -113,11 +113,14 @@ Composite metric: `max(0, 100 - avgGap*10) * (successRate/100)`
 
 The benchmark suite generates multiple report formats:
 
+> **Output location:** all generated reports are written to the gitignored
+> [`benchmarks/`](../benchmarks/README.md) directory, not the repository root.
+
 ### JSON Reports
 
 - `master-benchmark-[timestamp].json`: Complete raw data
 - `competitive-benchmark-[timestamp].json`: Competitive analysis data
-- `local-minima-analysis-[timestamp].json`: Statistical analysis data
+- `local-minima-[timestamp].json`: Statistical analysis data
 
 ### Markdown Reports
 

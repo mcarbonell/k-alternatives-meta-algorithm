@@ -7,6 +7,7 @@
 
 import { runBenchmark } from './k-alternatives-cli.js';
 import fs from 'fs';
+import path from 'path';
 
 // Define problem sets for different test scenarios
 const PROBLEM_SETS = {
@@ -81,7 +82,12 @@ async function runBenchmarkSuite(setName = 'all', config = 'balanced') {
     console.log('');
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const outputFile = `benchmark-results-${setName}-${config}-${timestamp}.json`;
+    const outputDir = 'benchmarks';
+    fs.mkdirSync(outputDir, { recursive: true });
+    const outputFile = path.join(
+        outputDir,
+        `benchmark-results-${setName}-${config}-${timestamp}.json`
+    );
 
     try {
         const results = await runBenchmark(problems, { maxK: options.maxK, debug: false });
@@ -184,7 +190,7 @@ ${failed.map((r) => `- ${r.problem}: ${r.error}`).join('\n')}
 }
 
 ## 📄 Files
-- **Detailed Results**: [${outputFile}](${outputFile})
+- **Detailed Results**: [${path.basename(outputFile)}](${path.basename(outputFile)})
 - **Generated**: ${new Date().toISOString()}
 
 ---

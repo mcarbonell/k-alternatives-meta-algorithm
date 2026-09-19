@@ -174,7 +174,9 @@ class BenchmarkRunner {
 
     generateReport() {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const reportFile = `unified-benchmark-${timestamp}.json`;
+        const outputDir = 'benchmarks';
+        fs.mkdirSync(outputDir, { recursive: true });
+        const reportFile = path.join(outputDir, `unified-benchmark-${timestamp}.json`);
 
         // Calculate summary statistics
         this.results.summary = {

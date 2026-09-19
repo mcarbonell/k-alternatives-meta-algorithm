@@ -156,7 +156,9 @@ class AlgorithmicExperiment {
 
     saveResults() {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const reportFile = `algorithmic-experiment-${timestamp}.json`;
+        const outputDir = 'benchmarks';
+        fs.mkdirSync(outputDir, { recursive: true });
+        const reportFile = path.join(outputDir, `algorithmic-experiment-${timestamp}.json`);
         fs.writeFileSync(reportFile, JSON.stringify(this.results, null, 2));
         console.log(`\n📄 Results saved to: ${reportFile}`);
     }
