@@ -51,4 +51,8 @@ temp_kp/
 # Not for github
 continuation.md
 
-docs/
+# Documentacion publica: docs/*.md e imagenes SI se publican.
+# Solo se excluye lo que no debe redistribuirse o no es doc del proyecto:
+docs/private/
+# PDFs de terceros (articulos con copyright): no redistribuir
+docs/*.pdf

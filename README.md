@@ -284,9 +284,19 @@ Open `index-legacy.html` in a modern browser to watch the TSP solver in action.
 - `knapsack-loader.js`: Parser for Pisinger/OR-Library benchmark files.
 - `tsplib-json/`: Directory containing pre-parsed TSPLIB instances in JSON
   format.
-- `docs/analisis-algoritmico-alternativas.md`: Detailed mathematical analysis,
-  experimental results, and sigmoidal/exponential modeling of the k-Alternatives
-  algorithm.
+- `docs/`: Full documentation. Start at the index:
+  **[docs/README.md](docs/README.md)**.
+    - `docs/analisis-algoritmico-alternativas.md`: Detailed mathematical
+      analysis, experimental results, and sigmoidal/exponential modeling of the
+      k-Alternatives algorithm.
+    - `docs/puente-gradiente-k-alternatives.md`: Theoretical bridge between
+      k-Alternatives and gradient descent. Shows that the adaptive learning
+      (`Move-to-Front`) is an _Exponentiated Gradient_ step followed by a lossy
+      re-quantization, maps the discrepancy budget `k` onto the `λ` of blackbox
+      differentiation, and proposes a one-parameter family with verified
+      anchors.
+    - `docs/propuesta-integracion-redes-neuronales.md`: Design proposal for
+      neural integration paths (Vías A/B/C/D) plus a roadmap.
 
 ## 🙌 Acknowledgments
 
