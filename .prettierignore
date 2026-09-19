@@ -30,6 +30,9 @@ Thumbs.db
 temp_kp/
 old-k-search/
 
+# Local-only documentation (drafts, transcripts, third-party PDFs)
+docs/private/
+
 # Benchmark outputs (keep configs, ignore generated)
 benchmark-results*.json
 benchmark-results*.md
