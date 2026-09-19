@@ -1,0 +1,846 @@
+{
+  "title": "k-Alternatives Local Minima Analysis",
+  "timestamp": "2026-05-23T18:50:10.264Z",
+  "config": {
+    "problems": ["berlin52", "st70", "dantzig42"],
+    "kValues": [0, 1, 2],
+    "runsPerK": 20,
+    "timeLimit": 30,
+    "shuffle": true
+  },
+  "problems": {
+    "berlin52": {
+      "n": 52,
+      "optimal": 7542,
+      "kResults": {
+        "0": {
+          "unique": 14,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 8646.25,
+          "avgGap": 14.641341819146113,
+          "best": 8141,
+          "worst": 8905,
+          "sorted": [
+            {
+              "value": 8905,
+              "count": 4,
+              "pct": "20.0"
+            },
+            {
+              "value": 8652,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 8745,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 8863,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 8141,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8196,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8366,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8383,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8388,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8478,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8551,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8596,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8837,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8849,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 0,
+            "2-3%": 0,
+            "3-5%": 0,
+            "5%+": 20
+          },
+          "closeToOptimal": 0
+        },
+        "1": {
+          "unique": 19,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 7867.35,
+          "avgGap": 4.3138424821002435,
+          "best": 7741,
+          "worst": 8244,
+          "sorted": [
+            {
+              "value": 7741,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 7760,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7762,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7764,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7782,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7796,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7802,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7816,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7853,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7874,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7881,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7886,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7889,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7921,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7926,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7949,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7974,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7986,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 8244,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 0,
+            "2-3%": 5,
+            "3-5%": 9,
+            "5%+": 6
+          },
+          "closeToOptimal": 0
+        },
+        "2": {
+          "unique": 9,
+          "optimalCount": 4,
+          "successRate": 20,
+          "avg": 7704.4,
+          "avgGap": 2.153274993370454,
+          "best": 7542,
+          "worst": 7944,
+          "sorted": [
+            {
+              "value": 7715,
+              "count": 6,
+              "pct": "30.0"
+            },
+            {
+              "value": 7542,
+              "count": 4,
+              "pct": "20.0"
+            },
+            {
+              "value": 7757,
+              "count": 3,
+              "pct": "15.0"
+            },
+            {
+              "value": 7738,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 7565,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7749,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7783,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7842,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 7944,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 4,
+            "0-1%": 1,
+            "1-2%": 0,
+            "2-3%": 12,
+            "3-5%": 2,
+            "5%+": 1
+          },
+          "closeToOptimal": 2
+        }
+      }
+    },
+    "st70": {
+      "n": 70,
+      "optimal": 675,
+      "kResults": {
+        "0": {
+          "unique": 15,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 782.5,
+          "avgGap": 15.925925925925927,
+          "best": 745,
+          "worst": 825,
+          "sorted": [
+            {
+              "value": 825,
+              "count": 3,
+              "pct": "15.0"
+            },
+            {
+              "value": 753,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 775,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 816,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 745,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 749,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 756,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 758,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 769,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 771,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 776,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 780,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 785,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 798,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 800,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 0,
+            "2-3%": 0,
+            "3-5%": 0,
+            "5%+": 20
+          },
+          "closeToOptimal": 0
+        },
+        "1": {
+          "unique": 17,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 704.65,
+          "avgGap": 4.392592592592589,
+          "best": 684,
+          "worst": 736,
+          "sorted": [
+            {
+              "value": 695,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 699,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 718,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 684,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 688,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 689,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 690,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 691,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 698,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 704,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 705,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 708,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 711,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 714,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 722,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 729,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 736,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 2,
+            "2-3%": 5,
+            "3-5%": 6,
+            "5%+": 7
+          },
+          "closeToOptimal": 2
+        },
+        "2": {
+          "unique": 11,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 687.95,
+          "avgGap": 1.9185185185185254,
+          "best": 680,
+          "worst": 711,
+          "sorted": [
+            {
+              "value": 683,
+              "count": 4,
+              "pct": "20.0"
+            },
+            {
+              "value": 684,
+              "count": 3,
+              "pct": "15.0"
+            },
+            {
+              "value": 689,
+              "count": 3,
+              "pct": "15.0"
+            },
+            {
+              "value": 682,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 696,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 680,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 685,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 687,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 688,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 701,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 711,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 1,
+            "1-2%": 12,
+            "2-3%": 3,
+            "3-5%": 3,
+            "5%+": 1
+          },
+          "closeToOptimal": 7
+        }
+      }
+    },
+    "dantzig42": {
+      "n": 42,
+      "optimal": 699,
+      "kResults": {
+        "0": {
+          "unique": 15,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 894.1,
+          "avgGap": 27.91130185979972,
+          "best": 869,
+          "worst": 940,
+          "sorted": [
+            {
+              "value": 889,
+              "count": 4,
+              "pct": "20.0"
+            },
+            {
+              "value": 890,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 905,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 869,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 875,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 876,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 877,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 879,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 892,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 898,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 903,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 907,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 909,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 911,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 940,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 0,
+            "2-3%": 0,
+            "3-5%": 0,
+            "5%+": 20
+          },
+          "closeToOptimal": 0
+        },
+        "1": {
+          "unique": 18,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 758.3,
+          "avgGap": 8.483547925608006,
+          "best": 708,
+          "worst": 792,
+          "sorted": [
+            {
+              "value": 764,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 782,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 708,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 722,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 740,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 741,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 742,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 746,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 748,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 749,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 752,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 755,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 768,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 771,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 775,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 776,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 789,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 792,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 1,
+            "2-3%": 0,
+            "3-5%": 1,
+            "5%+": 18
+          },
+          "closeToOptimal": 1
+        },
+        "2": {
+          "unique": 9,
+          "optimalCount": 2,
+          "successRate": 10,
+          "avg": 713.6,
+          "avgGap": 2.0886981402002895,
+          "best": 699,
+          "worst": 754,
+          "sorted": [
+            {
+              "value": 704,
+              "count": 8,
+              "pct": "40.0"
+            },
+            {
+              "value": 713,
+              "count": 3,
+              "pct": "15.0"
+            },
+            {
+              "value": 699,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 708,
+              "count": 2,
+              "pct": "10.0"
+            },
+            {
+              "value": 712,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 731,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 744,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 746,
+              "count": 1,
+              "pct": "5.0"
+            },
+            {
+              "value": 754,
+              "count": 1,
+              "pct": "5.0"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 2,
+            "0-1%": 8,
+            "1-2%": 3,
+            "2-3%": 3,
+            "3-5%": 1,
+            "5%+": 3
+          },
+          "closeToOptimal": 4
+        }
+      }
+    }
+  }
+}

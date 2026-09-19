@@ -1,0 +1,715 @@
+{
+  "title": "k-Alternatives Local Minima Analysis",
+  "timestamp": "2026-05-23T17:31:38.967Z",
+  "config": {
+    "problems": ["berlin52", "st70"],
+    "kValues": [0, 1, 2],
+    "runsPerK": 30,
+    "timeLimit": 30,
+    "shuffle": true
+  },
+  "problems": {
+    "berlin52": {
+      "n": 52,
+      "optimal": 7542,
+      "kResults": {
+        "0": {
+          "unique": 13,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 8701.366666666667,
+          "avgGap": 15.372138248033238,
+          "best": 8130,
+          "worst": 8905,
+          "sorted": [
+            {
+              "value": 8596,
+              "count": 5,
+              "pct": "16.7"
+            },
+            {
+              "value": 8905,
+              "count": 5,
+              "pct": "16.7"
+            },
+            {
+              "value": 8849,
+              "count": 4,
+              "pct": "13.3"
+            },
+            {
+              "value": 8745,
+              "count": 3,
+              "pct": "10.0"
+            },
+            {
+              "value": 8551,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 8652,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 8837,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 8839,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 8130,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8235,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8447,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8472,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8863,
+              "count": 1,
+              "pct": "3.3"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 0,
+            "2-3%": 0,
+            "3-5%": 0,
+            "5%+": 30
+          },
+          "closeToOptimal": 0
+        },
+        "1": {
+          "unique": 28,
+          "optimalCount": 1,
+          "successRate": 3.3333333333333335,
+          "avg": 7867.033333333334,
+          "avgGap": 4.309643772650938,
+          "best": 7542,
+          "worst": 8615,
+          "sorted": [
+            {
+              "value": 7762,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 7867,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 7542,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7565,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7719,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7734,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7741,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7749,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7751,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7769,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7770,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7777,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7784,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7826,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7828,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7837,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7840,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7841,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7854,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7862,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7913,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7916,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7930,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8004,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8009,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8179,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8398,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8615,
+              "count": 1,
+              "pct": "3.3"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 1,
+            "0-1%": 1,
+            "1-2%": 0,
+            "2-3%": 7,
+            "3-5%": 15,
+            "5%+": 6
+          },
+          "closeToOptimal": 2
+        },
+        "2": {
+          "unique": 17,
+          "optimalCount": 3,
+          "successRate": 10,
+          "avg": 7770.833333333333,
+          "avgGap": 3.0341200388933043,
+          "best": 7542,
+          "worst": 8041,
+          "sorted": [
+            {
+              "value": 7715,
+              "count": 4,
+              "pct": "13.3"
+            },
+            {
+              "value": 7542,
+              "count": 3,
+              "pct": "10.0"
+            },
+            {
+              "value": 7741,
+              "count": 3,
+              "pct": "10.0"
+            },
+            {
+              "value": 7757,
+              "count": 3,
+              "pct": "10.0"
+            },
+            {
+              "value": 7738,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 7749,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 7820,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 7952,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 7657,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7755,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7762,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7792,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7848,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7902,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7916,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 7954,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 8041,
+              "count": 1,
+              "pct": "3.3"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 3,
+            "0-1%": 0,
+            "1-2%": 1,
+            "2-3%": 16,
+            "3-5%": 6,
+            "5%+": 4
+          },
+          "closeToOptimal": 2
+        }
+      }
+    },
+    "st70": {
+      "n": 70,
+      "optimal": 675,
+      "kResults": {
+        "0": {
+          "unique": 20,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 781.0666666666667,
+          "avgGap": 15.713580246913589,
+          "best": 739,
+          "worst": 825,
+          "sorted": [
+            {
+              "value": 785,
+              "count": 3,
+              "pct": "10.0"
+            },
+            {
+              "value": 825,
+              "count": 3,
+              "pct": "10.0"
+            },
+            {
+              "value": 747,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 767,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 771,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 779,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 806,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 816,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 739,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 749,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 752,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 760,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 763,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 766,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 769,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 775,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 776,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 782,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 792,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 807,
+              "count": 1,
+              "pct": "3.3"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 0,
+            "2-3%": 0,
+            "3-5%": 0,
+            "5%+": 30
+          },
+          "closeToOptimal": 0
+        },
+        "1": {
+          "unique": 23,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 710.0333333333333,
+          "avgGap": 5.190123456790118,
+          "best": 686,
+          "worst": 782,
+          "sorted": [
+            {
+              "value": 701,
+              "count": 4,
+              "pct": "13.3"
+            },
+            {
+              "value": 693,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 696,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 709,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 782,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 686,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 689,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 692,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 694,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 695,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 697,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 698,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 700,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 703,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 705,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 707,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 708,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 711,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 723,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 724,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 726,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 733,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 746,
+              "count": 1,
+              "pct": "3.3"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 0,
+            "1-2%": 1,
+            "2-3%": 6,
+            "3-5%": 13,
+            "5%+": 10
+          },
+          "closeToOptimal": 1
+        },
+        "2": {
+          "unique": 13,
+          "optimalCount": 0,
+          "successRate": 0,
+          "avg": 688,
+          "avgGap": 1.925925925925926,
+          "best": 681,
+          "worst": 730,
+          "sorted": [
+            {
+              "value": 685,
+              "count": 7,
+              "pct": "23.3"
+            },
+            {
+              "value": 683,
+              "count": 4,
+              "pct": "13.3"
+            },
+            {
+              "value": 689,
+              "count": 4,
+              "pct": "13.3"
+            },
+            {
+              "value": 684,
+              "count": 3,
+              "pct": "10.0"
+            },
+            {
+              "value": 686,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 688,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 692,
+              "count": 2,
+              "pct": "6.7"
+            },
+            {
+              "value": 681,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 682,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 687,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 691,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 702,
+              "count": 1,
+              "pct": "3.3"
+            },
+            {
+              "value": 730,
+              "count": 1,
+              "pct": "3.3"
+            }
+          ],
+          "buckets": {
+            "0% (Opt)": 0,
+            "0-1%": 1,
+            "1-2%": 20,
+            "2-3%": 7,
+            "3-5%": 1,
+            "5%+": 1
+          },
+          "closeToOptimal": 8
+        }
+      }
+    }
+  }
+}
