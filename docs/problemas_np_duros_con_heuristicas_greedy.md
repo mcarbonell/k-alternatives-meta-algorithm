@@ -347,6 +347,8 @@ Si quieres profundizar en algún problema o heurística, te recomiendo:
 
 ---
 
+mistral-medium-3.5
+
 ---
 
 Aquí tienes el **ranking definitivo** de problemas NP-duros con heurísticas
@@ -1066,3 +1068,72 @@ o bioinformática**.
 
 **Si buscas un proyecto con alto potencial de innovación y mercado, enfócate en
 VRP.** 🚀
+
+---
+
+grok-4.6-low
+
+---
+
+**TSP/VRP (ruteo de vehículos), scheduling (planificación), bin packing/cutting
+stock, facility location/set cover y knapsack/asignación de recursos** son los
+de mayor impacto industrial y científico. Mejoras en heurísticas greedy,
+aproximaciones o metaheurísticas (GRASP, tabu, genéticos, ALNS, etc.) siguen
+siendo valiosas, sobre todo en instancias grandes, dinámicas o con restricciones
+reales.
+
+### Ranking por impacto potencial de un algoritmo mejor
+
+1. **VRP / TSP y variantes (ruteo, last-mile, flotas)**  
+   Logística, delivery (Amazon, UPS, DHL), transporte público, mensajería,
+   milicia, secuenciación (algunos problemas de genómica/ensamblaje). Un 1-2 %
+   de mejora en distancias/costes se traduce en ahorros enormes (combustible,
+   tiempo, emisiones). Las heurísticas greedy (nearest neighbor, savings de
+   Clarke-Wright, insertion) + metaheurísticas son el estándar práctico;
+   instancias reales son enormes y dinámicas. Alto valor económico y científico
+   (logística + algunas aplicaciones bio).
+
+2. **Scheduling / planificación (job-shop, flow-shop, RCPSP, máquinas paralelas,
+   CPU/cloud)**  
+   Manufactura, aerolíneas, hospitales, data centers, proyectos. Impacto directo
+   en throughput, costes y plazos. Greedy (list scheduling, LPT/SPT, reglas de
+   prioridad) + metaheurísticas se usan masivamente. Mejoras escalables o con
+   mejores garantías en instancias con recursos/restricciones reales tienen gran
+   retorno.
+
+3. **Bin packing, cutting stock y empaquetado**  
+   Industria (papel, acero, vidrio, textil), warehousing, colocación de VMs en
+   cloud, carga de camiones/contenedores. First Fit Decreasing y variantes
+   greedy son clásicos; mejoras reducen desperdicio de material y costes de
+   almacenamiento/transporte. Valor económico alto y medible.
+
+4. **Facility location, set cover / maximum coverage**  
+   Ubicación de almacenes, torres 5G/antenas, hospitales, sensores,
+   publicidad/cobertura. Set cover greedy (ratio ln n) es muy usado. Mejoras
+   afectan redes, supply chain y costes de infraestructura. También aparece en
+   bioinformática y diseño de experimentos.
+
+5. **Knapsack 0/1 y variantes (asignación de recursos, portfolio, cutting)**  
+   Finanzas, cloud (colocación de jobs), packing, presupuestos. El greedy por
+   densidad es simple y efectivo como baseline o componente; combinado con
+   programación dinámica o metaheurísticas da solvers prácticos. Impacto amplio
+   pero a menudo como subproblema.
+
+6. **Graph coloring y vertex cover / independent set**  
+   Compiladores (asignación de registros), frecuencias inalámbricas, scheduling,
+   redes (seguridad, proteínas, social). Coloreo greedy es extremadamente usado;
+   vertex cover greedy también. Impacto más técnico/científico (compilers,
+   telecom, bio) que masivo en logística, aunque sigue siendo relevante.
+
+**Steiner tree** y similares tienen nicho fuerte en diseño de redes y
+VLSI/filogenética, pero menor volumen económico que los anteriores.
+
+Las metaheurísticas ya dominan la práctica (junto a solvers MIP como Gurobi +
+heurísticas internas). Lo más valioso ahora suele ser: (a) greedy/
+aproximaciones más rápidas o con mejor ratio en instancias reales, (b) híbridos
+escalables, (c) métodos que manejen incertidumbre/dinámica o restricciones extra
+(ventanas de tiempo, capacidad, etc.), y (d) implementaciones que compitan en
+calidad/tiempo con el estado del arte en benchmarks industriales.
+
+Si quieres detalles de una familia concreta (pseudocódigo greedy, garantías de
+aproximación, referencias a aplicaciones o ideas de mejora), indica cuál.
