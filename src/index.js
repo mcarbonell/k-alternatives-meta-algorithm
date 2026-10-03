@@ -21,3 +21,4 @@ export {
     runMultiStart2Opt,
     runSimulatedAnnealing,
 } from './baselines.js';
+export * from './statistics.js';

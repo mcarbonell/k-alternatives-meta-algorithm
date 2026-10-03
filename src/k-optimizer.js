@@ -2,13 +2,17 @@
  * k-Deviation Optimizer - Generic Base Class
  *
  * Abstract base class implementing the k-Alternatives meta-heuristic algorithm.
- * This algorithm combines:
- * - Limited Discrepancy Search (LDS) - Allows k "sub-optimal" heuristic choices
- * - Multi-Start Strategy - Builds solutions from different starting points
- * - Adaptive Learning - Reinforces successful decisions by reordering heuristic lists
+ *
+ * Canonical Algorithm Specification:
+ * - Discrepancy Budget Semantics: Greedy choice (rank 0) expends 0 discrepancy units.
+ *   Branching to the m-th valid alternative (m >= 1) expends m units of discrepancy
+ *   from `alternativesLeft` via `alternativesLeft - (validChoicesFound - 1)`.
+ * - Multi-Start Strategy: Builds solutions across distinct starting items.
+ * - Adaptive Learning: Online Move-To-Front (MTF) candidate reordering on improvement.
+ * - Adaptive Restart Schedule: Re-explores current k level upon discovering an improved tour.
  *
  * @author Mario Raúl Carbonell Martínez
- * @version 1.0.0
+ * @version 1.1.0
  */
 class KDeviationOptimizer {
     /**

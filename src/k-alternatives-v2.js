@@ -1,6 +1,16 @@
 /**
- * k-Alternatives Optimization Framework V2
- * Optimized with Branch & Bound Pruning and 1-step Lookahead.
+ * Experimental Prototype: k-Alternatives V2 (Discrepancy Unit Counter)
+ *
+ * NOTE: The canonical implementation of the k-Alternatives meta-heuristic
+ * is `KDeviationOptimizer` in `src/k-optimizer.js`.
+ *
+ * Semantic Distinction:
+ * - Canonical (`KDeviationOptimizer`): Deducts `(validChoicesFound - 1)`
+ *   from `alternativesLeft` so choosing the m-th alternative expends m units of discrepancy.
+ * - Prototype V2 (`KAlternativesV2`): Deducts a flat 1 unit of discrepancy whenever
+ *   any non-greedy branch (i > 0) is taken, regardless of rank depth.
+ *
+ * Retained for backwards compatibility and ablation experiments (see `scripts/benchmark_v1_vs_v2.js`).
  */
 
 class KAlternativesV2 {

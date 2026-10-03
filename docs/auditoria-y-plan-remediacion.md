@@ -492,11 +492,11 @@ aceptación verificable.
 - [x] Sección de Related Work con LDS/MTF (P0.6)
 - [x] Baselines medidos con presupuesto común (P1.1/P1.2)
 - [x] Ablación de componentes (P1.3)
-- [ ] IC 95% y significancia (P1.4)
-- [ ] Hold-out de instancias (P1.5)
+- [x] IC 95% y significancia (P1.4)
+- [x] Hold-out de instancias (P1.5)
 - [x] `npm test` en verde y `npm run lint` en verde (P2.1)
-- [ ] Semántica de `k` formalizada y una única versión canónica (P2.2)
-- [ ] Paquete de reproducibilidad con un comando (P1.7)
+- [x] Semántica de `k` formalizada y una única versión canónica (P2.2)
+- [x] Paquete de reproducibilidad con un comando (P1.7)
 - [ ] Manuscrito con límites explícitos (P3.1)
 
 ---

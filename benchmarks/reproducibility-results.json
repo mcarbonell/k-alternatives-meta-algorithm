@@ -1,0 +1,638 @@
+{
+  "hardware": {
+    "cpu": "AMD Ryzen 7 8845HS w/ Radeon 780M Graphics",
+    "cores": 16,
+    "ramGb": 62,
+    "os": "Windows_NT 10.0.26200 (x64)",
+    "nodeVersion": "v24.13.0",
+    "timestamp": "2026-10-03T02:23:33.431Z"
+  },
+  "experiment1_baselines": [
+    {
+      "instance": "bays29",
+      "dimension": 29,
+      "optimal": 2020,
+      "methods": [
+        {
+          "name": "Nearest Neighbor (Single-Start)",
+          "best": 2258,
+          "gap": 11.78,
+          "evals": 1,
+          "timeMs": 0
+        },
+        {
+          "name": "Multi-Start NN",
+          "best": 2134,
+          "gap": 5.64,
+          "evals": 29,
+          "timeMs": 1
+        },
+        {
+          "name": "2-Opt (on NN)",
+          "best": 2064,
+          "gap": 2.18,
+          "evals": 6,
+          "timeMs": 2
+        },
+        {
+          "name": "Or-Opt (on NN)",
+          "best": 2033,
+          "gap": 0.64,
+          "evals": 8,
+          "timeMs": 1
+        },
+        {
+          "name": "Multi-Start 2-Opt",
+          "best": 2020,
+          "gap": 0,
+          "evals": 29,
+          "timeMs": 2
+        },
+        {
+          "name": "Simulated Annealing (2-Opt)",
+          "best": 2028,
+          "gap": 0.4,
+          "evals": 15000,
+          "timeMs": 4
+        },
+        {
+          "name": "k-Alternatives (k=1)",
+          "best": 2026,
+          "gap": 0.3,
+          "evals": 552,
+          "timeMs": 39
+        },
+        {
+          "name": "k-Alternatives (k=2)",
+          "best": 2026,
+          "gap": 0.3,
+          "evals": 1618,
+          "timeMs": 50
+        },
+        {
+          "name": "k-Alternatives (k=3)",
+          "best": 2026,
+          "gap": 0.3,
+          "evals": 6418,
+          "timeMs": 82
+        }
+      ]
+    },
+    {
+      "instance": "att48",
+      "dimension": 48,
+      "optimal": 10628,
+      "methods": [
+        {
+          "name": "Nearest Neighbor (Single-Start)",
+          "best": 12861,
+          "gap": 21.01,
+          "evals": 1,
+          "timeMs": 0
+        },
+        {
+          "name": "Multi-Start NN",
+          "best": 12012,
+          "gap": 13.02,
+          "evals": 48,
+          "timeMs": 1
+        },
+        {
+          "name": "2-Opt (on NN)",
+          "best": 10782,
+          "gap": 1.45,
+          "evals": 19,
+          "timeMs": 1
+        },
+        {
+          "name": "Or-Opt (on NN)",
+          "best": 11051,
+          "gap": 3.98,
+          "evals": 26,
+          "timeMs": 3
+        },
+        {
+          "name": "Multi-Start 2-Opt",
+          "best": 10753,
+          "gap": 1.18,
+          "evals": 48,
+          "timeMs": 11
+        },
+        {
+          "name": "Simulated Annealing (2-Opt)",
+          "best": 11271,
+          "gap": 6.05,
+          "evals": 15000,
+          "timeMs": 3
+        },
+        {
+          "name": "k-Alternatives (k=1)",
+          "best": 11254,
+          "gap": 5.89,
+          "evals": 580,
+          "timeMs": 49
+        },
+        {
+          "name": "k-Alternatives (k=2)",
+          "best": 10725,
+          "gap": 0.91,
+          "evals": 6533,
+          "timeMs": 111
+        },
+        {
+          "name": "k-Alternatives (k=3)",
+          "best": 10648,
+          "gap": 0.19,
+          "evals": 52664,
+          "timeMs": 780
+        }
+      ]
+    },
+    {
+      "instance": "berlin52",
+      "dimension": 52,
+      "optimal": 7542,
+      "methods": [
+        {
+          "name": "Nearest Neighbor (Single-Start)",
+          "best": 8980,
+          "gap": 19.07,
+          "evals": 1,
+          "timeMs": 0
+        },
+        {
+          "name": "Multi-Start NN",
+          "best": 8181,
+          "gap": 8.47,
+          "evals": 52,
+          "timeMs": 1
+        },
+        {
+          "name": "2-Opt (on NN)",
+          "best": 7967,
+          "gap": 5.64,
+          "evals": 15,
+          "timeMs": 0
+        },
+        {
+          "name": "Or-Opt (on NN)",
+          "best": 8288,
+          "gap": 9.89,
+          "evals": 12,
+          "timeMs": 0
+        },
+        {
+          "name": "Multi-Start 2-Opt",
+          "best": 7542,
+          "gap": 0,
+          "evals": 52,
+          "timeMs": 6
+        },
+        {
+          "name": "Simulated Annealing (2-Opt)",
+          "best": 8104,
+          "gap": 7.45,
+          "evals": 15000,
+          "timeMs": 2
+        },
+        {
+          "name": "k-Alternatives (k=1)",
+          "best": 7842,
+          "gap": 3.98,
+          "evals": 968,
+          "timeMs": 43
+        },
+        {
+          "name": "k-Alternatives (k=2)",
+          "best": 7749,
+          "gap": 2.74,
+          "evals": 7096,
+          "timeMs": 161
+        },
+        {
+          "name": "k-Alternatives (k=3)",
+          "best": 7749,
+          "gap": 2.74,
+          "evals": 12279,
+          "timeMs": 448
+        }
+      ]
+    }
+  ],
+  "experiment2_ablation": [
+    {
+      "instance": "bays29",
+      "optimal": 2020,
+      "variants": [
+        {
+          "id": "full",
+          "name": "Full k-Alternatives",
+          "best": 2026,
+          "gap": 0.3,
+          "deltaGap": 0,
+          "iterations": 6418,
+          "nodesExpanded": 1032095,
+          "timeMs": 83
+        },
+        {
+          "id": "no-mtf",
+          "name": "Ablation: No MTF",
+          "best": 2033,
+          "gap": 0.64,
+          "deltaGap": 0.34,
+          "iterations": 7075,
+          "nodesExpanded": 2012666,
+          "timeMs": 118
+        },
+        {
+          "id": "single-start",
+          "name": "Ablation: Single-Start",
+          "best": 2028,
+          "gap": 0.4,
+          "deltaGap": 0.1,
+          "iterations": 711,
+          "nodesExpanded": 102251,
+          "timeMs": 69
+        },
+        {
+          "id": "fixed-sched",
+          "name": "Ablation: Fixed Schedule",
+          "best": 2026,
+          "gap": 0.3,
+          "deltaGap": 0,
+          "iterations": 6086,
+          "nodesExpanded": 1007993,
+          "timeMs": 65
+        },
+        {
+          "id": "bare-lds",
+          "name": "Ablation: Bare LDS",
+          "best": 2073,
+          "gap": 2.62,
+          "deltaGap": 2.32,
+          "iterations": 494,
+          "nodesExpanded": 37094,
+          "timeMs": 43
+        }
+      ]
+    },
+    {
+      "instance": "att48",
+      "optimal": 10628,
+      "variants": [
+        {
+          "id": "full",
+          "name": "Full k-Alternatives",
+          "best": 10648,
+          "gap": 0.19,
+          "deltaGap": 0,
+          "iterations": 52664,
+          "nodesExpanded": 29867331,
+          "timeMs": 797
+        },
+        {
+          "id": "no-mtf",
+          "name": "Ablation: No MTF",
+          "best": 11030,
+          "gap": 3.78,
+          "deltaGap": 3.59,
+          "iterations": 31628,
+          "nodesExpanded": 20817153,
+          "timeMs": 594
+        },
+        {
+          "id": "single-start",
+          "name": "Ablation: Single-Start",
+          "best": 10794,
+          "gap": 1.56,
+          "deltaGap": 1.37,
+          "iterations": 1005,
+          "nodesExpanded": 449149,
+          "timeMs": 94
+        },
+        {
+          "id": "fixed-sched",
+          "name": "Ablation: Fixed Schedule",
+          "best": 10684,
+          "gap": 0.53,
+          "deltaGap": 0.34,
+          "iterations": 14749,
+          "nodesExpanded": 9689291,
+          "timeMs": 259
+        },
+        {
+          "id": "bare-lds",
+          "name": "Ablation: Bare LDS",
+          "best": 11227,
+          "gap": 5.64,
+          "deltaGap": 5.45,
+          "iterations": 351,
+          "nodesExpanded": 231192,
+          "timeMs": 42
+        }
+      ]
+    }
+  ],
+  "experiment3_statistics": [
+    {
+      "instance": "bays29",
+      "optimal": 2020,
+      "replicates": 10,
+      "kAlt": {
+        "ci": {
+          "mean": 0.094,
+          "se": 0.06759684410779349,
+          "moe": 0.15290406137182885,
+          "ciLow": -0.05890406137182885,
+          "ciHigh": 0.24690406137182885,
+          "n": 10
+        },
+        "raw": [0.3, 0.64, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      "ms2Opt": {
+        "ci": {
+          "mean": 0,
+          "se": 0,
+          "moe": 0,
+          "ciLow": 0,
+          "ciHigh": 0,
+          "n": 10
+        },
+        "raw": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      "msnn": {
+        "ci": {
+          "mean": 5.64,
+          "se": 0,
+          "moe": 0,
+          "ciLow": 5.64,
+          "ciHigh": 5.64,
+          "n": 10
+        },
+        "raw": [5.64, 5.64, 5.64, 5.64, 5.64, 5.64, 5.64, 5.64, 5.64, 5.64]
+      },
+      "tests": {
+        "vsMSNN": {
+          "welch": {
+            "t": -82.04525038411639,
+            "df": 9,
+            "pValue": 1.822611461754775e-8,
+            "meanDiff": -5.545999999999999,
+            "cohenD": -36.691751417975006,
+            "significant": true
+          },
+          "mannWhitney": {
+            "u": 0,
+            "z": 3.7418482827913495,
+            "pValue": 0.00018272738905356078,
+            "significant": true
+          }
+        },
+        "vs2Opt": {
+          "welch": {
+            "t": 1.3905974641375662,
+            "df": 9,
+            "pValue": 0.19732784663197944,
+            "meanDiff": 0.094,
+            "cohenD": 0.6218940918300848,
+            "significant": false
+          },
+          "mannWhitney": {
+            "u": 40,
+            "z": 0.7181324987175317,
+            "pValue": 0.4726754444799379,
+            "significant": false
+          }
+        },
+        "holmBonferroni": [
+          {
+            "id": "bays29_kAlt_vs_MSNN",
+            "name": "k-Alternatives vs MS-NN",
+            "pValue": 1.822611461754775e-8,
+            "originalIndex": 0,
+            "rank": 1,
+            "thresholdAlpha": 0.025,
+            "rejected": true
+          },
+          {
+            "id": "bays29_kAlt_vs_MS2Opt",
+            "name": "k-Alternatives vs MS-2-Opt",
+            "pValue": 0.19732784663197944,
+            "originalIndex": 1,
+            "rank": 2,
+            "thresholdAlpha": 0.05,
+            "rejected": false
+          }
+        ]
+      }
+    },
+    {
+      "instance": "att48",
+      "optimal": 10628,
+      "replicates": 10,
+      "kAlt": {
+        "ci": {
+          "mean": 0.3390000000000001,
+          "se": 0.18607913489815142,
+          "moe": 0.42091100313961854,
+          "ciLow": -0.08191100313961847,
+          "ciHigh": 0.7599110031396186,
+          "n": 10
+        },
+        "raw": [0.19, 0.24, 0, 0, 1.9, 0, 0, 0, 0.53, 0.53]
+      },
+      "ms2Opt": {
+        "ci": {
+          "mean": 1.18,
+          "se": 0,
+          "moe": 0,
+          "ciLow": 1.18,
+          "ciHigh": 1.18,
+          "n": 10
+        },
+        "raw": [1.18, 1.18, 1.18, 1.18, 1.18, 1.18, 1.18, 1.18, 1.18, 1.18]
+      },
+      "msnn": {
+        "ci": {
+          "mean": 13.02,
+          "se": 0,
+          "moe": 0,
+          "ciLow": 13.02,
+          "ciHigh": 13.02,
+          "n": 10
+        },
+        "raw": [13.02, 13.02, 13.02, 13.02, 13.02, 13.02, 13.02, 13.02, 13.02, 13.02]
+      },
+      "tests": {
+        "vsMSNN": {
+          "welch": {
+            "t": -68.14842516836087,
+            "df": 9,
+            "pValue": 9.887195284719041e-9,
+            "meanDiff": -12.681,
+            "cohenD": -30.47690224720249,
+            "significant": true
+          },
+          "mannWhitney": {
+            "u": 0,
+            "z": 3.7418482827913495,
+            "pValue": 0.00018272738905356078,
+            "significant": true
+          }
+        },
+        "vs2Opt": {
+          "welch": {
+            "t": -4.519582490859671,
+            "df": 9,
+            "pValue": 0.0014214368353551166,
+            "meanDiff": -0.8409999999999999,
+            "cohenD": -2.021218735896009,
+            "significant": true
+          },
+          "mannWhitney": {
+            "u": 10,
+            "z": 2.9859193367728953,
+            "pValue": 0.0028274102707002147,
+            "significant": true
+          }
+        },
+        "holmBonferroni": [
+          {
+            "id": "att48_kAlt_vs_MSNN",
+            "name": "k-Alternatives vs MS-NN",
+            "pValue": 9.887195284719041e-9,
+            "originalIndex": 0,
+            "rank": 1,
+            "thresholdAlpha": 0.025,
+            "rejected": true
+          },
+          {
+            "id": "att48_kAlt_vs_MS2Opt",
+            "name": "k-Alternatives vs MS-2-Opt",
+            "pValue": 0.0014214368353551166,
+            "originalIndex": 1,
+            "rank": 2,
+            "thresholdAlpha": 0.05,
+            "rejected": true
+          }
+        ]
+      }
+    }
+  ],
+  "experiment4_holdout": [
+    {
+      "instance": "st70",
+      "dimension": 70,
+      "optimal": 675,
+      "bestDistance": 682,
+      "gap": 1.04,
+      "iterations": 23545,
+      "nodesExpanded": 52220903,
+      "timeMs": 1203
+    },
+    {
+      "instance": "pr76",
+      "dimension": 76,
+      "optimal": 108159,
+      "bestDistance": 110385,
+      "gap": 2.06,
+      "iterations": 17957,
+      "nodesExpanded": 50976358,
+      "timeMs": 1201
+    },
+    {
+      "instance": "kroA100",
+      "dimension": 100,
+      "optimal": 21282,
+      "bestDistance": 22015,
+      "gap": 3.44,
+      "iterations": 11780,
+      "nodesExpanded": 53263806,
+      "timeMs": 1203
+    },
+    {
+      "instance": "bier127",
+      "dimension": 127,
+      "optimal": 118282,
+      "bestDistance": 122008,
+      "gap": 3.15,
+      "iterations": 36804,
+      "nodesExpanded": 41006061,
+      "timeMs": 1202
+    }
+  ],
+  "experiment5_complexity": [
+    {
+      "instance": "bays29",
+      "dimension": 29,
+      "k": 0,
+      "nodesExpanded": 840,
+      "theoreticalBound": 812,
+      "pruningRatio": 0,
+      "timeMs": 0
+    },
+    {
+      "instance": "bays29",
+      "dimension": 29,
+      "k": 1,
+      "nodesExpanded": 37519,
+      "theoreticalBound": 15457,
+      "pruningRatio": 0,
+      "timeMs": 25
+    },
+    {
+      "instance": "bays29",
+      "dimension": 29,
+      "k": 2,
+      "nodesExpanded": 156023,
+      "theoreticalBound": 3972739,
+      "pruningRatio": 96.0727,
+      "timeMs": 48
+    },
+    {
+      "instance": "bays29",
+      "dimension": 29,
+      "k": 3,
+      "nodesExpanded": 1032095,
+      "theoreticalBound": 655605175,
+      "pruningRatio": 99.8426,
+      "timeMs": 73
+    },
+    {
+      "instance": "att48",
+      "dimension": 48,
+      "k": 0,
+      "nodesExpanded": 6823,
+      "theoreticalBound": 2256,
+      "pruningRatio": 0,
+      "timeMs": 22
+    },
+    {
+      "instance": "att48",
+      "dimension": 48,
+      "k": 1,
+      "nodesExpanded": 164950,
+      "theoreticalBound": 42912,
+      "pruningRatio": 0,
+      "timeMs": 51
+    },
+    {
+      "instance": "att48",
+      "dimension": 48,
+      "k": 2,
+      "nodesExpanded": 1795681,
+      "theoreticalBound": 18774480,
+      "pruningRatio": 90.4355,
+      "timeMs": 126
+    },
+    {
+      "instance": "att48",
+      "dimension": 48,
+      "k": 3,
+      "nodesExpanded": 29867331,
+      "theoreticalBound": 5357271360,
+      "pruningRatio": 99.4425,
+      "timeMs": 799
+    }
+  ]
+}
