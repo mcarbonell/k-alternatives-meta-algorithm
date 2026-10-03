@@ -149,7 +149,7 @@ class TSPSolver extends KDeviationOptimizer {
                 // Fallback: Pick a random unvisited city
                 const unvisited = [...this.allItems].filter((c) => !visited.has(c));
                 if (unvisited.length > 0) {
-                    const randomCity = unvisited[Math.floor(Math.random() * unvisited.length)];
+                    const randomCity = unvisited[Math.floor(this.random() * unvisited.length)];
                     initialRoute.push(randomCity);
                     visited.add(randomCity);
                     currentCity = randomCity;

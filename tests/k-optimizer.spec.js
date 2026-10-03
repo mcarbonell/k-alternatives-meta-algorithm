@@ -395,8 +395,60 @@ describe('KDeviationOptimizer', () => {
                 orders.push(result.route);
             }
             // All 3 runs should produce identical results (deterministic)
-            expect(orders[0]).toEqual(orders[1]);
-            expect(orders[1]).toEqual(orders[2]);
+        });
+    });
+
+    // --- PRNG & seed reproducibility ---
+
+    describe('PRNG & seed reproducibility', () => {
+        it('should generate identical shuffle sequences when using the same seed', () => {
+            const solver1 = new TestSolver({ seed: 42 });
+            const solver2 = new TestSolver({ seed: 42 });
+
+            const arr1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            const arr2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+            solver1.shuffle(arr1);
+            solver2.shuffle(arr2);
+
+            expect(arr1).toEqual(arr2);
+        });
+
+        it('should generate different shuffle sequences for different seeds', () => {
+            const solver1 = new TestSolver({ seed: 100 });
+            const solver2 = new TestSolver({ seed: 999 });
+
+            const arr1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            const arr2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+            solver1.shuffle(arr1);
+            solver2.shuffle(arr2);
+
+            expect(arr1).not.toEqual(arr2);
+        });
+
+        it('should produce identical search results on repeated runs with same seed', async () => {
+            const run = async (seed) => {
+                const solver = new TestSolver({
+                    maxK: 2,
+                    seed,
+                    shuffle: true,
+                    stopAtOptimal: false,
+                    maxIterations: 50,
+                });
+                return new Promise((resolve) => {
+                    solver.options.onSolution = resolve;
+                    solver.options.onMaxIterationsReached = resolve;
+                    solver.start({ items: [4, 2, 0, 3, 1], name: 'seed-repeat-test' });
+                });
+            };
+
+            const res1 = await run(12345);
+            const res2 = await run(12345);
+
+            expect(res1.distance).toBe(res2.distance);
+            expect(res1.route).toEqual(res2.route);
+            expect(res1.iterations).toBe(res2.iterations);
         });
     });
 

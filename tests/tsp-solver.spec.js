@@ -232,4 +232,29 @@ describe('TSPSolver', () => {
             expect(result.distance).toBe(30);
         });
     });
+
+    describe('seed reproducibility', () => {
+        it('should produce identical TSP solutions and routes when seed is fixed', async () => {
+            const runTSP = async (seed) => {
+                const solver = new TSPSolver({
+                    maxK: 2,
+                    maxIterations: 200,
+                    seed,
+                    shuffle: true,
+                    stopAtOptimal: false,
+                });
+                return new Promise((resolve) => {
+                    solver.options.onSolution = resolve;
+                    solver.options.onMaxIterationsReached = resolve;
+                    solver.start(berlin52);
+                });
+            };
+
+            const res1 = await runTSP(42);
+            const res2 = await runTSP(42);
+
+            expect(res1.distance).toBe(res2.distance);
+            expect(res1.route).toEqual(res2.route);
+        });
+    });
 });

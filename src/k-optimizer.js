@@ -26,6 +26,7 @@ class KDeviationOptimizer {
      * @param {Function|null} [options.onMaxTimeReached=null] - Callback when time limit reached
      * @param {boolean} [options.shuffle=true] - Whether to randomize starting points
      * @param {boolean} [options.maximize=false] - If true, maximize value (e.g. Knapsack). Default minimizes (e.g. TSP).
+     * @param {number|null} [options.seed=null] - Random seed for reproducible PRNG. Null for Math.random.
      */
     constructor(options = {}) {
         this.options = {
@@ -41,7 +42,10 @@ class KDeviationOptimizer {
             onMaxTimeReached: options.onMaxTimeReached || null,
             shuffle: options.shuffle !== false,
             maximize: options.maximize || false,
+            seed: options.seed ?? null,
         };
+
+        this.rng = this.createRNG(this.options.seed);
 
         // Generic state
         this.bestSolution = null;
@@ -359,6 +363,9 @@ class KDeviationOptimizer {
         this.limitReached = null;
         this.isRunning = true;
         this.startTime = Date.now();
+        if (this.options.seed !== null && this.options.seed !== undefined) {
+            this.rng = this.createRNG(this.options.seed);
+        }
 
         // 3. Auto-determine maxK if not set
         if (this.options.maxK === undefined || this.options.maxK === null) {
@@ -385,12 +392,39 @@ class KDeviationOptimizer {
     }
 
     /**
-     * Fisher-Yates shuffle algorithm.
+     * Creates a pseudo-random number generator function.
+     * Uses Mulberry32 if seed is provided; otherwise falls back to Math.random.
+     * @param {number|null} seed - Initial seed
+     * @returns {function(): number} Function returning float in [0, 1)
+     */
+    createRNG(seed) {
+        if (seed === null || seed === undefined) {
+            return Math.random;
+        }
+        let s = (Math.floor(Math.abs(seed)) || 1) >>> 0;
+        return function mulberry32() {
+            s = (s + 0x6d2b79f5) | 0;
+            let t = Math.imul(s ^ (s >>> 15), 1 | s);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+
+    /**
+     * Generates a pseudo-random float in [0, 1) using the configured RNG.
+     * @returns {number}
+     */
+    random() {
+        return this.rng();
+    }
+
+    /**
+     * Fisher-Yates shuffle algorithm using the configured RNG.
      * @param {Array} array - Array to shuffle in place
      */
     shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
+            const j = Math.floor(this.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
