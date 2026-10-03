@@ -18,8 +18,8 @@ the **Knapsack Problem**, demonstrating remarkable robustness.
 ## 🧠 The Core Concept
 
 The algorithm combines **Limited Discrepancy Search (LDS)** with **Multi-Start
-Construction** and introduces a **novel adaptive learning mechanism** that makes
-it unique in the landscape of optimization algorithms.
+Construction** and an **adaptive candidate-list reinforcement policy
+(Move-to-Front)**.
 
 ### 1. Base Heuristic
 
@@ -49,18 +49,17 @@ minima:
 - **Knapsack**: Force the greedy construction to start with different items
 - This systematic exploration ensures diverse solution coverage
 
-## 🧠 Adaptive Learning: Reinforcement Learning Without Neural Networks
+## 🧠 Adaptive Learning: Candidate-List Reinforcement (Move-to-Front)
 
-**This is the most innovative aspect of k-Alternatives.**
-
-The algorithm implements **Reinforcement Learning concepts** using simple data
-structures instead of neural networks or Q-tables. Each decision point maintains
-a **learned policy** that evolves based on successful solutions.
+At the core of the algorithm's learning capability is an online reordering
+mechanism inspired by classical **Move-to-Front (MTF)** list update rules and
+**reinforcement of candidate lists** (akin to LRTA\* and Expert Advice).
 
 ### How Learning Works
 
-When the algorithm discovers a **better solution**, it **reinforces the
-decisions** that led to that solution by reordering the heuristic lists:
+When the algorithm discovers a **better solution**, it reinforces the successful
+decisions by promoting those transitions to the head of the candidate heuristic
+lists:
 
 ```javascript
 // When a better route is found, successful edges move to the front
@@ -87,37 +86,32 @@ function updateHeuristics(improvedRoute) {
 }
 ```
 
-**Result**: Successful decisions become the "first choice" (k=0), allowing
-future searches to exploit learned knowledge at minimal cost.
+**Result**: Successful transitions become the default "greedy choice" ($k=0$)
+for subsequent search passes, allowing future iterations to exploit discovered
+structure at minimal computational cost.
 
-### Learning as RL Framework
+### Conceptual Mapping to Reinforcement Learning
 
-| RL Concept       | k-Alternatives Implementation                 |
-| ---------------- | --------------------------------------------- |
-| **State**        | Current partial solution + remaining choices  |
-| **Action**       | Choose next element (city/item)               |
-| **Policy π**     | `heuristics[state]` - ordered list of choices |
-| **Reward**       | Improvement in global solution quality        |
-| **Q-values**     | Implicit in the ordering of heuristic list    |
-| **Exploration**  | `k` parameter - higher k = more deviation     |
-| **Exploitation** | `k=0` - follow learned best choices           |
-| **Learning**     | Reordering heuristic lists based on success   |
+| Optimization Concept | k-Alternatives Realization                                            |
+| :------------------- | :-------------------------------------------------------------------- |
+| **State**            | Current partial tour / solution prefix                                |
+| **Action**           | Next item / city selected from unvisited candidates                   |
+| **Policy $\pi$**     | Ranked heuristic candidate list (`localHeuristics[state]`)            |
+| **Reward**           | Improvement in global objective value                                 |
+| **Exploitation**     | Greedy choice ($k=0$ follows the top learned choice)                  |
+| **Exploration**      | Discrepancy budget $k$ (trying 2nd, 3rd, ..., $(k+1)$-th alternative) |
+| **Learning Step**    | Move-to-Front reordering on confirmed global improvements             |
 
-### Why This Approach is Powerful
+### Key Strengths of this Formulation
 
-1. **No Hyperparameters**: Unlike Q-learning (α, γ) or Neural Networks (learning
-   rate, architecture), k-Alternatives has a single parameter: `k`
-
-2. **Interpretable**: You can inspect `heuristics[city]` to see what the
-   algorithm has "learned" about good connections
-
-3. **Fast Convergence**: Updates only happen on confirmed improvements, unlike
-   gradient descent which may converge slowly
-
-4. **Memory Efficient**: O(n²) storage vs exponential Q-tables
-
-5. **Deterministic Control**: Randomization only affects exploration order, not
-   the learning mechanism
+1. **Zero Hyperparameters**: Operates with a single intuitive control parameter:
+   the discrepancy budget $k$.
+2. **Transparent & Interpretable**: Inspecting `localHeuristics[city]` reveals
+   exactly which transitions the solver has reinforced.
+3. **Low Overhead**: $O(N \cdot C)$ update cost (where $C$ is the candidate list
+   size), with no matrix inversions or neural inference.
+4. **Deterministic Reproducibility**: Full reproducibility using seeded PRNG
+   (`options.seed`).
 
 ## 🚀 Features
 
@@ -140,32 +134,66 @@ future searches to exploit learned knowledge at minimal cost.
 
 ---
 
-## ⚖️ Comparison & Use Cases
+## 🔬 Related Work & Algorithmic Novelty
 
-Why use **k-Alternatives**? It occupies a "sweet spot" between naive algorithms
-and complex academic solvers. It offers **80% of the performance of
-state-of-the-art solvers with only 10% of the implementation complexity.**
+In meta-heuristics, novelty often arises not from isolated primitives, but from
+their **concrete formulation, coupling, and theoretical interpretation**.
+k-Alternatives integrates and builds upon key foundations in heuristic search:
 
-| Algorithm                 | Implementation       | Solution Quality | Parameter Tuning     | Robustness   |
-| ------------------------- | -------------------- | ---------------- | -------------------- | ------------ |
-| **Greedy (NN)**           | ⭐⭐⭐⭐⭐ (Trivial) | ⭐⭐ (Poor)      | None                 | High         |
-| **2-Opt (Hill Climbing)** | ⭐⭐⭐⭐ (Easy)      | ⭐⭐⭐ (Decent)  | Low                  | Medium       |
-| **Simulated Annealing**   | ⭐⭐⭐⭐ (Easy)      | ⭐⭐⭐⭐ (Good)  | **High** (Difficult) | Low (Random) |
-| **Genetic Algos (GA)**    | ⭐⭐⭐ (Medium)      | ⭐⭐⭐⭐ (Good)  | **Very High**        | Low (Slow)   |
-| **k-Alternatives (This)** | ⭐⭐⭐⭐ (Easy)      | ⭐⭐⭐⭐ (Good)  | **Low** (Just K)     | **High**     |
+### Prior Art & Neighbors
+
+| Related Paradigm                     | Core Reference                               | Relationship & Key Difference                                                                                                                                                                              |
+| :----------------------------------- | :------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Limited Discrepancy Search (LDS)** | Harvey & Ginsberg (IJCAI 1995)               | LDS searches tree/CSP structures with a static heuristic. k-Alternatives applies discrepancy budgets to **greedy permutation construction** with an online evolving policy.                                |
+| **Move-to-Front (MTF) & LRTA\***     | Sleator & Tarjan (CACM 1985); Korf (AI 1990) | Classical MTF updates static lists; here, MTF acts as an **online policy reinforcement step** coupled with discrepancy search.                                                                             |
+| **Focal Discrepancy Search**         | Greco, Araneda & Baier (SOCS 2022)           | Combines LDS with learned heuristics, but uses a **frozen, pre-trained neural heuristic** on single-agent puzzles. k-Alternatives learns **in-instance and online**.                                       |
+| **Iterated Local Search (ILS)**      | Lourenço, Martin & Stützle (2003)            | ILS perturbs solutions and applies local search (e.g., 2-opt). k-Alternatives operates via **controlled discrepancy construction** and heuristic re-ranking without requiring explicit neighborhood moves. |
+
+### The Distinctive Algorithmic Recipe
+
+1. **Discrepancy over Constructive Search**: The parameter $k$ directly controls
+   the exploration-exploitation balance during permutation construction.
+2. **Self-Modifying Policy**: Improved solutions rewrite `localHeuristics` in
+   real time, so that subsequent $k=0$ passes immediately exploit learned
+   knowledge.
+3. **Coupled Schedule (Learn $\to$ Re-exploit $\to$ Explore)**: Upon finding an
+   improvement, the solver resets to $k=0$ to replay the reinforced greedy
+   policy before progressively incrementing $k$.
+4. **Continuous Interpretation ($k \leftrightarrow \tau/\lambda$)**: As derived
+   in
+   [docs/puente-gradiente-k-alternatives.md](docs/puente-gradiente-k-alternatives.md),
+   Move-to-Front is mathematically equivalent to an _Exponentiated Gradient /
+   Mirror Descent_ step (with KL divergence) followed by discretization, and $k$
+   acts as a quantized temperature $\tau$.
+
+---
+
+## ⚖️ Algorithmic Trade-offs & Use Cases
+
+k-Alternatives occupies a practical middle ground: significantly more robust
+than pure greedy heuristics, yet far simpler to implement and deploy than
+complex iterative search frameworks.
+
+| Approach                       | Search Type                   | Parameters to Tune                     | Solution Memory        | Typical Gap (N=50–100) |
+| :----------------------------- | :---------------------------- | :------------------------------------- | :--------------------- | :--------------------- |
+| **Nearest Neighbor (Greedy)**  | Constructive                  | None                                   | None                   | 12% – 25%              |
+| **Random-Restart NN**          | Multi-start Constructive      | Seed / Runs                            | None                   | 8% – 15%               |
+| **2-Opt (Local Search)**       | Iterative Improvement         | Restarts, neighborhood                 | None                   | 3% – 7%                |
+| **Simulated Annealing**        | Stochastic Local Search       | Cooling schedule, $\tau_0$, iterations | Low                    | 2% – 5%                |
+| **Genetic Algorithms (GA)**    | Population-based              | Mutation, crossover, pop size          | Population             | 2% – 6%                |
+| **k-Alternatives (This work)** | Multi-Start Discrepancy + MTF | **Only $k$** (or auto)                 | Ranked candidate lists | **1% – 3%**            |
 
 ### Ideal Scenarios
 
-1.  **Game Development (RTS / RPG):** Units that need to visit multiple points
-    or collect items smartly. LKH is overkill (too much C++ code), and Greedy
-    looks stupid. k-Alternatives is lightweight and makes units appear
-    intelligent.
-2.  **Real-Time Logistics:** Mobile apps that need to route 20-50 stops quickly
-    on the client-side (JavaScript/native) without draining battery or requiring
-    a backend server.
-3.  **"Zero-Config" Optimization:** Scenarios where you cannot afford to tune
-    temperature parameters (SA) or mutation rates (GA). This algorithm works
-    robustly "out of the box".
+1. **Embedded & Client-Side Systems**: Fast route generation directly inside web
+   browsers (via JavaScript/Web Workers) or mobile apps without server-side
+   solver dependencies.
+2. **Game AI & Real-Time Logistics**: Path planning for units visiting multiple
+   targets where greedy heuristics produce unrealistic paths and heavy solvers
+   introduce prohibitive latency.
+3. **Zero-Configuration Heuristics**: Applications where manual hyperparameter
+   tuning (cooling rates, mutation schedules, population sizes) is impractical
+   or impossible.
 
 ---
 

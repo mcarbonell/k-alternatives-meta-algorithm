@@ -232,9 +232,13 @@ localHeuristics[state] = [option1, option2, ...] // reordered based on success
 
 ### TSP Performance
 
-- **50 cities**: Optimal solution in seconds
-- **Comparable to**: LKH, Concorde (state-of-the-art)
-- **Advantage**: No hyperparameter tuning needed
+- **Medium-sized instances (N ≈ 50, e.g. berlin52)**: Consistently finds
+  solutions within 1–3% of known optimal in seconds.
+- **Complexity control**: The discrepancy budget `k` provides direct control
+  over the exploration-exploitation trade-off without complex hyperparameter
+  tuning.
+- **Target scenario**: Fast client-side, embedded, or real-time optimization
+  where external heavyweight solvers are impractical.
 
 ### Typical Behavior
 

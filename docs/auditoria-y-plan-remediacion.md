@@ -45,14 +45,16 @@ tests básica que pasa. La idea central es clara y comunicable.
 Sin embargo, **en su estado actual NO está listo para publicar un paper que
 reclame novedad algorítmica**, por cuatro motivos agrupados:
 
-1. **Novedad científica no sustentada (riesgo crítico).** El algoritmo es, en el
-   fondo, **Limited Discrepancy Search (LDS, Harvey & Ginsberg 1995)** +
-   **multi-start** + **"move-to-front"** (aprendizaje heurístico clásico, tipo
-   LRTA\* / listas de candidatos reforzadas). El README lo presenta como
-   "mecanismo de aprendizaje novedoso" y "RL sin redes neuronales", y la
-   documentación interna llega a insinuar comparabilidad con **LKH/Concorde**.
-   Esas afirmaciones no están respaldadas por evidencia ni por posicionamiento
-   frente a la literatura.
+1. **Novedad mal formulada (riesgo alto; corregido y desarrollado en §4.3).** El
+   algoritmo reutiliza primitivas conocidas —**Limited Discrepancy Search (LDS,
+   Harvey & Ginsberg 1995)**, **multi-start** y **"move-to-front"**
+   (LRTA\*/listas de candidatos)—, pero eso **no invalida la novedad**: en
+   metaheurísticas lo nuevo suele ser la _combinación_. La **receta concreta**
+   (LDS sobre construcción greedy + heurística **auto-modificante** + schedule
+   acoplado) **no está publicada tal cual** y debe presentarse como tal. El
+   problema real es que el README la vende como "unique in the landscape" **sin
+   citar el prior-art** (§4.3) y con claims de rendimiento sin respaldo
+   (LKH/Concorde).
 
 2. **Falta de comparación honesta contra baselines (riesgo crítico).** No existe
    un experimento controlado contra NN puro, 2-opt/Or-opt, Reinicio aleatorio,
@@ -85,15 +87,15 @@ original del repositorio** y hoy **no es pública**.
 
 **Puntuaciones orientativas (0–10):**
 
-| Dimensión                      | Nota  | Comentario                                                          |
-| :----------------------------- | :---: | :------------------------------------------------------------------ |
-| Claridad de la idea            |   8   | Concepto simple, elegante y bien comunicable.                       |
-| Novedad frente a la literatura |   3   | LDS + MTF + multi-start; novedad solo en la combinación/schedule.   |
-| Calidad del código             |   7   | Legible, modular, JSDoc; con bugs y decisiones discutibles.         |
-| Rigor experimental             |   3   | Sin baselines, sin semilla, muestras pequeñas, overclaims.          |
-| Documentación                  |   4   | Rica pero con enlaces rotos, claims contradictorios y no pública.   |
-| Ingeniería / CI / licencia     |   5   | CI presente pero lint local roto, sin LICENSE, runner maestro roto. |
-| **Preparación para publicar**  | **3** | Necesita trabajo sustancial antes de enviar a revisión.             |
+| Dimensión                      | Nota  | Comentario                                                                                                                                      |
+| :----------------------------- | :---: | :---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claridad de la idea            |   8   | Concepto simple, elegante y bien comunicable.                                                                                                   |
+| Novedad frente a la literatura |   5   | Primitivas conocidas; la _combinación/formulación_ y la lectura k↔τ/λ son defendiblemente nuevas (§4.3), pero exigen ablación que lo demuestre. |
+| Calidad del código             |   7   | Legible, modular, JSDoc; con bugs y decisiones discutibles.                                                                                     |
+| Rigor experimental             |   3   | Sin baselines, sin semilla, muestras pequeñas, overclaims.                                                                                      |
+| Documentación                  |   4   | Rica pero con enlaces rotos, claims contradictorios y no pública.                                                                               |
+| Ingeniería / CI / licencia     |   5   | CI presente pero lint local roto, sin LICENSE, runner maestro roto.                                                                             |
+| **Preparación para publicar**  | **3** | Necesita trabajo sustancial antes de enviar a revisión.                                                                                         |
 
 ---
 
@@ -214,7 +216,7 @@ paper).
 
 | ID  | Severidad | Hallazgo                                                                                                                                                                                                                                                                           |
 | :-- | :-------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A1  |  Crítica  | El "core" coincide con LDS + multi-start + MTF. El README lo vende como _"novel adaptive learning mechanism… unique in the landscape"_. **No hay sección de _related work_ ni discusión de la relación con LDS/LRTA\*.**                                                           |
+| A1  |   Alta    | El "core" coincide con LDS + multi-start + MTF. El README lo vende como _"novel adaptive learning mechanism… unique in the landscape"_. **No hay sección de _related work_**. Ojo: la _combinación_ sí puede ser novedosa — ver recalibración y mapa de prior-art en §4.3.         |
 | A2  |  Crítica  | Los claims de rendimiento ("80% del desempeño de SOTA con 10% de complejidad", "comparable a LKH, Concorde") **no tienen respaldo experimental**. `docs/tsp-algorithm.md` afirma literalmente _"Comparable to: LKH, Concorde (state-of-the-art)"_.                                 |
 | A3  |   Alta    | No hay **baselines medidos** (NN, 2-opt/Or-opt, Random restart NN, SA, GA, LKH). Las "tablas comparativas" son puntuaciones con ⭐.                                                                                                                                                |
 | A4  |   Alta    | `docs/private/analisis-algoritmico-alternativas.md` concluye una _"garantía formal de convergencia en tiempo polinomial"_. La derivación usa aproximaciones (`ln(1−p) ≈ −p`) y 50 muestras; **no es un teorema**. Riesgo de overclaim grave.                                       |
@@ -245,6 +247,69 @@ Este framing **no niega** LDS (lo cita), **acota** la novedad a lo defendible y
 **eleva** la aportación teórica real (Contribución 2) al primer plano. Publicar
 la afirmación de §4.1-A1/A2 sin cambios invitaría al rechazo o a la
 retractación.
+
+### 4.3 Mapa de prior-art y recalibración de la novedad
+
+> **Nota de recalibración.** La primera versión de esta auditoría puntuó la
+> novedad muy bajo (3/10) y tituló "no novedoso". Eso **mezcló dos preguntas
+> distintas** y fue injusto. En metaheurísticas la novedad casi nunca reside en
+> una _primitiva_ nueva, sino en la **formulación e interacción** de piezas
+> conocidas (ILS, ACO, GRASP, LNS… _todas_ combinan ingredientes previos). La
+> pregunta correcta no es "¿existe este ingrediente?", sino **"¿existe esta
+> receta concreta, y aporta algo que las recetas vecinas no aportan?"**. Bajo
+> ese criterio, la combinación de k-Alternatives **sí es defendiblemente
+> novedosa**, y esta subsección documenta por qué y frente a quién.
+
+#### 4.3.1 Los vecinos más cercanos (lo que un revisor citará)
+
+| Pieza de k-Alternatives                 | Trabajo más cercano                                                  | ¿Coincide?    | Diferencia clave                                                                                                             |
+| :-------------------------------------- | :------------------------------------------------------------------- | :------------ | :--------------------------------------------------------------------------------------------------------------------------- |
+| Presupuesto de discrepancia `k`         | **LDS** (Harvey & Ginsberg, IJCAI 1995)                              | Sí (concepto) | LDS se aplica a _búsqueda en árbol / CSP_; aquí se aplica a una **construcción greedy** de optimización combinatoria.        |
+| Límite de ramificación creciente        | **Iterative Broadening** (Ginsberg & Harvey, AAAI 1990)              | Parcial       | IB limita el nº de hijos por nodo; sin _aprendizaje_ ni reconstrucción greedy.                                               |
+| LDS dentro de beam search               | **BULB / LDBS** (Furcy & Koenig, IJCAI 2005)                         | Parcial       | Combina LDS con haz (memoria acotada); heurística **fija**, no aprendida.                                                    |
+| LDS + heurística **aprendida**          | **Focal Discrepancy Search** (Greco, Araneda & Baier, SOCS 2022)     | Parcial       | La heurística neuronal (DeepCubeA) es **preentrenada y congelada**; dominio: puzzles single-agent, no construcción de tours. |
+| Schedule adaptativo de profundidad      | **Adaptive Probing** (Ruml et al.)                                   | Parcial       | Adapta la profundidad de sondeo, no la ordenación de candidatos.                                                             |
+| Aprender el presupuesto de backtracking | **RLBS** (RL Backtracking Strategy)                                  | Parcial       | RL decide cuánto retroceder en B&B; no reordena la heurística de construcción.                                               |
+| Reordenar candidatos al mejorar         | **Move-to-Front** (Sleator & Tarjan, 1985) / **LRTA\*** (Korf, 1990) | Sí (concepto) | MTF clásico; como _online learning_ ≈ Expert Advice / Mirror Descent (Blum & Burch 1997; Kalai & Vempala 2005).              |
+| Multi-start + perturbación              | **ILS** (Lourenço et al.)                                            | Sí (concepto) | ILS perturba + búsqueda local; aquí no hay búsqueda local: **desviación controlada de la construcción**.                     |
+
+**Ningún trabajo encontrado implementa la receta completa.** Los dos más
+peligrosos son _Focal Discrepancy Search_ (LDS + heurística aprendida) y
+_Adaptive Probing_ (LDS + schedule adaptativo); deben citarse y marcar la
+diferencia explícitamente.
+
+#### 4.3.2 El _fingerprint_ defendible (lo que sí es nuevo)
+
+La contribución diferencial **no es una primitiva**, es un **lazo de
+realimentación**:
+
+1. **LDS sobre construcción greedy** (no árbol): `k` es un sesgo
+   _exploration/exploitation_ sobre la construcción de una permutación.
+2. **Heurística auto-modificante**: la solución que mejora **reescribe la propia
+   política** (`localHeuristics` vía MTF), de modo que el `k=0` de la siguiente
+   pasada _ya incorpora lo aprendido_. Esto **no** ocurre en LDS, IB, BULB ni
+   Focal Discrepancy Search (heurística estática).
+3. **Schedule acoplado**: tras una mejora, **se re-desciende a `k=0`** (replay
+   greedy reforzado) y sólo se sube `k` al agotar. La novedad está en la
+   **interacción 2↔3**: "aprender → reexplotar barato → volver a explorar".
+4. **Familia continua k↔τ/λ**: reinterpretar `k` como **temperatura cuantizada**
+   y `_moveToFront` como _Exponentiated Gradient + re-cuantización_. Es la pieza
+   **más original y menos cubierta**: hay precedente de MTF≈mirror-descent _en
+   aislamiento_, pero no de esta lectura sobre el presupuesto de discrepancia.
+
+#### 4.3.3 Regla de honestidad
+
+La novedad de la combinación es un **argumento**, no un hecho: para que un
+revisor lo acepte hay que **demostrar que la interacción importa** mediante
+**ablación** (§6, P1.3): (a) sin MTF, (b) single-start, (c) schedule fijo vs.
+adaptativo. Si apagar el acoplamiento 2↔3 **no** degrada el rendimiento, la
+"combinación novedosa" no existe como contribución. Si lo degrada, tienes la
+evidencia que sostiene el paper.
+
+> **Reencuadre:** el angle publicable no es "nuevo algoritmo" ni "nueva
+> primitiva", sino **"nueva familia de metaheurísticas de construcción
+> auto-modificante guiada por discrepancia, con una interpretación continua
+> (k↔τ/λ)"**. Más modesto en la forma, más fuerte en el fondo.
 
 ---
 
@@ -419,17 +484,17 @@ aceptación verificable.
 
 ## 11. Checklist de "readiness" para publicar
 
-- [ ] `LICENSE` presente (P0.1)
-- [ ] Semilla RNG + resultados reproducibles (P0.2/P1.7)
-- [ ] `npm run benchmark` y demás scripts no crashean (P0.3)
-- [ ] Cero enlaces rotos en docs públicos (P0.4)
-- [ ] Cero overclaims; claims falsables (P0.5)
-- [ ] Sección de Related Work con LDS/MTF (P0.6)
+- [x] `LICENSE` presente (P0.1)
+- [x] Semilla RNG + resultados reproducibles (P0.2/P1.7)
+- [x] `npm run benchmark` y demás scripts no crashean (P0.3)
+- [x] Cero enlaces rotos en docs públicos (P0.4)
+- [x] Cero overclaims; claims falsables (P0.5)
+- [x] Sección de Related Work con LDS/MTF (P0.6)
 - [ ] Baselines medidos con presupuesto común (P1.1/P1.2)
 - [ ] Ablación de componentes (P1.3)
 - [ ] IC 95% y significancia (P1.4)
 - [ ] Hold-out de instancias (P1.5)
-- [ ] `npm test` en verde y `npm run lint` en verde (P2.1)
+- [x] `npm test` en verde y `npm run lint` en verde (P2.1)
 - [ ] Semántica de `k` formalizada y una única versión canónica (P2.2)
 - [ ] Paquete de reproducibilidad con un comando (P1.7)
 - [ ] Manuscrito con límites explícitos (P3.1)
@@ -451,8 +516,8 @@ aceptación verificable.
 
 | Severidad   | IDs                                                    |
 | :---------- | :----------------------------------------------------- |
-| **Crítica** | A1, A2, B1, B2, C1, E1                                 |
-| **Alta**    | A3, A4, A5, B3, B4, C2, D1, D2, E2, E3, E4             |
+| **Crítica** | A2, B1, B2, C1, E1                                     |
+| **Alta**    | A1, A3, A4, A5, B3, B4, C2, D1, D2, E2, E3, E4         |
 | **Media**   | A6, A7, B5, B6, B7, C3, C4, C5, C6, D3, D4, E5, E6, E7 |
 | **Baja**    | B8, B9, B10, B11, C7, C8, D5, D6, D7, E8               |
 | **Info**    | B12                                                    |
