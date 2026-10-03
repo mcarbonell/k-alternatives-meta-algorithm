@@ -29,6 +29,9 @@ Thumbs.db
 .zenflow/
 temp_kp/
 old-k-search/
+legacy/
+tsplib/
+tsplib-json/
 
 # Local-only documentation (drafts, transcripts, third-party PDFs)
 docs/private/

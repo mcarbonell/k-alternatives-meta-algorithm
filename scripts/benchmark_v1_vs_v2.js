@@ -3,7 +3,6 @@
  * Reasonable parameters for N^k complexity.
  */
 
-import performance from 'node:perf_hooks';
 import KAlternativesV2 from '../src/k-alternatives-v2.js';
 
 function createTSPProblem(size, seed = 42) {

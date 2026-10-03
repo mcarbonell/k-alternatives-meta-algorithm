@@ -9,6 +9,7 @@ import { TSPSolver } from '../src/tsp-solver.js';
 import { loadTSPJSON } from '../src/parsers/tsp-json-parser.js';
 import fs from 'fs';
 import path from 'path';
+import url from 'url';
 
 // Legacy TSPLIB Parser (for .tsp files)
 function parseTSPFile(content) {
@@ -416,6 +417,6 @@ Ejemplos:
 export { solveTSP, runBenchmark };
 
 // Run CLI if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === url.pathToFileURL(process.argv[1]).href) {
     main();
 }

@@ -20,7 +20,7 @@ npm install -g k-alternatives-tsp
 
 ```bash
 # Usar Node.js directamente
-node k-alternatives-cli.js tsplib/berlin52.tsp
+node scripts/k-alternatives-cli.js tsplib/berlin52.tsp
 
 # Si está instalado globalmente
 k-alternatives tsplib/berlin52.tsp
@@ -42,7 +42,7 @@ npm run benchmark:fast
 npm run benchmark:thorough
 
 # Benchmark personalizado
-node benchmark.js [conjunto] [configuración]
+node scripts/benchmark.js [conjunto] [configuración]
 ```
 
 ## ⚙️ Opciones de Línea de Comandos
@@ -50,7 +50,7 @@ node benchmark.js [conjunto] [configuración]
 ### Opciones del solver
 
 ```bash
-node k-alternatives-cli.js <archivo.tsp> [opciones]
+node scripts/k-alternatives-cli.js <archivo.tsp> [opciones]
 
 Opciones:
   --maxK N         Máximo valor de K (default: log(n))
@@ -77,7 +77,7 @@ Opciones:
 ### 1. Resolver berlin52 con configuración personalizada
 
 ```bash
-node k-alternatives-cli.js tsplib/berlin52.tsp --maxK 5 --debug
+node scripts/k-alternatives-cli.js tsplib/berlin52.tsp --maxK 5 --debug
 ```
 
 Salida esperada:

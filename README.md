@@ -127,7 +127,7 @@ future searches to exploit learned knowledge at minimal cost.
   creating a "memory" of good decisions.
 - **TSP Solver:**
     - Supports TSPLIB format (EUC_2D, GEO, EXPLICIT matrices).
-    - Visualizer included (`index-legacy.html`).
+    - Visualizer included (`public/index-legacy.html`).
     - Consistently finds solutions within **2-3% of the optimal** for
       medium-sized problems (N=50-100).
 - **Knapsack Solver:**
@@ -265,23 +265,27 @@ full report: 👉
 
 ```bash
 # Run the Knapsack Benchmark (Pisinger instances)
-node knapsack-benchmark-real.js
+node scripts/knapsack-benchmark-real.js
 
 # Run the TSP Statistical Analysis
-node tsp-stats.js
+node scripts/tsp-stats.js
 ```
 
 ### Visualizer
 
-Open `index-legacy.html` in a modern browser to watch the TSP solver in action.
+Open `public/index-legacy.html` in a modern browser to watch the TSP solver in
+action.
 
 ## 📂 Project Structure
 
-- `k-optimizer.js`: The abstract base class containing the meta-heuristic logic.
-- `tsp-solver.js`: Specific implementation for the Traveling Salesperson
+- `src/k-optimizer.js`: The abstract base class containing the meta-heuristic
+  logic.
+- `src/tsp-solver.js`: Specific implementation for the Traveling Salesperson
   Problem.
-- `knapsack-solver.js`: Specific implementation for the 0/1 Knapsack Problem.
-- `knapsack-loader.js`: Parser for Pisinger/OR-Library benchmark files.
+- `src/knapsack-solver.js`: Specific implementation for the 0/1 Knapsack
+  Problem.
+- `src/parsers/knapsack-loader.js`: Parser for Pisinger/OR-Library benchmark
+  files.
 - `tsplib-json/`: Directory containing pre-parsed TSPLIB instances in JSON
   format.
 - `docs/`: Full documentation. Start at the index:

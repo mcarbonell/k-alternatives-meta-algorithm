@@ -60,6 +60,7 @@ export default [
             'temp_kp/**',
             'results/**',
             '*.spec.js', // Test files may have different rules
+            'legacy/**',
             'benchmark-results*.json',
             'competitive-benchmark*.json',
             'unified-benchmark*.json',

@@ -126,7 +126,7 @@ class KDeviationOptimizer {
      * @param {number} currentCost - The incremental cost calculated so far
      * @returns {boolean} True if the branch can be pruned
      */
-    canPrune(partialSolution, currentCost) {
+    canPrune(_partialSolution, _currentCost) {
         return false;
     }
 
@@ -137,7 +137,7 @@ class KDeviationOptimizer {
      * @param {*} nextItem - The item being added
      * @returns {number} The incremental cost
      */
-    getIncrementalCost(partialSolution, nextItem) {
+    getIncrementalCost(_partialSolution, _nextItem) {
         return 0;
     }
 

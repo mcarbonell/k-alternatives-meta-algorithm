@@ -65,7 +65,7 @@ class KnapsackSolver extends KDeviationOptimizer {
      * @param {number} unvisitedCount - Number of remaining items
      * @returns {Array<number>} Available items sorted by ratio
      */
-    getHeuristicChoices(currentItem, unvisited, unvisitedCount) {
+    getHeuristicChoices(_currentItem, unvisited, _unvisitedCount) {
         // In Knapsack, the "next best choice" does NOT depend on the "current item".
         // It simply depends on the Global Heuristic (Efficiency Ratio).
         // We iterate through our global sorted list and return valid candidates that are in 'unvisited'.

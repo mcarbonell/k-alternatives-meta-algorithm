@@ -19,8 +19,13 @@ const CONFIG = {
 
 // ===== ANALYZER =====
 class LocalMinimaAnalyzer {
-    constructor() {
+    constructor(options = {}) {
+        this.config = { ...CONFIG, ...options };
         this.results = {};
+    }
+
+    get analysis() {
+        return this.results;
     }
 
     async runSingle(problemData, maxK, timeLimit) {
@@ -29,7 +34,7 @@ class LocalMinimaAnalyzer {
                 maxK,
                 maxTime: timeLimit,
                 stopAtOptimal: false,
-                shuffle: CONFIG.shuffle,
+                shuffle: this.config.shuffle,
                 onSolution: (result) => resolve(result),
                 onMaxTimeReached: (result) => resolve(result),
             });
@@ -110,15 +115,15 @@ class LocalMinimaAnalyzer {
 
         const kResults = {};
 
-        for (const k of CONFIG.kValues) {
-            console.log(`\n  K=${k}: ${CONFIG.runsPerK} runs...`);
+        for (const k of this.config.kValues) {
+            console.log(`\n  K=${k}: ${this.config.runsPerK} runs...`);
 
             const results = [];
             const startTime = Date.now();
 
-            for (let i = 0; i < CONFIG.runsPerK; i++) {
+            for (let i = 0; i < this.config.runsPerK; i++) {
                 if (i % 10 === 0) process.stdout.write(`.`);
-                const result = await this.runSingle(problemData, k, CONFIG.timeLimit);
+                const result = await this.runSingle(problemData, k, this.config.timeLimit);
                 const dist = result.bestDistance || result.distance;
                 results.push(dist);
             }
@@ -133,6 +138,15 @@ class LocalMinimaAnalyzer {
         return kResults;
     }
 
+    async runFullAnalysis() {
+        for (const problem of this.config.problems) {
+            await this.analyzeProblem(problem);
+        }
+        this.printResults();
+        this.generateReport();
+        return this.results;
+    }
+
     printResults() {
         console.log(`\n${'═'.repeat(70)}`);
         console.log('  RESUMEN GENERAL');
@@ -142,7 +156,7 @@ class LocalMinimaAnalyzer {
         console.log('\n  K | Avg Success | Avg Gap | Avg Unique Minima');
         console.log('  --|-------------|---------|-----------------');
 
-        for (const k of CONFIG.kValues) {
+        for (const k of this.config.kValues) {
             let totalSuccess = 0,
                 totalGap = 0,
                 totalUnique = 0,
@@ -159,11 +173,11 @@ class LocalMinimaAnalyzer {
                     totalUnique / count
                 )
                     .toString()
-                    .padStart(15)}`
+                    .padStart(17)}`
             );
         }
 
-        // Per-problem detail
+        // Detailed problem results
         for (const [problemName, pd] of Object.entries(this.results)) {
             console.log(`\n${'─'.repeat(70)}`);
             console.log(`  ${problemName} (N=${pd.n}, Optimal=${pd.optimal})`);
@@ -173,13 +187,13 @@ class LocalMinimaAnalyzer {
             console.log('\n    K | Unique | Success | Avg Gap | Best | Close<2% | Top Minima');
             console.log('    --|--------|---------|---------|------|----------|-----------');
 
-            for (const k of CONFIG.kValues) {
+            for (const k of this.config.kValues) {
                 const r = pd.kResults[k];
                 const top3 = r.sorted
                     .slice(0, 3)
                     .map((m) => {
                         const gap = (((m.value - pd.optimal) / pd.optimal) * 100).toFixed(2);
-                        return `${m.value}(${m.pct}%)`;
+                        return `${m.value} (+${gap}%, ${m.pct}%)`;
                     })
                     .join(', ');
 
@@ -190,13 +204,17 @@ class LocalMinimaAnalyzer {
 
             // Gap distribution for each K
             console.log('\n    Gap Distribution:');
-            for (const k of CONFIG.kValues) {
+            for (const k of this.config.kValues) {
                 const r = pd.kResults[k];
                 console.log(`\n      K=${k}:`);
                 Object.entries(r.buckets).forEach(([label, count]) => {
-                    const pct = (count / r.optimalCount + r.unique ? CONFIG.runsPerK : 1) * 100; // simplified
-                    const bar = '█'.repeat(Math.max(0, Math.round((count / CONFIG.runsPerK) * 40)));
-                    console.log(`        ${label.padEnd(10)} ${bar} ${count}/${CONFIG.runsPerK}`);
+                    const pct = ((count / this.config.runsPerK) * 100).toFixed(1);
+                    const bar = '█'.repeat(
+                        Math.max(0, Math.round((count / this.config.runsPerK) * 40))
+                    );
+                    console.log(
+                        `        ${label.padEnd(10)} ${bar} ${count}/${this.config.runsPerK} (${pct}%)`
+                    );
                 });
             }
         }
@@ -213,7 +231,7 @@ class LocalMinimaAnalyzer {
         const report = {
             title: 'k-Alternatives Local Minima Analysis',
             timestamp: new Date().toISOString(),
-            config: CONFIG,
+            config: this.config,
             problems: this.results,
         };
 
@@ -222,15 +240,15 @@ class LocalMinimaAnalyzer {
         // Markdown report
         let md = `# k-Alternatives: Análisis de Mínimos Locales\n\n`;
         md += `## Configuración\n`;
-        md += `- Problemas: ${CONFIG.problems.join(', ')}\n`;
-        md += `- K values: ${CONFIG.kValues.join(', ')}\n`;
-        md += `- Runs por K: ${CONFIG.runsPerK}\n\n`;
+        md += `- Problemas: ${this.config.problems.join(', ')}\n`;
+        md += `- K values: ${this.config.kValues.join(', ')}\n`;
+        md += `- Runs por K: ${this.config.runsPerK}\n\n`;
 
         md += `## Resumen Cross-Problema\n\n`;
         md += `| K | Éxito Promedio | Gap Promedio | Mínimos Únicos |\n`;
         md += `|---|---|---|---|\n`;
 
-        for (const k of CONFIG.kValues) {
+        for (const k of this.config.kValues) {
             let totalSuccess = 0,
                 totalGap = 0,
                 totalUnique = 0,
@@ -250,7 +268,7 @@ class LocalMinimaAnalyzer {
             md += `### ${problemName} (N=${pd.n}, Óptimo=${pd.optimal})\n\n`;
             md += `| K | Únicos | Éxito | Gap | Mejor | Cerca<2% |\n`;
             md += `|---|---|---|---|---|---|\n`;
-            for (const k of CONFIG.kValues) {
+            for (const k of this.config.kValues) {
                 const r = pd.kResults[k];
                 md += `| ${k} | ${r.unique} | ${r.successRate.toFixed(1)}% | ${Math.abs(r.avgGap).toFixed(2)}% | ${r.best} | ${r.closeToOptimal} |\n`;
             }
@@ -277,15 +295,17 @@ async function main() {
     console.log(`Problemas: ${CONFIG.problems.join(', ')}\n`);
 
     const analyzer = new LocalMinimaAnalyzer();
-
-    for (const problem of CONFIG.problems) {
-        await analyzer.analyzeProblem(problem);
-    }
-
-    analyzer.printResults();
-    analyzer.generateReport();
+    await analyzer.runFullAnalysis();
 
     console.log(`\n✅ Análisis completo!`);
 }
 
-main().catch(console.error);
+if (
+    process.argv[1] &&
+    (process.argv[1].endsWith('local-minima-analysis.js') ||
+        process.argv[1].endsWith('local-minima-analysis'))
+) {
+    main().catch(console.error);
+}
+
+export { LocalMinimaAnalyzer, CONFIG };

@@ -13,7 +13,7 @@ npm install
 ## Quick Example: TSP
 
 ```javascript
-import { TSPSolver } from './tsp-solver.js';
+import { TSPSolver } from './src/tsp-solver.js';
 import fs from 'fs';
 
 // Load a TSP problem
@@ -45,7 +45,7 @@ console.log(`Deviation: ${result.deviation}%`);
 ## Quick Example: Knapsack
 
 ```javascript
-import { KnapsackSolver } from './knapsack-solver.js';
+import { KnapsackSolver } from './src/knapsack-solver.js';
 
 const problem = {
     name: 'MyKnapsack',
@@ -75,7 +75,7 @@ console.log(`Best value: ${result.value}`);
 
 ```bash
 # Solve a TSP file
-node k-alternatives-cli.js -f tsplib-json/berlin52.json -k 3 -t 10
+node scripts/k-alternatives-cli.js -f tsplib-json/berlin52.json -k 3 -t 10
 
 # Run benchmarks
 npm run benchmark:tiny      # Fast (~15s)
@@ -107,16 +107,21 @@ npm run test:watch # Watch mode
 
 ```
 k-alternatives/
-├── k-optimizer.js       # Core meta-heuristic (base class)
-├── tsp-solver.js       # TSP implementation
-├── knapsack-solver.js  # Knapsack implementation
-├── benchmark.*.js      # Benchmark scripts
-├── tsplib-json/        # TSP benchmark problems
-└── .github/workflows/  # CI configuration
+├── src/
+│   ├── k-optimizer.js       # Core meta-heuristic (base class)
+│   ├── tsp-solver.js        # TSP implementation
+│   ├── knapsack-solver.js   # Knapsack implementation
+│   └── parsers/             # Parsers for TSPLIB & Knapsack
+├── scripts/                 # Benchmark & CLI tools
+├── tests/                   # Vitest test suite
+├── tsplib-json/             # TSP benchmark problems
+└── .github/workflows/       # CI configuration
 ```
 
 ## Next Steps
 
 - See [README.md](./README.md) for algorithm details
-- Check [PLAN.md](./PLAN.md) for development roadmap
+- Check
+  [docs/auditoria-y-plan-remediacion.md](./docs/auditoria-y-plan-remediacion.md)
+  for development roadmap
 - Run `npm run benchmark:tiny` to test the algorithm
