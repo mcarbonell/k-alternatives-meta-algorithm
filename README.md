@@ -2,10 +2,15 @@
 
 ![k-Alternatives Hero](hero.svg)
 
-**Repository:**
-[https://github.com/mcarbonell/k-alternatives-meta-algorithm](https://github.com/mcarbonell/k-alternatives-meta-algorithm)
+[![Paper PDF](https://img.shields.io/badge/Paper-PDF-purple.svg)](paper/paper.pdf)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-86%20passed-brightgreen.svg)](tests/)
 
-**Author:** Mario Raúl Carbonell Martínez
+📄 **Academic Paper:**
+[**$k$-Alternatives: A Discrepancy-Bounded Constructive Meta-Heuristic with Online Heuristic Reordering (PDF)**](paper/paper.pdf)
+| [LaTeX Source](paper/paper.tex)  
+✍️ **Author:** Mario Raúl Carbonell Martínez
+([marioraulcarbonell@gmail.com](mailto:marioraulcarbonell@gmail.com))
 
 **k-Alternatives** is a stochastic search algorithm designed to optimize
 combinatorial problems by exploring controlled deviations from a heuristic
@@ -314,6 +319,9 @@ action.
   Problem.
 - `src/parsers/knapsack-loader.js`: Parser for Pisinger/OR-Library benchmark
   files.
+- `paper/`: Academic manuscript in LaTeX ([`paper.tex`](paper/paper.tex)),
+  BibTeX references ([`references.bib`](paper/references.bib)), and compiled
+  preprint ([`paper.pdf`](paper/paper.pdf)).
 - `tsplib-json/`: Directory containing pre-parsed TSPLIB instances in JSON
   format.
 - `docs/`: Full documentation. Start at the index:
@@ -329,6 +337,21 @@ action.
       anchors.
     - `docs/propuesta-integracion-redes-neuronales.md`: Design proposal for
       neural integration paths (Vías A/B/C/D) plus a roadmap.
+
+## 📖 Citation
+
+If you find this algorithm, mathematical derivation, or benchmarks useful in
+your research, please cite:
+
+```bibtex
+@article{carbonell2026kalternatives,
+  title   = {k-Alternatives: A Discrepancy-Bounded Constructive Meta-Heuristic with Online Heuristic Reordering for Combinatorial Optimization},
+  author  = {Carbonell Mart{\'i}nez, Mario Ra{\'u}l},
+  year    = {2026},
+  journal = {Preprint},
+  url     = {https://github.com/mcarbonell/k-alternatives-meta-algorithm}
+}
+```
 
 ## 🙌 Acknowledgments
 
