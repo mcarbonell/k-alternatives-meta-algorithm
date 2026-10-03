@@ -27,6 +27,9 @@ class KDeviationOptimizer {
      * @param {boolean} [options.shuffle=true] - Whether to randomize starting points
      * @param {boolean} [options.maximize=false] - If true, maximize value (e.g. Knapsack). Default minimizes (e.g. TSP).
      * @param {number|null} [options.seed=null] - Random seed for reproducible PRNG. Null for Math.random.
+     * @param {boolean} [options.learning=true] - Whether to adapt/reorder candidate heuristics upon improvement (MTF)
+     * @param {boolean} [options.multiStart=true] - Whether to explore multiple starting points
+     * @param {boolean} [options.adaptiveSchedule=true] - Whether to repeat search at current K upon improvement
      */
     constructor(options = {}) {
         this.options = {
@@ -43,6 +46,9 @@ class KDeviationOptimizer {
             shuffle: options.shuffle !== false,
             maximize: options.maximize || false,
             seed: options.seed ?? null,
+            learning: options.learning !== false,
+            multiStart: options.multiStart !== false,
+            adaptiveSchedule: options.adaptiveSchedule !== false,
         };
 
         this.rng = this.createRNG(this.options.seed);
@@ -57,6 +63,7 @@ class KDeviationOptimizer {
         this.iteration = 0;
         this.improvements = 0;
         this.currentK = 0;
+        this.nodesExpanded = 0;
         this.isRunning = false;
         this.startTime = null;
         this.optimalFoundTime = null;
@@ -189,7 +196,9 @@ class KDeviationOptimizer {
             this.improvements++;
             this.bestValue = solutionValue;
             this.bestSolution = [...solution];
-            this.updateHeuristics(this.bestSolution);
+            if (this.options.learning !== false) {
+                this.updateHeuristics(this.bestSolution);
+            }
 
             if (this.options.onImprovement) {
                 this.options.onImprovement(this.getStats());
@@ -234,6 +243,7 @@ class KDeviationOptimizer {
         depth = 0
     ) {
         if (!this.isRunning) return;
+        this.nodesExpanded++;
 
         const MAX_DEPTH = 10000;
         if (depth > MAX_DEPTH) return;
@@ -287,10 +297,11 @@ class KDeviationOptimizer {
         const improvementsBeforeK = this.improvements;
 
         // Create the execution order of starting items.
-        // If shuffle is true (default), we randomize to explore diverse starting points (good for TSP).
-        // If shuffle is false, we stick to the order provided in this.allItems (good for Knapsack/Greedy).
-        const order = [...Array(this.allItems.length).keys()];
-        if (this.options.shuffle) {
+        // If multiStart is false, evaluate from single start item (item 0).
+        // If shuffle is true (default), randomize to explore diverse starting points.
+        const order =
+            this.options.multiStart === false ? [0] : [...Array(this.allItems.length).keys()];
+        if (this.options.multiStart !== false && this.options.shuffle) {
             this.shuffle(order);
         }
 
@@ -315,8 +326,13 @@ class KDeviationOptimizer {
         }
 
         // If improvements were made at this K level, repeat the search for the same K
-        // with a new random shuffle of starting points (ONLY if shuffling is enabled).
-        if (this.improvements > improvementsBeforeK && this.isRunning && this.options.shuffle) {
+        // with a new random shuffle of starting points (ONLY if shuffling and adaptive schedule are enabled).
+        if (
+            this.improvements > improvementsBeforeK &&
+            this.isRunning &&
+            this.options.shuffle &&
+            this.options.adaptiveSchedule !== false
+        ) {
             setTimeout(() => this.solve(), 0);
             return;
         }
@@ -359,6 +375,7 @@ class KDeviationOptimizer {
         this.iteration = 0;
         this.improvements = 0;
         this.currentK = 0;
+        this.nodesExpanded = 0;
         this.optimalFoundTime = null;
         this.limitReached = null;
         this.isRunning = true;
@@ -440,6 +457,7 @@ class KDeviationOptimizer {
                 ? ((this.optimalValue - this.bestValue) / this.optimalValue) * 100
                 : ((this.bestValue - this.optimalValue) / this.optimalValue) * 100;
         }
+        const elapsedTimeMs = this.startTime ? Date.now() - this.startTime : 0;
         return {
             iteration: this.iteration,
             improvements: this.improvements,
@@ -447,7 +465,10 @@ class KDeviationOptimizer {
             currentK: this.currentK,
             optimalValue: this.optimalValue,
             deviation: deviation,
-            elapsedTime: this.startTime ? Math.floor((Date.now() - this.startTime) / 1000) : 0,
+            elapsedTime: Math.floor(elapsedTimeMs / 1000),
+            elapsedTimeMs: elapsedTimeMs,
+            timeMs: elapsedTimeMs,
+            nodesExpanded: this.nodesExpanded,
             isRunning: this.isRunning,
         };
     }
@@ -457,7 +478,8 @@ class KDeviationOptimizer {
      * @returns {Object} Final result including distance, iterations, time, etc.
      */
     getFinalResult() {
-        const totalTime = Math.floor((Date.now() - this.startTime) / 1000);
+        const elapsedTimeMs = this.startTime ? Date.now() - this.startTime : 0;
+        const totalTime = Math.floor(elapsedTimeMs / 1000);
         let deviation = null;
         if (this.optimalValue !== null && this.optimalValue !== undefined) {
             deviation = this.options.maximize
@@ -472,10 +494,54 @@ class KDeviationOptimizer {
             optimal: this.optimalValue,
             deviation: deviation !== null ? parseFloat(deviation.toFixed(2)) : null,
             totalTime: totalTime,
+            elapsedTimeMs: elapsedTimeMs,
+            timeMs: elapsedTimeMs,
             iterations: this.iteration,
+            nodesExpanded: this.nodesExpanded,
             route: this.bestSolution,
             limitReached: this.limitReached,
         };
+    }
+
+    /**
+     * Solves the problem asynchronously and returns a Promise resolving to the final result.
+     * @param {Object} problemData - Problem data to solve
+     * @returns {Promise<Object>} Final result
+     */
+    solveAsync(problemData) {
+        return new Promise((resolve, reject) => {
+            const originalOnSolution = this.options.onSolution;
+            const originalOnMaxTime = this.options.onMaxTimeReached;
+            const originalOnMaxIter = this.options.onMaxIterationsReached;
+
+            let resolved = false;
+            const handleFinish = (result) => {
+                if (resolved) return;
+                resolved = true;
+                resolve(result);
+            };
+
+            this.options.onSolution = (result) => {
+                if (originalOnSolution) originalOnSolution(result);
+                handleFinish(result);
+            };
+
+            this.options.onMaxTimeReached = (result) => {
+                if (originalOnMaxTime) originalOnMaxTime(result);
+                handleFinish(result);
+            };
+
+            this.options.onMaxIterationsReached = (result) => {
+                if (originalOnMaxIter) originalOnMaxIter(result);
+                handleFinish(result);
+            };
+
+            try {
+                this.start(problemData);
+            } catch (err) {
+                reject(err);
+            }
+        });
     }
 
     /**

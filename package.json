@@ -2,7 +2,13 @@
   "name": "k-alternatives-benchmark",
   "version": "1.0.0",
   "description": "Comprehensive benchmark suite for k-alternatives meta-heuristic algorithm",
-  "main": "scripts/run-all-benchmarks.js",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./baselines": "./src/baselines.js",
+    "./tsp": "./src/tsp-solver.js",
+    "./knapsack": "./src/knapsack-solver.js"
+  },
   "type": "module",
   "scripts": {
     "lint": "eslint .",
@@ -10,6 +16,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "npm run lint && npm run format:check",
+    "baselines": "node scripts/baselines.js",
+    "ablation": "node scripts/ablation.js",
     "benchmark": "node scripts/run-all-benchmarks.js",
     "benchmark:quick": "node scripts/competitive-benchmark.js quick",
     "benchmark:tiny": "node scripts/competitive-benchmark.js tiny",
