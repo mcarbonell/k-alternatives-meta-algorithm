@@ -94,9 +94,10 @@ Table~\ref{tab:lineage} summarizes how $k$-Alternatives relates to and differs f
 \begin{table}[htbp]
 \centering
 \small
-\caption{Algorithmic Lineage and Comparison with $k$-Alternatives.}
+\caption{\textbf{Algorithmic Lineage and Comparison with $k$-Alternatives.}}
 \label{tab:lineage}
-\begin{tabular}{@{}llll@{}}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llll}
 \toprule
 \textbf{Framework} & \textbf{Core Primitive} & \textbf{Heuristic State} & \textbf{Key Distinction} \\ \midrule
 LDS~\citep{harvey1995limited} & Tree discrepancy budget & Static / Fixed & Pure tree search; no learning or multi-start \\
@@ -106,6 +107,7 @@ LRTA*~\citep{korf1990real} & Real-time value update & Dynamic (Tabular) & State 
 ILS~\citep{lourenco2003iterated} & Perturbation + Local search & Solution memory & Post-hoc edge moves; no constructive LDS \\
 \textbf{$k$-Alternatives} & \textbf{LDS + MTF + Multi-Start} & \textbf{Dynamic (Online)} & \textbf{Coupled restart schedule + Mirror Descent bridge} \\ \bottomrule
 \end{tabular}
+}
 \end{table}
 
 % -----------------------------------------------------------------------------
@@ -232,9 +234,10 @@ Table~\ref{tab:baselines} compares $k$-Alternatives against five classical heuri
 \begin{table}[htbp]
 \centering
 \small
-\caption{Controlled Comparison Across Classical Baselines on TSPLIB Instances.}
+\caption{\textbf{Controlled Comparison Across Classical Baselines on TSPLIB Instances.}}
 \label{tab:baselines}
-\begin{tabular}{@{}lrrrrrr@{}}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccccc}
 \toprule
 \textbf{Instance} & \textbf{NN (Single)} & \textbf{MS-NN} & \textbf{2-Opt (on NN)} & \textbf{MS 2-Opt} & \textbf{SA (2-Opt)} & \textbf{$k$-Alt ($k=3$)} \\ \midrule
 `bays29` ($N=29$)   & 11.78\% & 5.64\% & 2.18\% & \textbf{0.00\%} & 0.40\% & \textbf{0.30\%} \\
@@ -242,6 +245,7 @@ Table~\ref{tab:baselines} compares $k$-Alternatives against five classical heuri
 `berlin52` ($N=52$) & 19.07\% & 8.47\% & 5.64\% & \textbf{0.00\%} & 7.45\% & \textbf{2.74\%} \\
 `st70` ($N=70$)     & 22.96\% & 17.93\% & 2.37\% & 1.63\% & 12.15\% & \textbf{1.04\%} \\ \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \textbf{Analysis:} While pure Nearest Neighbor exhibits poor solution quality (gaps exceeding 19--22\%), $k$-Alternatives systematically brings the gap down to 0.3\%--2.7\%. On `st70`, $k$-Alternatives achieves a gap of 1.04\%, outperforming both single-start 2-opt (2.37\%) and multi-start 2-opt (1.63\%).
@@ -261,9 +265,10 @@ Table~\ref{tab:ablation} presents the ablation results across representative ins
 \begin{table}[htbp]
 \centering
 \small
-\caption{Systematic Component Ablation Study ($k=3$, Seed 42).}
+\caption{\textbf{Systematic Component Ablation Study ($k=3$, Seed 42).}}
 \label{tab:ablation}
-\begin{tabular}{@{}llrrrr@{}}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llcccc}
 \toprule
 \textbf{Configuration} & \textbf{Component Tested} & \textbf{`bays29` Gap} & \textbf{`st70` Gap} & \textbf{Mean $\Delta\text{Gap}$} & \textbf{Conclusion} \\ \midrule
 Full $k$-Alternatives & Baseline & 0.30\% & 1.04\% & $0.00\%$ & Reference recipe \\
@@ -272,6 +277,7 @@ Ablation: Single-Start & Root diversity & 0.40\% & 6.81\% & \textbf{+2.27\%} & M
 Ablation: Fixed Sched. & Adaptive schedule & 0.30\% & 3.41\% & \textbf{+1.14\%} & Repeat schedule deepens search \\
 Ablation: Bare LDS & Full synergy & 2.62\% & 12.74\% & \textbf{+7.70\%} & Severe synergy penalty \\ \bottomrule
 \end{tabular}
+}
 \end{table}
 
 The ablation results provide unequivocal empirical evidence: removing candidate learning via MTF degrades the optimality gap by $+2.01\%$, removing multi-start root exploration degrades it by $+2.27\%$, and removing the adaptive schedule degrades it by $+1.14\%$. Stripping all three components (Bare LDS) degrades the gap by $+7.70\%$, proving that the components act synergistically.
@@ -282,9 +288,10 @@ To guarantee statistical rigor, we evaluated $R=20$ independent seeded runs per 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Statistical Significance Tests with 95\% Confidence Intervals ($R=20$).}
+\caption{\textbf{Statistical Significance Tests with 95\% Confidence Intervals ($R=20$).}}
 \label{tab:stats}
-\begin{tabular}{@{}llcccl@{}}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llcccl}
 \toprule
 \textbf{Instance} & \textbf{Algorithm} & \textbf{Mean Gap $\pm$ 95\% CI} & \textbf{Welch $t$} & \textbf{$p$-value} & \textbf{Holm-Bonferroni} \\ \midrule
 `bays29` & $k$-Alternatives ($k=3$) & \textbf{0.15\% $\pm$ 0.12\%} & --- & --- & Baseline \\
@@ -294,6 +301,7 @@ To guarantee statistical rigor, we evaluated $R=20$ independent seeded runs per 
          & Multi-Start NN & 17.93\% $\pm$ 0.00\% & -184.2 & $4.1 \times 10^{-12}$ & Significant ($p < 0.001$) \\
          & Multi-Start 2-Opt & 1.63\% $\pm$ 0.00\% & -5.61 & $2.8 \times 10^{-4}$ & Significant ($p < 0.01$) \\ \bottomrule
 \end{tabular}
+}
 \end{table}
 
 On both instances, $k$-Alternatives demonstrates statistically significant superiority over Multi-Start NN ($p < 10^{-7}$). On `st70`, $k$-Alternatives also achieves a statistically significant improvement over Multi-Start 2-opt ($p = 0.00028$).
@@ -304,9 +312,10 @@ To ensure that performance does not reflect overfitting to small instances, the 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Hold-Out Generalization on Unseen Instances (Frozen Defaults: $k=3$, $C=20$).}
+\caption{\textbf{Hold-Out Generalization on Unseen Instances (Frozen Defaults: $k=3$, $C=20$).}}
 \label{tab:holdout}
-\begin{tabular}{@{}lrrrrr@{}}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccc}
 \toprule
 \textbf{Hold-Out Instance} & \textbf{Dimension ($N$)} & \textbf{Known Optimal} & \textbf{Best Distance} & \textbf{Optimality Gap} & \textbf{Time (ms)} \\ \midrule
 `st70`    & 70  & 675    & 682    & \textbf{1.04\%} & 1200 \\
@@ -314,6 +323,7 @@ To ensure that performance does not reflect overfitting to small instances, the 
 `kroA100` & 100 & 21282  & 21808  & \textbf{2.47\%} & 1200 \\
 `bier127` & 127 & 118282 & 122008 & \textbf{3.15\%} & 1200 \\ \bottomrule
 \end{tabular}
+}
 \end{table}
 
 The optimality gap scales smoothly with problem dimension, remaining within 1.0\%--3.2\% across all unseen instances.
@@ -328,9 +338,10 @@ Table~\ref{tab:complexity} displays the scaling of nodes and the empirical pruni
 \begin{table}[htbp]
 \centering
 \small
-\caption{Empirical Node Complexity vs. Theoretical Upper Bound (`bays29`, $N=29$).}
+\caption{\textbf{Empirical Node Complexity vs. Theoretical Upper Bound (`bays29`, $N=29$).}}
 \label{tab:complexity}
-\begin{tabular}{@{}crrrc@{}}
+\resizebox{0.95\textwidth}{!}{
+\begin{tabular}{crrrc}
 \toprule
 \textbf{$k$} & \textbf{Nodes Expanded} & \textbf{Theoretical Bound $B$} & \textbf{Pruning Ratio (\%)} & \textbf{Time (ms)} \\ \midrule
 0 & 840 & 812 & 0.00\% & 0 \\
@@ -338,6 +349,7 @@ Table~\ref{tab:complexity} displays the scaling of nodes and the empirical pruni
 2 & 156,023 & 3,972,739 & \textbf{96.07\%} & 51 \\
 3 & 1,032,095 & 655,605,175 & \textbf{99.84\%} & 82 \\ \bottomrule
 \end{tabular}
+}
 \end{table}
 
 At $k=2$, branch-and-bound pruning eliminates $96.07\%$ of the theoretical search space. At $k=3$, the pruning ratio reaches $99.84\%$, demonstrating that partial upper-bound bounding successfully reins in exponential tree explosion.
@@ -363,14 +375,14 @@ We have introduced $k$-Alternatives, a constructive meta-heuristic combining Lim
 Future work will investigate two promising directions:
 \begin{enumerate}
     \item \textbf{Differentiable Neural Guidance:} Replacing static distance heuristic candidate lists with Graph Neural Networks (GNNs) trained end-to-end through the Mirror Descent surrogate.
-    \item \textbf{Multi-Objective Extensions:} Extending discrepancy budget allocation to multi-objective routing and packing problems.
+    \item \textbf{Multi-Objective Extensions:} Extending discrepancy budgets to multi-objective routing and packing problems.
 \end{enumerate}
 
 % -----------------------------------------------------------------------------
 \section*{Reproducibility Statement}
 % -----------------------------------------------------------------------------
-All code, benchmarks, test suites, and data are open-source under the MIT license at:
-\url{https://github.com/mcarbonell/k-alternatives-meta-algorithm}.
+All code, benchmarks, test suites, and data are open-source under the MIT license at:\\
+\url{https://github.com/mcarbonell/k-alternatives-meta-algorithm}.\\
 The entire experimental report can be regenerated with a single command:
 \texttt{npm run reproduce}.
 
