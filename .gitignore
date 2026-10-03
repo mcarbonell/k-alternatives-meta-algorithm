@@ -62,3 +62,12 @@ continuation.md
 docs/private/
 # PDFs de terceros (articulos con copyright): no redistribuir
 docs/*.pdf
+
+# LaTeX build intermediate files
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.synctex.gz

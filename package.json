@@ -20,6 +20,7 @@
     "baselines": "node scripts/baselines.js",
     "ablation": "node scripts/ablation.js",
     "reproduce": "node scripts/reproduce.js",
+    "paper:build": "node scripts/build-paper.js",
     "benchmark": "node scripts/run-all-benchmarks.js",
     "benchmark:quick": "node scripts/competitive-benchmark.js quick",
     "benchmark:tiny": "node scripts/competitive-benchmark.js tiny",

@@ -497,7 +497,7 @@ aceptación verificable.
 - [x] `npm test` en verde y `npm run lint` en verde (P2.1)
 - [x] Semántica de `k` formalizada y una única versión canónica (P2.2)
 - [x] Paquete de reproducibilidad con un comando (P1.7)
-- [ ] Manuscrito con límites explícitos (P3.1)
+- [x] Manuscrito con límites explícitos (P3.1)
 
 ---
 
