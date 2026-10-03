@@ -2,24 +2,36 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb,amsthm}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{booktabs}
-\usepackage{microtype}
 \usepackage{graphicx}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usepackage{cite}
+\usepackage{hyperref}
 \usepackage{url}
-\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\def\UrlBreaks{\do\/\do-}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[numbers]{natbib}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=green!50!black,
+    urlcolor=blue!80!black
+}
 
 \title{\textbf{$k$-Alternatives: A Discrepancy-Bounded Constructive Meta-Heuristic with Online Heuristic Reordering for Combinatorial Optimization}}
 
 \author{
-    \textbf{Mario Ra\'ul Carbonell Mart\'inez} \\
-    \texttt{mrcm@alumni.uv.es}
+  \textbf{Mario Raúl Carbonell Martínez}\thanks{Corresponding author: \texttt{marioraulcarbonell@gmail.com}.\\Code and benchmarks: \url{https://github.com/mcarbonell/k-alternatives-meta-algorithm}.} \\
+  Independent Researcher \\
+  \texttt{marioraulcarbonell@gmail.com}
 }
 
-\date{\today}
+\date{October 2026}
 
 \begin{document}
 
@@ -31,17 +43,19 @@ Greedy constructive heuristics for combinatorial optimization problems are compu
 We establish a novel theoretical bridge demonstrating that the online MTF reordering step corresponds to an \textit{Exponentiated Gradient / Mirror Descent} update with Kullback-Leibler regularization followed by discretization, where the discrepancy budget $k$ functions as a quantized temperature parameter $\tau$. Controlled empirical evaluation across standard TSPLIB instances ($N=29$ to $127$) demonstrates that $k$-Alternatives reduces optimality gaps from $>18\%$ (pure Nearest Neighbor) to $<2.5\%$, rivaling and in several cases exceeding multi-start 2-opt. Component ablations reveal that MTF reordering, multi-start exploration, and adaptive restart schedules each provide statistically significant reductions in optimality gap ($p < 0.01$, Holm-Bonferroni corrected). Furthermore, empirical branch-and-bound node measurements show pruning ratios exceeding $99.8\%$ against unpruned theoretical search tree bounds.
 \end{abstract}
 
-\textbf{Keywords:} Meta-heuristics, Limited Discrepancy Search, Combinatorial Optimization, Traveling Salesman Problem, Online Learning, Mirror Descent.
+\vspace{0.5em}
+\noindent\textbf{Keywords:} Meta-heuristics, Limited Discrepancy Search, Combinatorial Optimization, Traveling Salesman Problem, Online Learning, Mirror Descent.
 
----
-
+% -----------------------------------------------------------------------------
 \section{Introduction}
+\label{sec:intro}
+% -----------------------------------------------------------------------------
 
-Combinatorial optimization problems, epitomized by the Traveling Salesman Problem (TSP) and the Knapsack Problem (KP), are central to operations research, logistics, and computer science~\cite{applegate2006traveling}. Practical approaches generally divide into exact branch-and-bound solvers~\cite{applegate2006traveling}, local search heuristics such as 2-opt and Lin-Kernighan~\cite{croes1958method,lin1973effective}, stochastic meta-heuristics such as Simulated Annealing and Genetic Algorithms~\cite{lourenco2003iterated}, and myopic constructive heuristics such as Nearest Neighbor (NN).
+Combinatorial optimization problems, epitomized by the Traveling Salesman Problem (TSP) and the Knapsack Problem (KP), are central to operations research, logistics, and computer science~\citep{applegate2006traveling}. Practical approaches generally divide into exact branch-and-bound solvers~\citep{applegate2006traveling}, local search heuristics such as 2-opt and Lin-Kernighan~\citep{croes1958method,lin1973effective}, stochastic meta-heuristics such as Simulated Annealing and Genetic Algorithms~\citep{lourenco2003iterated}, and myopic constructive heuristics such as Nearest Neighbor (NN).
 
 Constructive greedy heuristics boast minimal computational overhead ($O(N^2)$ for TSP) and require zero hyperparameter tuning. However, their greedy choices make them vulnerable to early mistakes from which a pure forward construction cannot recover. Local search algorithms rectify suboptimal choices by iteratively perturbing complete candidate solutions, yet they demand explicit neighborhood definitions and often struggle on rugged objective landscapes.
 
-To bridge this dichotomy, Harvey and Ginsberg introduced \textit{Limited Discrepancy Search} (LDS)~\cite{harvey1995limited}, an informed tree search technique designed for constraint satisfaction and decision trees. LDS operates on the foundational premise that domain heuristics make correct decisions at most branching points, failing only occasionally. By bounding the number of ``discrepancies'' (deviations from the heuristic recommendation) by a non-negative integer $k$, LDS prioritizes search paths close to the greedy baseline.
+To bridge this dichotomy, \citet{harvey1995limited} introduced \textit{Limited Discrepancy Search} (LDS), an informed tree search technique designed for constraint satisfaction and decision trees. LDS operates on the foundational premise that domain heuristics make correct decisions at most branching points, failing only occasionally. By bounding the number of ``discrepancies'' (deviations from the heuristic recommendation) by a non-negative integer $k$, LDS prioritizes search paths close to the greedy baseline.
 
 Despite its success in tree search and constraint programming, pure LDS has rarely been adapted as a primary constructive meta-heuristic for routing and scheduling. When applied naively, LDS exhibits two notable shortcomings: (i) it relies on a static heuristic ranking that never adapts as better solutions are discovered, and (ii) it is highly sensitive to the initial root choice.
 
@@ -55,22 +69,23 @@ In this paper, we introduce \textbf{$k$-Alternatives}, a unified meta-heuristic 
 
 Furthermore, we formulate a theoretical bridge connecting the discrete MTF update to continuous \textit{Mirror Descent / Exponentiated Gradient} updates, establishing $k$ as a quantized inverse temperature parameter. Extensive empirical experiments validate the efficacy and individual contributions of each component.
 
----
-
+% -----------------------------------------------------------------------------
 \section{Related Work \& Algorithmic Lineage}
+\label{sec:related}
+% -----------------------------------------------------------------------------
 
 To contextualize $k$-Alternatives, we analyze its nearest algorithmic neighbors across search, learning, and local optimization.
 
 \subsection{Discrepancy Search in Trees and Graphs}
-Harvey and Ginsberg~\cite{harvey1995limited} established Limited Discrepancy Search for binary decision trees, proving that systematically visiting paths with $0, 1, \dots, k$ discrepancies explores the most promising regions of the state space first. Ginsberg and Harvey~\cite{ginsberg1990iterative} previously explored \textit{Iterative Broadening}, which bounds branching factors rather than total discrepancy depth. Furcy and Koenig~\cite{furcy2005limited} combined discrepancy budgets with bounded beam search in \textit{Limited Discrepancy Beam Search} (LDBS/BULB). 
+\citet{harvey1995limited} established Limited Discrepancy Search for binary decision trees, proving that systematically visiting paths with $0, 1, \dots, k$ discrepancies explores the most promising regions of the state space first. \citet{ginsberg1990iterative} previously explored \textit{Iterative Broadening}, which bounds branching factors rather than total discrepancy depth. \citet{furcy2005limited} combined discrepancy budgets with bounded beam search in \textit{Limited Discrepancy Beam Search} (LDBS/BULB). 
 
-Recently, Greco, Araneda, and Baier~\cite{greco2022focal} introduced \textit{Focal Discrepancy Search} (FDS), combining learned neural heuristics with discrepancy-bounded search for single-agent pathfinding. Crucially, in FDS the neural heuristic is pre-trained and frozen; the algorithm does not update its candidate preferences during search. In contrast, $k$-Alternatives performs online heuristic updates during constructive search without requiring offline training.
+Recently, \citet{greco2022focal} introduced \textit{Focal Discrepancy Search} (FDS), combining learned neural heuristics with discrepancy-bounded search for single-agent pathfinding. Crucially, in FDS the neural heuristic is pre-trained and frozen; the algorithm does not update its candidate preferences during search. In contrast, $k$-Alternatives performs online heuristic updates during constructive search without requiring offline training.
 
 \subsection{Online List Update and Real-Time Search}
-The Move-To-Front (MTF) rule, formalized by Sleator and Tarjan~\cite{sleator1985amortized}, achieves optimal amortized competitive ratios for online list update problems. In heuristic search, Korf's Learning Real-Time $A^*$ (LRTA*)~\cite{korf1990real} updates tabular heuristic estimates online to guarantee eventual convergence. Blum and Burch~\cite{blum1997line} and Kalai and Vempala~\cite{kalai2005geometric} connected online list updates and expert advice to continuous regularized optimization and Mirror Descent. $k$-Alternatives adopts MTF specifically to reorder candidate neighbor lists during optimization.
+The Move-To-Front (MTF) rule, formalized by \citet{sleator1985amortized}, achieves optimal amortized competitive ratios for online list update problems. In heuristic search, Korf's Learning Real-Time $A^*$ (LRTA*)~\citep{korf1990real} updates tabular heuristic estimates online to guarantee eventual convergence. \citet{blum1997line} and \citet{kalai2005geometric} connected online list updates and expert advice to continuous regularized optimization and Mirror Descent. $k$-Alternatives adopts MTF specifically to reorder candidate neighbor lists during optimization.
 
 \subsection{Iterated Local Search and Perturbation}
-Iterated Local Search (ILS)~\cite{lourenco2003iterated} alternates between local search (such as 2-opt) and randomized perturbations. While ILS operates via post-hoc moves on complete solutions, $k$-Alternatives intervenes during the \textit{construction phase}, generating complete solutions that are already globally guided by the learned discrepancy policy.
+Iterated Local Search (ILS)~\citep{lourenco2003iterated} alternates between local search (such as 2-opt) and randomized perturbations. While ILS operates via post-hoc moves on complete solutions, $k$-Alternatives intervenes during the \textit{construction phase}, generating complete solutions that are already globally guided by the learned discrepancy policy.
 
 Table~\ref{tab:lineage} summarizes how $k$-Alternatives relates to and differs from its closest algorithmic relatives.
 
@@ -82,18 +97,19 @@ Table~\ref{tab:lineage} summarizes how $k$-Alternatives relates to and differs f
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Framework} & \textbf{Core Primitive} & \textbf{Heuristic State} & \textbf{Key Distinction} \\ \midrule
-LDS~\cite{harvey1995limited} & Tree discrepancy budget & Static / Fixed & Pure tree search; no learning or multi-start \\
-BULB / LDBS~\cite{furcy2005limited} & LDS + Beam width & Static / Fixed & Memory-bounded beam; fixed heuristic \\
-FDS~\cite{greco2022focal} & LDS + Learned focal list & Frozen (Offline) & Pretrained neural net; no online adaptation \\
-LRTA*~\cite{korf1990real} & Real-time value update & Dynamic (Tabular) & State value iteration; no discrepancy budget \\
-ILS~\cite{lourenco2003iterated} & Perturbation + Local search & Solution memory & Post-hoc edge moves; no constructive LDS \\
+LDS~\citep{harvey1995limited} & Tree discrepancy budget & Static / Fixed & Pure tree search; no learning or multi-start \\
+BULB / LDBS~\citep{furcy2005limited} & LDS + Beam width & Static / Fixed & Memory-bounded beam; fixed heuristic \\
+FDS~\citep{greco2022focal} & LDS + Learned focal list & Frozen (Offline) & Pretrained neural net; no online adaptation \\
+LRTA*~\citep{korf1990real} & Real-time value update & Dynamic (Tabular) & State value iteration; no discrepancy budget \\
+ILS~\citep{lourenco2003iterated} & Perturbation + Local search & Solution memory & Post-hoc edge moves; no constructive LDS \\
 \textbf{$k$-Alternatives} & \textbf{LDS + MTF + Multi-Start} & \textbf{Dynamic (Online)} & \textbf{Coupled restart schedule + Mirror Descent bridge} \\ \bottomrule
 \end{tabular}
 \end{table}
 
----
-
+% -----------------------------------------------------------------------------
 \section{The $k$-Alternatives Meta-Heuristic}
+\label{sec:framework}
+% -----------------------------------------------------------------------------
 
 \subsection{Problem Formulation}
 Let an optimization problem be defined by a set of ground elements $V = \{0, 1, \dots, N-1\}$, a set of feasible partial solutions $\mathcal{S}$, and a cost function $f: \mathcal{S}_{\text{complete}} \to \mathbb{R}$. At any partial state $S \in \mathcal{S}$, a set of available candidate decisions $A(S) \subseteq V$ exists. An underlying domain heuristic provides a local ranking $\mathcal{H}(S) = (c_0, c_1, \dots, c_{m-1})$ of candidates in descending order of perceived promise.
@@ -133,51 +149,30 @@ Algorithm~\ref{alg:kalt} provides the complete algorithmic specification.
 \begin{algorithm}[htbp]
 \caption{$k$-Alternatives Meta-Heuristic}\label{alg:kalt}
 \begin{algorithmic}[1]
-\Require Problem instance $(V, f)$, max discrepancy $k_{\text{max}}$, time limit $T_{\text{max}}$
-\State Initialize candidate lists $L(u)$ for all $u \in V$ via greedy distance
-\State $S_{\text{best}} \leftarrow \text{GreedyConstruction}()$, $f_{\text{best}} \leftarrow f(S_{\text{best}})$
-\State $k \leftarrow 0$
-\While{$k \le k_{\text{max}}$ \textbf{and} time elapsed $< T_{\text{max}}$}
-    \State $\text{improved} \leftarrow \text{false}$
-    \State $R \leftarrow \text{Shuffle}(V)$
-    \For{$u_0 \in R$}
-        \State $\text{SearchBranch}([u_0], V \setminus \{u_0\}, k, 0)$
-    \EndFor
-    \If{$\text{improved}$}
-        \State \textbf{continue} \Comment{Re-exploit reinforced heuristics at current $k$}
-    \Else
-        \State $k \leftarrow k + 1$ \Comment{Expand search frontier}
-    \EndIf
-\EndWhile
-\State \Return $S_{\text{best}}, f_{\text{best}}$
-\Statex
-\Procedure{SearchBranch}{$S_{\text{curr}}, \text{Unvisited}, k_{\text{left}}, \text{cost}$}
-    \If{$\text{cost} \ge f_{\text{best}}$} \textbf{return} \Comment{Branch-and-bound pruning}
-    \EndIf
-    \If{$\text{Unvisited} = \emptyset$}
-        \State $f_{\text{cand}} \leftarrow f(S_{\text{curr}})$
-        \If{$f_{\text{cand}} < f_{\text{best}}$}
-            \State $S_{\text{best}} \leftarrow S_{\text{curr}}$, $f_{\text{best}} \leftarrow f_{\text{cand}}$
-            \State $\text{improved} \leftarrow \text{true}$
-            \State UpdateHeuristicsMTF($S_{\text{best}}$)
-        \EndIf
-        \State \textbf{return}
-    \EndIf
-    \State $u \leftarrow \text{Last}(S_{\text{curr}})$
-    \State $m \leftarrow 0$
-    \For{$v \in L(u)$}
-        \If{$v \in \text{Unvisited}$ \textbf{and} $m \le k_{\text{left}}$}
-            \State $\text{SearchBranch}(S_{\text{curr}} \cup [v], \text{Unvisited} \setminus \{v\}, k_{\text{left}} - m, \text{cost} + d(u, v))$
-            \State $m \leftarrow m + 1$
-        \EndIf
-    \EndFor
-\EndProcedure
+\REQUIRE Problem instance $(V, f)$, max discrepancy $k_{\text{max}}$, time limit $T_{\text{max}}$
+\STATE Initialize candidate lists $L(u)$ for all $u \in V$ via greedy distance
+\STATE $S_{\text{best}} \leftarrow \text{GreedyConstruction}()$, $f_{\text{best}} \leftarrow f(S_{\text{best}})$
+\STATE $k \leftarrow 0$
+\WHILE{$k \le k_{\text{max}}$ \textbf{and} time elapsed $< T_{\text{max}}$}
+    \STATE $\text{improved} \leftarrow \text{false}$
+    \STATE $R \leftarrow \text{Shuffle}(V)$
+    \FOR{$u_0 \in R$}
+        \STATE $\text{SearchBranch}([u_0], V \setminus \{u_0\}, k, 0)$
+    \ENDFOR
+    \IF{$\text{improved}$}
+        \STATE \textbf{continue} \COMMENT{Re-exploit reinforced heuristics at current $k$}
+    \ELSE
+        \STATE $k \leftarrow k + 1$ \COMMENT{Expand search frontier}
+    \ENDIF
+\ENDWHILE
+\RETURN $S_{\text{best}}, f_{\text{best}}$
 \end{algorithmic}
 \end{algorithm}
 
----
-
+% -----------------------------------------------------------------------------
 \section{Continuous Interpretation: Mirror Descent and Quantized Temperature}
+\label{sec:continuous}
+% -----------------------------------------------------------------------------
 
 A key theoretical question is whether the discrete heuristic update in $k$-Alternatives can be understood through the lens of continuous optimization. In this section, we demonstrate that online Move-to-Front corresponds to an Exponentiated Gradient step, while $k$ acts as a quantized temperature parameter.
 
@@ -210,14 +205,15 @@ In $k$-Alternatives, the parameter $k$ quantifies the total allowable deviation 
 \end{equation}
 where $k=0$ corresponds to absolute zero temperature (deterministic greedy descent), and increasing $k$ systematically injects thermal exploration into the decision tree in exact discrete quanta.
 
----
-
+% -----------------------------------------------------------------------------
 \section{Empirical Evaluation}
+\label{sec:eval}
+% -----------------------------------------------------------------------------
 
 \subsection{Experimental Setup}
 Experiments were conducted on an AMD Ryzen 7 8845HS processor (16 execution threads, 64 GB RAM) running Windows 11 and Node.js v24.13.0. All algorithms were implemented within the same JavaScript codebase to ensure identical floating-point rounding, metric calculations, and data locality.
 
-The benchmark suite utilizes standard symmetric instances from TSPLIB~\cite{reinelt1991tsplib}. Following rigorous methodology, instances are divided into:
+The benchmark suite utilizes standard symmetric instances from TSPLIB~\citep{reinelt1991tsplib}. Following rigorous methodology, instances are divided into:
 \begin{itemize}
     \item \textbf{Tuning Set (Train):} `bays29` ($N=29$), `att48` ($N=48$), `berlin52` ($N=52$). Used to calibrate the default discrepancy budget $k=3$ and candidate list size $C=20$.
     \item \textbf{Hold-Out Set (Test):} `st70` ($N=70$), `pr76` ($N=76$), `kroA100` ($N=100$), `bier127` ($N=127$). Evaluated strictly with frozen defaults to verify generalization.
@@ -344,9 +340,10 @@ Table~\ref{tab:complexity} displays the scaling of nodes and the empirical pruni
 
 At $k=2$, branch-and-bound pruning eliminates $96.07\%$ of the theoretical search space. At $k=3$, the pruning ratio reaches $99.84\%$, demonstrating that partial upper-bound bounding successfully reins in exponential tree explosion.
 
----
-
+% -----------------------------------------------------------------------------
 \section{Discussion, Trade-offs, and Limitations}
+\label{sec:discussion}
+% -----------------------------------------------------------------------------
 
 \subsection{Strengths and Optimal Scenarios}
 The primary virtue of $k$-Alternatives is its high solution quality relative to implementation simplicity. It requires no parameter tuning other than $k$, has minimal memory footprint ($O(N \cdot C)$ for candidate lists), and produces routes within 1--3\% of optimality directly inside client-side or embedded JavaScript environments where deploying native solvers (e.g., Concorde or LKH) is infeasible.
@@ -354,9 +351,10 @@ The primary virtue of $k$-Alternatives is its high solution quality relative to 
 \subsection{Scalability Boundaries}
 Because the theoretical tree size scales as $O(C^k \cdot N^{k+1})$, $k$-Alternatives is computationally well-suited for instances where $N \le 500$ and $k \le 4$. For very large instances ($N > 1000$), purely constructive discrepancy search begins to suffer from search frontier dispersion. For such regimes, hybridizing $k$-Alternatives with fast local search (such as 2-opt or sub-tour patchers) represents the most promising engineering trade-off.
 
----
-
+% -----------------------------------------------------------------------------
 \section{Conclusion and Future Work}
+\label{sec:conclusion}
+% -----------------------------------------------------------------------------
 
 We have introduced $k$-Alternatives, a constructive meta-heuristic combining Limited Discrepancy Search, multi-start diversification, online Move-to-Front policy adaptation, and an adaptive restart schedule. We provided both theoretical grounding---connecting MTF updates to Exponentiated Gradient / Mirror Descent---and rigorous empirical evidence confirming that each component provides measurable, statistically significant gains on standard benchmarks.
 
@@ -366,15 +364,15 @@ Future work will investigate two promising directions:
     \item \textbf{Multi-Objective Extensions:} Extending discrepancy budget allocation to multi-objective routing and packing problems.
 \end{enumerate}
 
----
-
+% -----------------------------------------------------------------------------
 \section*{Reproducibility Statement}
+% -----------------------------------------------------------------------------
 All code, benchmarks, test suites, and data are open-source under the MIT license at:
 \url{https://github.com/mcarbonell/k-alternatives-meta-algorithm}.
 The entire experimental report can be regenerated with a single command:
 \texttt{npm run reproduce}.
 
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 \bibliography{references}
 
 \end{document}
